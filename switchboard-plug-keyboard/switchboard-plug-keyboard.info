@@ -1,0 +1,8 @@
+PRGNAM="switchboard-plug-keyboard"
+VERSION="3.1.0"
+HOMEPAGE="https://github.com/elementary/switchboard-plug-keyboard"
+DOWNLOAD="https://github.com/elementary/switchboard-plug-keyboard/archive/refs/tags/3.1.0.tar.gz"
+MD5SUM="12eb5ab783c482aa1107d00523211fdc"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

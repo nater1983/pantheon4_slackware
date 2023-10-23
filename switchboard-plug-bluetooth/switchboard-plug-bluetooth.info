@@ -1,0 +1,8 @@
+PRGNAM="switchboard-plug-bluetooth/releases"
+VERSION="2.3.6"
+HOMEPAGE="https://github.com/elementary/switchboard-plug-bluetooth/releases"
+DOWNLOAD="direct download link(s) of application source tarball(s) arch-independent or x86"
+MD5SUM="7ae6b4df241b943ed884b1fe67c28b08"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

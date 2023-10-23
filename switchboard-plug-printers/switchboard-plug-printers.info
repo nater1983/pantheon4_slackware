@@ -1,0 +1,8 @@
+PRGNAM="switchboard-plug-printers"
+VERSION="2.2.1"
+HOMEPAGE="https://github.com/elementary/switchboard-plug-printers"
+DOWNLOAD="https://github.com/elementary/switchboard-plug-printers/archive/refs/tags/2.2.1.tar.gz"
+MD5SUM="f740b7bd3af555da69002fe56b29edf9"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

@@ -1,0 +1,15 @@
+To start the services to run at boot, edit the 
+/etc/rc.d/rc.local file 
+
+# Start switcheroo-control
+if [ -x /etc/rc.d/rc.switcheroo-control ]; then
+  /etc/rc.d/rc.switcheroo-control start
+fi
+
+To stop  the service at shutdown, edit the 
+/etc/rc.d/rc.local_shutdown file
+
+# Stop switcheroo-control
+if [ -x /etc/rc.d/rc.switcheroo-control ]; then
+  /etc/rc.d/rc.switcheroo-control stop 
+fi

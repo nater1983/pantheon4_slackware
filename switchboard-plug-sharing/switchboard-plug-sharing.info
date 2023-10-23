@@ -1,0 +1,8 @@
+PRGNAM="switchboard-plug-sharing"
+VERSION="2.1.6"
+HOMEPAGE="https://github.com/elementary/switchboard-plug-sharing"
+DOWNLOAD="https://github.com/elementary/switchboard-plug-sharing/archive/refs/tags/2.1.6.tar.gz"
+MD5SUM="671673828ecb5c42badeda57b8b4f968"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

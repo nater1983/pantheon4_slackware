@@ -1,0 +1,8 @@
+PRGNAM="switchboard"
+VERSION="6.0.2"
+HOMEPAGE="https://github.com/elementary/switchboard"
+DOWNLOAD="https://github.com/elementary/switchboard/archive/refs/tags/6.0.2.tar.gz"
+MD5SUM="7f5775576d92d81b52fe88fadc704aa2"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

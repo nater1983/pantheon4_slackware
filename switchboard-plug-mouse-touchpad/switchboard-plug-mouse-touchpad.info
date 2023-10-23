@@ -1,0 +1,8 @@
+PRGNAM="switchboard-plug-mouse-touchpad"
+VERSION="7.0.0"
+HOMEPAGE="https://github.com/elementary/switchboard-plug-mouse-touchpad"
+DOWNLOAD="https://github.com/elementary/switchboard-plug-mouse-touchpad/archive/refs/tags/7.0.0.tar.gz"
+MD5SUM="d50f352f9c8b053301a9625025897b74"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

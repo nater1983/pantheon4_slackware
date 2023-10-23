@@ -1,0 +1,8 @@
+PRGNAM="switchboard-plug-locale"
+VERSION="2.5.8"
+HOMEPAGE="https://github.com/elementary/switchboard-plug-locale"
+DOWNLOAD="https://github.com/elementary/switchboard-plug-locale/archive/refs/tags/2.5.8.tar.gz"
+MD5SUM="16396da22b1a68f489c453a4527c8d26"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

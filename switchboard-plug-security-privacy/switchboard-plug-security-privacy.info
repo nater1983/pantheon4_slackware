@@ -1,0 +1,8 @@
+PRGNAM="switchboard-plug-security-privacy"
+VERSION="2.4.1"
+HOMEPAGE="https://github.com/elementary/switchboard-plug-security-privacy"
+DOWNLOAD="https://github.com/elementary/switchboard-plug-security-privacy/archive/refs/tags/2.4.1.tar.gz"
+MD5SUM="feb60afbbad30ed6ff9a0708ec9b0e5b"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"
