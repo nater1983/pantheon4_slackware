@@ -25,7 +25,7 @@
 wget -c https://github.com/elementary/gala/archive/7.1.2/gala-7.1.2.tar.gz
 
 PRGNAM=gala
-VERSION=${VERSION:-6.3.3}
+VERSION=${VERSION:-7.1.2}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
