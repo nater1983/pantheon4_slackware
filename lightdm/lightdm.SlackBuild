@@ -97,6 +97,7 @@ cp tests/src/lightdm-session $PKG/usr/bin || exit 1
 sed -i '1 s/sh/bash --login/' $PKG/usr/bin/lightdm-session || exit 1
 rm -rf /etc/init || exit 1
 
+install -dm755 $CWD/rc.4.local -t $PKG/etc/rc.d/
 install -v -dm755 -o lightdm -g lightdm $PKG/var/lib/lightdm || exit 1
 install -v -dm755 -o lightdm -g lightdm $PKG/var/lib/lightdm-data || exit 1
 install -v -dm755 -o lightdm -g lightdm $PKG/var/cache/lightdm || exit 1
