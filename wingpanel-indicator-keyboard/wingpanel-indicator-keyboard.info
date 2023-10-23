@@ -1,0 +1,8 @@
+PRGNAM="wingpanel-indicator-keyboard"
+VERSION="2.4.1"
+HOMEPAGE="https://github.com/elementary/wingpanel-indicator-keyboard"
+DOWNLOAD="https://github.com/elementary/wingpanel-indicator-keyboard/archive/refs/tags/2.4.1.tar.gz"
+MD5SUM="1b8233665fb99c72b1e798f6e19f0ca7"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

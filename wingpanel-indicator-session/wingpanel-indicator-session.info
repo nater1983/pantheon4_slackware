@@ -1,0 +1,8 @@
+PRGNAM="wingpanel-indicator-session"
+VERSION="2.3.1"
+HOMEPAGE="https://github.com/elementary/wingpanel-indicator-session"
+DOWNLOAD="https://github.com/elementary/wingpanel-indicator-session/archive/refs/tags/2.3.1.tar.gz"
+MD5SUM="5af70bdb665ddedaf5a242c1f9a4c052"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

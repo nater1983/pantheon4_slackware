@@ -1,0 +1,8 @@
+PRGNAM="wingpanel-indicator-notifications"
+VERSION="6.0.7"
+HOMEPAGE="https://github.com/elementary/wingpanel-indicator-notifications"
+DOWNLOAD="https://github.com/elementary/wingpanel-indicator-notifications/archive/refs/tags/6.0.7.tar.gz"
+MD5SUM="a2ebc1e2730fa2d41f56c499cc728358"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

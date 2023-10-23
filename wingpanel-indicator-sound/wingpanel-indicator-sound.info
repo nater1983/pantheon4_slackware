@@ -1,0 +1,8 @@
+PRGNAM="wingpanel-indicator-sound"
+VERSION="6.0.2"
+HOMEPAGE="https://github.com/elementary/wingpanel-indicator-sound"
+DOWNLOAD="https://github.com/elementary/wingpanel-indicator-sound/archive/refs/tags/6.0.2.tar.gz"
+MD5SUM="dab6a777199b4d36cfcd38edaa46f47b"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

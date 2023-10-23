@@ -1,0 +1,8 @@
+PRGNAM="wingpanel-indicator-nightlight"
+VERSION="2.1.1"
+HOMEPAGE="https://github.com/elementary/wingpanel-indicator-nightlight"
+DOWNLOAD="https://github.com/elementary/wingpanel-indicator-nightlight/archive/refs/tags/2.1.1.tar.gz"
+MD5SUM="733b45409a10b92ed32bdd1b113caebd"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"
