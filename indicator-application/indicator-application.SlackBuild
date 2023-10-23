@@ -22,6 +22,8 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+wget -c https://launchpad.net/indicator-application/12.10/12.10.0/+download/indicator-application-12.10.0.tar.gz
+
 PRGNAM=indicator-application
 VERSION=${VERSION:-12.10.0}
 BUILD=${BUILD:-1}
