@@ -22,9 +22,11 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+wget -c https://github.com/elementary/calendar/archive/7.0.0/calendar-7.0.0.tar.gz
+
 PRGNAM=elementary-calendar
 SRCNAM=calendar
-VERSION=${VERSION:-6.1.2}
+VERSION=${VERSION:-7.0.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 
@@ -61,7 +63,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $SRCNAM-$VERSION
-tar xvf $CWD/$VERSION.tar.gz
+tar xvf $CWD/$SRCNAM-$VERSION.tar.gz
 cd $SRCNAM-$VERSION
 chown -R root:root .
 find -L . \
