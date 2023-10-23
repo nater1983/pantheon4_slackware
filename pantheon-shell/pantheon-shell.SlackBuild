@@ -90,6 +90,7 @@ cd build
     --localstatedir=/var \
     --prefix=/usr \
     --sysconfdir=/etc \
+    -Dwayland=true \
     -Dfallback-session=gnome
   "${NINJA:=ninja}"
   DESTDIR=$PKG $NINJA install
