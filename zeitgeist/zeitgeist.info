@@ -1,0 +1,8 @@
+PRGNAM="zeitgeist"
+VERSION="1.0.3"
+HOMEPAGE="homepage of application"
+DOWNLOAD="https://launchpad.net/zeitgeist/1.0/1.0.3/+download/zeitgeist-1.0.3.tar.xz"
+MD5SUM="8258b5521d1f25d18f7ace3c974c5ab1"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

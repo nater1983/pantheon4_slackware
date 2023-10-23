@@ -1,0 +1,7 @@
+First, create a dedicated user and group to take control of the lightdm daemon after it is started.
+
+groupadd -g 365 lightdm       &&
+useradd  -c "Lightdm Daemon" \
+         -d /var/lib/lightdm \
+         -u 365 -g lightdm    \
+         -s /bin/false lightdm
