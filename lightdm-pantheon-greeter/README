@@ -1,0 +1,6 @@
+ls -1 /usr/share/xgreeters/
+# result
+io.elementary.greeter.desktop
+lightdm-gtk-greeter.desktop
+#
+# /etc/lightdm/lightdm.conf

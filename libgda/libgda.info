@@ -1,0 +1,8 @@
+PRGNAM="libgda"
+VERSION="5.2.10"
+HOMEPAGE="https://www.gnome-db.org"
+DOWNLOAD="https://download.gnome.org/sources/libgda/5.2/libgda-5.2.10.tar.xz"
+MD5SUM="e4b5866e78571a70953416d1dc395097"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"
