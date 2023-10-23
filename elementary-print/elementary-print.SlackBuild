@@ -22,6 +22,8 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+wget -c https://github.com/elementary/print/archive/0.1.3/print-0.1.3.tar.gz
+
 PRGNAM=elementary-print
 SRCNAM=print
 VERSION=${VERSION:-0.1.3}
@@ -61,7 +63,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $SRCNAM-$VERSION
-tar xvf $CWD/$VERSION.tar.gz
+tar xvf $CWD/$SRCNAM-$VERSION.tar.gz
 cd $SRCNAM-$VERSION
 chown -R root:root .
 find -L . \
