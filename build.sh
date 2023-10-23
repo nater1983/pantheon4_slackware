@@ -6,20 +6,6 @@ if [ ! -d ${PSB} ]; then
 fi
 
 src=(
-	libchamplain
-	elementary-tasks 
-	switchboard-plug-wacom 
-	switchboard-plug-sharing 
-	switchboard-plug-bluetooth 
-	elementary-camera 
-	elementary-calendar 
-	wingpanel-indicator-nightlight 
-	elementary-contractor 
-	elementary-print 
-	elementary-fonts 
-	wingpanel-indicator-network 
-	indicator-application 
-	lightdm 
 	lightdm-gtk-greeter 
 	lightdm-pantheon-greeter
 )
