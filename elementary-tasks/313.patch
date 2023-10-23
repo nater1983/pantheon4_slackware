@@ -1,0 +1,270 @@
+From 68e010a74242e81fa390a245ca292bd93c729d6c Mon Sep 17 00:00:00 2001
+From: Michael McClurg <michael.mcclurg@outlook.com>
+Date: Sat, 27 Nov 2021 12:29:09 -0700
+Subject: [PATCH 1/4] Use null timezone when synthesizing ICal.Times
+
+---
+ src/Widgets/TaskRow.vala | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/Widgets/TaskRow.vala b/src/Widgets/TaskRow.vala
+index 67a453f6ee..faee3d105f 100644
+--- a/src/Widgets/TaskRow.vala
++++ b/src/Widgets/TaskRow.vala
+@@ -365,7 +365,7 @@ public class Tasks.Widgets.TaskRow : Gtk.ListBoxRow {
+         unowned ICal.Component ical_task = task.get_icalcomponent ();
+ 
+         if (due_datetime_popover.value != null) {
+-            var due_icaltime = Util.date_time_to_ical (due_datetime_popover.value, due_datetime_popover.value);
++            var due_icaltime = Util.date_time_to_ical (due_datetime_popover.value, due_datetime_popover.value, null);
+             ical_task.set_due (due_icaltime);
+             ical_task.set_dtstart (due_icaltime);
+         } else {
+
+From 58068f6fe7404a65d07a5686e18906176b2333e3 Mon Sep 17 00:00:00 2001
+From: Michael McClurg <michael.mcclurg@outlook.com>
+Date: Sat, 27 Nov 2021 16:45:27 -0700
+Subject: [PATCH 2/4] Allow floating times in datetimes_to_icaltime (from
+ Calendar #653)
+
+---
+ src/Util.vala            | 47 +++++++++++++++++++++++++++++-----------
+ src/Widgets/TaskRow.vala |  2 +-
+ 2 files changed, 35 insertions(+), 14 deletions(-)
+
+diff --git a/src/Util.vala b/src/Util.vala
+index 2953b5e05d..36b76caf22 100644
+--- a/src/Util.vala
++++ b/src/Util.vala
+@@ -85,24 +85,45 @@ namespace Tasks.Util {
+     //--- Date and Time ---//
+ 
+     /**
+-     * Converts two datetimes to one TimeType. The first contains the date,
+-     * its time settings are ignored. The second one contains the time itself.
++     * Converts two DateTimes representing a date and a time to one TimeType.
++     *
++     * The first contains the date; its time settings are ignored. The second
++     * one contains the time itself; its date settings are ignored. If the time
++     * is `null`, the resulting TimeType is of `DATE` type; if it is given, the
++     * TimeType is of `DATE-TIME` type.
++     *
++     * This also accepts an optional `timezone` argument. If it is given a
++     * timezone, the resulting TimeType will be relative to the given timezone.
++     * If it is `null`, the resulting TimeType will be "floating" with no
++     * timezone. If the argument is not given, it will default to the system
++     * timezone.
+      */
+-    public ICal.Time date_time_to_ical (DateTime date, DateTime? time_local, string? timezone = null) {
+-        var result = new ICal.Time.from_day_of_year (date.get_day_of_year (), date.get_year ());
++     public ICal.Time datetimes_to_icaltime (GLib.DateTime date, GLib.DateTime? time_local,
++        ICal.Timezone? timezone = ECal.util_get_system_timezone ().copy ()) {
+ 
+-        if (time_local != null) {
+-            if (timezone != null) {
+-                result.set_timezone (ICal.Timezone.get_builtin_timezone (timezone));
+-            } else {
+-                result.set_timezone (ECal.util_get_system_timezone ());
+-            }
++        var result = new ICal.Time.from_day_of_year (date.get_day_of_year (), date.get_year ());
+ 
+-            result.set_is_date (false);
+-            result.set_time (time_local.get_hour (), time_local.get_minute (), time_local.get_second ());
+-        } else {
++        // Check if it's a date. If so, set is_date to true and fix the time to be sure.
++        // If it's not a date, first thing set is_date to false.
++        // Then, set the timezone.
++        // Then, set the time.
++        if (time_local == null) {
++            // Date type: ensure that everything corresponds to a date
+             result.set_is_date (true);
+             result.set_time (0, 0, 0);
++        } else {
++            // Includes time
++            // Set is_date first (otherwise timezone won't change)
++            result.set_is_date (false);
++
++            // Set timezone for the time to be relative to
++            // (doesn't affect DATE-type times)
++            result.set_timezone (timezone);
++
++            // Set the time with the updated time zone
++            result.set_time (time_local.get_hour (), time_local.get_minute (), time_local.get_second ());
++            debug (result.get_tzid ());
++            debug (result.as_ical_string ());
+         }
+ 
+         return result;
+diff --git a/src/Widgets/TaskRow.vala b/src/Widgets/TaskRow.vala
+index faee3d105f..2eef8ff078 100644
+--- a/src/Widgets/TaskRow.vala
++++ b/src/Widgets/TaskRow.vala
+@@ -365,7 +365,7 @@ public class Tasks.Widgets.TaskRow : Gtk.ListBoxRow {
+         unowned ICal.Component ical_task = task.get_icalcomponent ();
+ 
+         if (due_datetime_popover.value != null) {
+-            var due_icaltime = Util.date_time_to_ical (due_datetime_popover.value, due_datetime_popover.value, null);
++            var due_icaltime = Util.datetimes_to_icaltime (due_datetime_popover.value, due_datetime_popover.value, null);
+             ical_task.set_due (due_icaltime);
+             ical_task.set_dtstart (due_icaltime);
+         } else {
+
+From b7dd2f2c5cb91a2cab2c1821b002310bab08625c Mon Sep 17 00:00:00 2001
+From: Michael McClurg <michael.mcclurg@outlook.com>
+Date: Wed, 1 Dec 2021 18:10:41 -0700
+Subject: [PATCH 3/4] Convert timezones to local in grid
+
+New Util functions copied from Calendar
+---
+ src/Util.vala                          | 47 ++++++++++++++++++++++++--
+ src/Widgets/ScheduledTaskListGrid.vala |  2 +-
+ src/Widgets/TaskRow.vala               |  4 +--
+ 3 files changed, 48 insertions(+), 5 deletions(-)
+
+diff --git a/src/Util.vala b/src/Util.vala
+index 36b76caf22..d82a4d1f1f 100644
+--- a/src/Util.vala
++++ b/src/Util.vala
+@@ -145,8 +145,25 @@ namespace Tasks.Util {
+     }
+ 
+     /**
+-     * Converts the given TimeType to a DateTime.
+-     * XXX : Track next versions of evolution in order to convert ICal.Timezone to GLib.TimeZone with a dedicated function…
++     * Converts the given ICal.Time to a GLib.DateTime.
++     *
++     * XXX : Track next versions of evolution in order to convert ICal.Timezone
++     * to GLib.TimeZone with a dedicated function…
++     *
++     * **Note:** All timezone information in the original @date is lost.
++     * While this function attempts to convert the timezone data contained in
++     * @date to GLib, this process does not always work. You should never
++     * assume that the {@link GLib.TimeZone} contained in the resulting
++     * DateTime is correct. The wall-clock date and time are correct for the
++     * original timezone, however.
++     *
++     * For example, a timezone like `Western European Standard Time` is not
++     * easily representable in GLib. The resulting {@link GLib.TimeZone} is
++     * likely to be the system's local timezone, which is (probably) incorrect.
++     * However, if the event occurs at 8:15 AM on January 1, 2020, the time
++     * contained in the returned DateTime will be 8:15 AM on January 1, 2020
++     * in the local timezone. The wall clock time is correct, but the time
++     * zone is not.
+      */
+     public DateTime ical_to_date_time (ICal.Time date) {
+         int year, month, day, hour, minute, second;
+@@ -156,6 +173,32 @@ namespace Tasks.Util {
+             day, hour, minute, second);
+     }
+ 
++    /**
++     * Converts the given ICal.Time to a GLib.DateTime, represented in the
++     * system timezone.
++     *
++     * All timezone information in the original @date is lost. However, the
++     * {@link GLib.TimeZone} contained in the resulting DateTime is correct,
++     * since there is a well-defined local timezone between both libical and
++     * GLib.
++     */
++    public DateTime ical_to_date_time_local (ICal.Time date) {
++        assert (!date.is_null_time ());
++        var converted = ical_convert_to_local (date);
++        int year, month, day, hour, minute, second;
++        converted.get_date (out year, out month, out day);
++        converted.get_time (out hour, out minute, out second);
++        return new DateTime.local (year, month,
++            day, hour, minute, second);
++    }
++
++    /** Converts the given ICal.Time to the local (or system) timezone
++     */
++    public ICal.Time ical_convert_to_local (ICal.Time time) {
++        var system_tz = ECal.util_get_system_timezone ();
++        return time.convert_to_zone (system_tz);
++    }
++
+     /**
+      * Compares a {@link GLib.DateTime} to {@link GLib.DateTime.now_local} and returns a location, relative date string.
+      * Results appear as natural-language strings like "Today", "Yesterday", "Fri, Apr 17", "Jan 15", "Sep 18 2019".
+diff --git a/src/Widgets/ScheduledTaskListGrid.vala b/src/Widgets/ScheduledTaskListGrid.vala
+index e6f26dd468..053f1094f6 100644
+--- a/src/Widgets/ScheduledTaskListGrid.vala
++++ b/src/Widgets/ScheduledTaskListGrid.vala
+@@ -198,7 +198,7 @@ public class Tasks.Widgets.ScheduledTaskListGrid : Gtk.Grid {
+             }
+         }
+ 
+-        var due_date_time = Util.ical_to_date_time (comp.get_due ());
++        var due_date_time = Util.ical_to_date_time_local (comp.get_due ());
+         var header_label = new Granite.HeaderLabel (Tasks.Util.get_relative_date (due_date_time));
+         header_label.ellipsize = Pango.EllipsizeMode.MIDDLE;
+         header_label.margin_start = 6;
+diff --git a/src/Widgets/TaskRow.vala b/src/Widgets/TaskRow.vala
+index 2eef8ff078..9c0f66a481 100644
+--- a/src/Widgets/TaskRow.vala
++++ b/src/Widgets/TaskRow.vala
+@@ -356,7 +356,7 @@ public class Tasks.Widgets.TaskRow : Gtk.ListBoxRow {
+         }
+         var icalcomponent = task.get_icalcomponent ();
+         summary_entry.text = icalcomponent.get_summary () == null ? "" : icalcomponent.get_summary ();  // vala-lint=line-length
+-        due_datetime_popover.value = icalcomponent.get_due ().is_null_time () ? null : Util.ical_to_date_time (icalcomponent.get_due ());
++        due_datetime_popover.value = icalcomponent.get_due ().is_null_time () ? null : Util.ical_to_date_time_local (icalcomponent.get_due ());
+         location_popover.value = Util.get_ecalcomponent_location (task);
+         reveal_child_request (false);
+     }
+@@ -450,7 +450,7 @@ public class Tasks.Widgets.TaskRow : Gtk.ListBoxRow {
+             if (ical_task.get_due ().is_null_time ()) {
+                 due_datetime_popover_revealer.reveal_child = false;
+             } else {
+-                var due_datetime = Util.ical_to_date_time (ical_task.get_due ());
++                var due_datetime = Util.ical_to_date_time_local (ical_task.get_due ());
+                 due_datetime_popover.value = due_datetime;
+                 due_datetime_popover_revealer.reveal_child = true;
+             }
+
+From 03d70633cd8d255fef7d00f5057cf612c78a85ae Mon Sep 17 00:00:00 2001
+From: Michael McClurg <michael.mcclurg@outlook.com>
+Date: Sat, 4 Dec 2021 15:45:01 -0700
+Subject: [PATCH 4/4] Preserve timezones of existing tasks, if applicable
+
+---
+ src/Widgets/TaskRow.vala | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
+
+diff --git a/src/Widgets/TaskRow.vala b/src/Widgets/TaskRow.vala
+index 9c0f66a481..5978448fc9 100644
+--- a/src/Widgets/TaskRow.vala
++++ b/src/Widgets/TaskRow.vala
+@@ -364,17 +364,24 @@ public class Tasks.Widgets.TaskRow : Gtk.ListBoxRow {
+     private void save_task (ECal.Component task) {
+         unowned ICal.Component ical_task = task.get_icalcomponent ();
+ 
+-        if (due_datetime_popover.value != null) {
+-            var due_icaltime = Util.datetimes_to_icaltime (due_datetime_popover.value, due_datetime_popover.value, null);
+-            ical_task.set_due (due_icaltime);
+-            ical_task.set_dtstart (due_icaltime);
++        ICal.Time new_icaltime;
++        if (due_datetime_popover.value == null) {
++            new_icaltime = new ICal.Time.null_time ();
+         } else {
+-            var null_icaltime = new ICal.Time.null_time ();
+-
+-            ical_task.set_due (null_icaltime);
+-            ical_task.set_dtstart (null_icaltime);
++            var task_tz = ical_task.get_due ().get_timezone ();
++            if (task_tz != null) {
++                // If the task has a timezone, must convert from displayed local time
++                new_icaltime = Util.datetimes_to_icaltime (due_datetime_popover.value, due_datetime_popover.value, ECal.util_get_system_timezone ());
++                new_icaltime.convert_to_zone_inplace (task_tz);
++            } else {
++                // Use floating timezone if no timezone already exists
++                new_icaltime = Util.datetimes_to_icaltime (due_datetime_popover.value, due_datetime_popover.value, null);
++            }
+         }
+ 
++        ical_task.set_due (new_icaltime);
++        ical_task.set_dtstart (new_icaltime);
++
+         Util.set_ecalcomponent_location (task, location_popover.value);
+ 
+         ical_task.set_summary (summary_entry.text);
