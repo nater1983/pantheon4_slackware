@@ -6,6 +6,7 @@ if [ ! -d ${PSB} ]; then
 fi
 
 src=(
+	libchamplain
 	elementary-tasks 
 	switchboard-plug-wacom 
 	switchboard-plug-sharing 
