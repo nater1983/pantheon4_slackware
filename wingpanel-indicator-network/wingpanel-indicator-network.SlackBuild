@@ -23,8 +23,10 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+wget -c https://github.com/elementary/wingpanel-indicator-network/archive/7.0.2/wingpanel-indicator-network-7.0.2.tar.gz
+
 PRGNAM=wingpanel-indicator-network
-VERSION=${VERSION:-2.3.4}
+VERSION=${VERSION:-7.0.2}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 
@@ -61,7 +63,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM-$VERSION
-tar xvf $CWD/$VERSION.tar.gz
+tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
 cd $PRGNAM-$VERSION
 chown -R root:root .
 find -L . \
