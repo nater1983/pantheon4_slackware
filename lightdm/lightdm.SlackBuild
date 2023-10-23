@@ -103,6 +103,11 @@ install -v -dm755 -o lightdm -g lightdm $PKG/var/lib/lightdm-data || exit 1
 install -v -dm755 -o lightdm -g lightdm $PKG/var/cache/lightdm || exit 1
 install -v -dm770 -o lightdm -g lightdm $PKG/var/log/lightdm || exit 1
 
+mv $PKG/etc/rc.d/{rc.4.local,rc.4.local.new}
+mv $PKG/etc/lightdm/{keys.conf,keys.conf.new}
+mv $PKG/etc/lightdm/{lightdm.conf,lightdm.conf.new}
+mv $PKG/etc/lightdm/{users.conf,users.conf.new}
+
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
