@@ -1,0 +1,8 @@
+PRGNAM="elementary-code"
+VERSION="6.2.0"
+HOMEPAGE="https://github.com/elementary/code"
+DOWNLOAD="https://github.com/elementary/code/archive/refs/tags/6.2.0.tar.gz"
+MD5SUM="40aa100ce1f54b5871f0b06abe150ea4"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

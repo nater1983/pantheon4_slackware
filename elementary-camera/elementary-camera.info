@@ -1,0 +1,8 @@
+PRGNAM="elementary-camera"
+VERSION="6.2.0"
+HOMEPAGE="https://github.com/elementary/camera"
+DOWNLOAD="https://github.com/elementary/camera/archive/refs/tags/6.2.0.tar.gz"
+MD5SUM="18254d84aed999351726b2b5c0a64cfc"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

@@ -1,0 +1,8 @@
+PRGNAM="pantheon-terminal"
+VERSION="6.1.1"
+HOMEPAGE="https://github.com/elementary/terminal"
+DOWNLOAD="https://github.com/elementary/terminal/archive/refs/tags/6.1.1.tar.gz"
+MD5SUM="167b774f3855ea3c7b3267eb0c44c3b7"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

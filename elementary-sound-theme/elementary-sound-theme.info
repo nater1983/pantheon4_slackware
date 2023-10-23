@@ -1,0 +1,8 @@
+PRGNAM="elementary-sound-theme"
+VERSION="1.1.0"
+HOMEPAGE="homepage of application"
+DOWNLOAD="https://github.com/elementary/sound-theme/archive/refs/tags/1.1.0.tar.gz"
+MD5SUM="b91f28fe6ccc55c67fb3245235cf8026"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

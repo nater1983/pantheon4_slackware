@@ -1,0 +1,8 @@
+PRGNAM="pantheon-videos"
+VERSION="2.8.4"
+HOMEPAGE="https://github.com/elementary/videos"
+DOWNLOAD="https://github.com/elementary/videos/archive/refs/tags/2.8.4.tar.gz"
+MD5SUM="5c956c519db26382b5377e77f06b1a18"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

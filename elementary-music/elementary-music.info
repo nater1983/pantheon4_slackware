@@ -1,0 +1,8 @@
+PRGNAM="elementary-music"
+VERSION="7.0.0"
+HOMEPAGE="https://github.com/elementary/music"
+DOWNLOAD="https://github.com/elementary/music/archive/refs/tags/7.0.0.tar.gz"
+MD5SUM="fa23295608007afc3a8a979b44d83ce1"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

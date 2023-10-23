@@ -1,0 +1,8 @@
+PRGNAM="pantheon-default-settings"
+VERSION="7.0.0"
+HOMEPAGE="homepage of application"
+DOWNLOAD="https://github.com/elementary/default-settings/archive/refs/tags/7.0.0.tar.gz"
+MD5SUM="6ff8179963bc1c25dcfabe19c943c89b"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

@@ -1,0 +1,8 @@
+PRGNAM="pantheon-agent-polkit"
+VERSION="1.0.5"
+HOMEPAGE="https://github.com/elementary/pantheon-agent-polkit"
+DOWNLOAD="https://github.com/elementary/pantheon-agent-polkit/archive/refs/tags/1.0.5.tar.gz"
+MD5SUM="a5779658b4c08803ec1c76d5f3b9741b"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

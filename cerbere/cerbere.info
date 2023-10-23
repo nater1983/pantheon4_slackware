@@ -1,0 +1,8 @@
+PRGNAM="cerbere"
+VERSION="2.5.1"
+HOMEPAGE="https://github.com/elementary/cerbere"
+DOWNLOAD="https://github.com/elementary/cerbere/archive/refs/tags/2.5.1.tar.gz"
+MD5SUM="8a4e097893d7494de0afb4063df7e0ee"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

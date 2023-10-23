@@ -1,0 +1,15 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.
+# Line up the first '|' above the ':' following the base package name, and
+# the '|' on the right side marks the last column you can put a character in.
+# You must make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler-----------------------------------------------------------|
+elementary-tweaks: elementary-tweaks ( Pantheon system setting panel )
+elementary-tweaks:
+elementary-tweaks: A system settings panel for the Pantheon Desktop that  
+elementary-tweaks: lets you easily and safely customise your desktop's appearance. 
+elementary-tweaks:
+elementary-tweaks: https://github.com/elementary-tweaks/elementary-tweaks
+elementary-tweaks:

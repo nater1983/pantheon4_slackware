@@ -1,0 +1,8 @@
+PRGNAM="pantheon-settings-daemon"
+VERSION="1.2.0"
+HOMEPAGE="https://github.com/elementary/settings-daemon.git"
+DOWNLOAD="https://github.com/elementary/settings-daemon/archive/refs/tags/1.2.0.tar.gz"
+MD5SUM="1dc3765637a4badb7b2176e30462ec8e"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"

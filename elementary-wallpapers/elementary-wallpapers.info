@@ -1,0 +1,8 @@
+PRGNAM="elementary-wallpapers"
+VERSION="6.1.0"
+HOMEPAGE="https://github.com/elementary/wallpapers"
+DOWNLOAD="https://github.com/elementary/wallpapers/archive/refs/tags/6.1.0.tar.gz"
+MD5SUM="7ae8b2d6f740d7a252d8f28534b40e92"
+REQUIRES=""
+MAINTAINER="Frank Honolka"
+EMAIL="slackernetuk@gmail.com"
