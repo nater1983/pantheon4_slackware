@@ -26,7 +26,7 @@ wget -c https://github.com/elementary/camera/archive/6.2.2/camera-6.2.2.tar.gz
 
 PRGNAM=elementary-camera
 SRCNAM=camera
-VERSION=${VERSION:-6.2.0}
+VERSION=${VERSION:-6.2.2}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 
