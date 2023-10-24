@@ -2,9 +2,7 @@
 
 # Slackware build script for elementary-dock 
 
-#
-# VERSION=`printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"`
-# Copyright @YEAR@ @NAME@ <@EMAIL@>
+# Copyright 2021 Frank Honolka <slackernetuk@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
