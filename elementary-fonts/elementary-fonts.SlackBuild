@@ -24,26 +24,25 @@
 
 wget -c https://github.com/elementary/fonts/archive/5.1.0/fonts-5.1.0.tar.gz
 
+cd $(dirname $0) ; CWD=$(pwd)
+
 PRGNAM=elementary-fonts
 SRCNAM=fonts
 VERSION=${VERSION:-5.1.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
+PKGTYPE=${PKGTYPE:-txz}
 
-if [ -z "$ARCH" ]; then
-  case "$( uname -m )" in
-    i?86) ARCH=i586 ;;
-    arm*) ARCH=arm ;;
-       *) ARCH=$( uname -m ) ;;
-  esac
+ARCH=noarch
+
+if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
+  echo "$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE"
+  exit 0
 fi
 
-CWD=$(pwd)
 TMP=${TMP:-/tmp/psb}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/var/cache/psb}
-
-ARCH=noarch
 
 set -e
 
@@ -76,18 +75,16 @@ install -Dm644 ${t}/*.ttf -t $PKG/usr/share/fonts/TTF/ || exit 1
 done
 
 install -Dm644 wc-roughtrad/*.otf -t $PKG/usr/share/fonts/OTF/ || exit 1
-
 install -Dm644 31-croscore-elementary.conf -t $PKG/etc/fonts/conf.d/ || exit 1
 
-
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-
+cp -a debian/changelog \
+    $PKG/usr/doc/$PRGNAM-$VERSION/ChangeLog
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
-cat $CWD/doinst.sh > $PKG/install/doinst
+zcat $CWD/doinst.sh.gz > $PKG/install/doinst
 
 cd $PKG
-/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}
-
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
