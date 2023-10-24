@@ -103,6 +103,8 @@ cd ..
 # Preserve customizations:
 mv -i $PKG/etc/appstream.conf{,.new}
 
+install -Dm644 $CWD/update-appstream-cache.hook "$PKG"/usr/share/libalpm/hooks/90-update-appstream-cache.hook || exit1
+
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
