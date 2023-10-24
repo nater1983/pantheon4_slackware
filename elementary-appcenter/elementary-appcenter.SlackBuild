@@ -24,6 +24,8 @@
 
 wget -c https://github.com/elementary/appcenter/archive/7.4.0/appcenter-7.4.0.tar.gz
 
+cd $(dirname $0) ; CWD=$(pwd)
+
 PRGNAM=elementary-appcenter
 SRCNAM=appcenter
 VERSION=${VERSION:-7.4.0}
