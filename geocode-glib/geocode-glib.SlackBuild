@@ -1,9 +1,9 @@
 #!/bin/sh
 
-# Slackware build script for geocode-glib-3.26.2.tar.xz
+# Slackware build script for geocode-glib
 
-# # Copyright 2021 Rafael Tavares (mdrafaeltavares@gmail.com) Bahia, Brazil.
-# Modified by Ioannis Anagnostakis <rizitis@gmail.com> GR (2022)
+# Copyright 2022-2023 Ozan TÃ¼rkyÄ±lmaz
+# Modified by Ioannis Anagnostakis <rizitis@gmail.com> GR (2022-2023)
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -23,6 +23,8 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+wget -c https://download.gnome.org/sources/geocode-glib/3.26/geocode-glib-3.26.4.tar.xz
+
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=geocode-glib
@@ -39,15 +41,11 @@ case "$( uname -m )" in
 esac
 fi
 
-# If the variable PRINT_PACKAGE_NAME is set, then this script will report what
-# the name of the created package would be, and then exit. This information
-# could be useful to other scripts.
 if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
   echo "$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE"
   exit 0
 fi
 
-CWD=$(pwd)
 TMP=${TMP:-/tmp/psb}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/var/cache/psb}
@@ -72,7 +70,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM-$VERSION
-tar xvf $CWD/$PRGNAM-$VERSION.tar.xz
+tar xvf $CWD/$PRGNAM-$VERSION.tar.?z*
 cd $PRGNAM-$VERSION
 chown -R root:root .
 find -L . \
@@ -80,7 +78,6 @@ find -L . \
   -o -perm 511 \) -exec chmod 755 {} \; -o \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
   -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
-
 
 mkdir build
 cd build
@@ -104,43 +101,18 @@ cd build
   DESTDIR=$PKG $NINJA install
 cd ..
 
-rm -fr build 
-
-mkdir build
-cd build
-  CFLAGS="$SLKCFLAGS" \
-  CXXFLAGS="$SLKCFLAGS" \
-  meson .. \
-    --buildtype=release \
-    --infodir=/usr/info \
-    --libdir=/usr/lib${LIBDIRSUFFIX} \
-    --localstatedir=/var \
-    --mandir=/usr/man \
-    --prefix=/usr \
-    --sysconfdir=/etc \
-    -Dstrip=true \
-    -Denable-introspection=true \
-    -Denable-gtk-doc=false \
-    -Denable-installed-tests=false
-  "${NINJA:=ninja}"
-  DESTDIR=$PKG $NINJA install
-cd ..
-
 rm -f $PKG/{,usr/}lib${LIBDIRSUFFIX}/*.la
 
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
-
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-
 cp -a AUTHORS COPYING.LIB ChangeLog NEWS README TODO \
-  $PKG/usr/doc/$PRGNAM-$VERSION
+    $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
-
 
 cd $PKG
 /sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
