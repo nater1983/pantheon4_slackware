@@ -22,10 +22,12 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+wget -c https://github.com/libgit2/libgit2/archive/v1.7.0/libgit2-1.7.0.tar.gz
+
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=libgit2
-VERSION=${VERSION:-1.5.0}
+VERSION=${VERSION:-1.7.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
@@ -38,9 +40,6 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-# If the variable PRINT_PACKAGE_NAME is set, then this script will report what
-# the name of the created package would be, and then exit. This information
-# could be useful to other scripts.
 if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
   echo "$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE"
   exit 0
@@ -73,7 +72,6 @@ rm -rf $PRGNAM-$VERSION
 tar xvf $CWD/$PRGNAM-$VERSION.tar.?z
 cd $PRGNAM-$VERSION
 chown -R root:root .
-
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
   -o -perm 511 \) -exec chmod 755 {} \; -o \
@@ -87,6 +85,8 @@ find -L . \
   -DUSE_HTTP_PARSER=system \
   -DUSE_HTTPS=OpenSSL \
   -DUSE_NTLMCLIENT=OFF \
+  -DUSE_THREADS:BOOL=ON \
+  -DUSE_SSH:BOOL=ON \
   -B build 
   cmake --build build
   DESTDIR=$PKG cmake --install build
@@ -95,7 +95,8 @@ find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | gr
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a AUTHORS *md COPYING docs/* $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a AUTHORS *md COPYING docs/* \
+    $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
