@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Slackware build script for python-onboard
+# Slackware build script for python3-onboard
 
 # Copyright 2021 Frank Honolka <slackernetuk@gmail.com>
 # All rights reserved.
@@ -22,7 +22,7 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-PRGNAM=python-onboard
+PRGNAM=python3-onboard
 SRCNAM=onboard
 VERSION=${VERSION:-1.4.1}
 BUILD=${BUILD:-1}
