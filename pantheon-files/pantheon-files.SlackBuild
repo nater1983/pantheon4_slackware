@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Slackware build script for pantheon-filemanager 
+# Slackware build script for pantheon-files
 
 # Copyright 2021 Frank Honolka <slackernetuk@gmail.com>
 # All rights reserved.
@@ -22,7 +22,7 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-PRGNAM=pantheon-filemanager
+PRGNAM=pantheon-files
 SRCNAM=files
 VERSION=${VERSION:-6.2.1}
 BUILD=${BUILD:-1}
