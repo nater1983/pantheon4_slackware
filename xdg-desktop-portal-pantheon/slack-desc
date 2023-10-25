@@ -8,12 +8,12 @@
                            |-----handy-ruler------------------------------------------------------|
 xdg-desktop-portal-pantheon: xdg-desktop-portal-pantheon (Pantheon XDG Desktop Portals)
 xdg-desktop-portal-pantheon:
-xdg-desktop-portal-pantheon: Many container runtimes focus on providing infrastructure for
-xdg-desktop-portal-pantheon: system administrators and orchestration tools to run containers.
+xdg-desktop-portal-pantheon: Backend implementation for xdg-desktop-portal for the Pantheon
+xdg-desktop-portal-pantheon: desktop environment.
 xdg-desktop-portal-pantheon:
-xdg-desktop-portal-pantheon: Bubblewrap provides container runtime for unprivileged users, which
-xdg-desktop-portal-pantheon: reduces the surface area for privilege escalation.
 xdg-desktop-portal-pantheon:
+xdg-desktop-portal-pantheon:
+xdg-desktop-portal-pantheon: Homepage: https://github.com/elementary/portals
 xdg-desktop-portal-pantheon:
 xdg-desktop-portal-pantheon:
 xdg-desktop-portal-pantheon:
