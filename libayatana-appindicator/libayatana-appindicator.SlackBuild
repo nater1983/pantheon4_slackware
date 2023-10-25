@@ -27,7 +27,7 @@ wget -c https://github.com/AyatanaIndicators/libayatana-appindicator/archive/0.5
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=libayatana-appindicator
-VERSION=${VERSION:-0.5.91}
+VERSION=${VERSION:-0.5.93}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
