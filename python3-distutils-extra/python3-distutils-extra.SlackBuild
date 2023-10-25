@@ -22,13 +22,13 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://launchpad.net/python-distutils-extra/trunk/2.39/+download/python-distutils-extra-2.39.tar.gz
+wget -c https://launchpad.net/debian/+archive/primary/+sourcefiles/python-distutils-extra/3.0/python-distutils-extra_3.0.tar.xz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=python3-distutils-extra
 SRCNAM=python-distutils-extra
-VERSION=${VERSION:-2.39}
+VERSION=${VERSION:-3.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
@@ -55,9 +55,9 @@ set -e
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-rm -rf $SRCNAM-$VERSION
-tar xvf $CWD/$SRCNAM-$VERSION.tar.gz
-cd $SRCNAM-$VERSION
+rm -rf $SRCNAM
+tar xvf $CWD/$SRCNAM_$VERSION.tar.?z*
+cd $SRCNAM
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
