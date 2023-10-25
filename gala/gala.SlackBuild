@@ -24,6 +24,8 @@
 
 wget -c https://github.com/elementary/gala/archive/7.1.2/gala-7.1.2.tar.gz
 
+cd $(dirname $0) ; CWD=$(pwd)
+
 PRGNAM=gala
 VERSION=${VERSION:-7.1.2}
 BUILD=${BUILD:-1}
@@ -38,7 +40,11 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-CWD=$(pwd)
+if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
+  echo "$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE"
+  exit 0
+fi
+
 TMP=${TMP:-/tmp/psb}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/var/cache/psb}
@@ -74,16 +80,17 @@ mkdir build
 cd build
   CFLAGS="$SLKCFLAGS" \
   CXXFLAGS="$SLKCFLAGS" \
-  meson .. \
+  meson setup ..\
     --buildtype=release \
     --libdir=/usr/lib${LIBDIRSUFFIX} \
     --localstatedir=/var \
     --mandir=/usr/man \
     --prefix=/usr \
-    -Dsystemd=false \
-    --sysconfdir=/etc || exit 1
-  ninja || exit 1
-  DESTDIR=$PKG ninja install
+    --sysconfdir=/etc \
+    -Dstrip=true \
+    -Dsystemd=false
+  "${NINJA:=ninja}"
+  DESTDIR=$PKG $NINJA install
 cd ..
 
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
@@ -97,8 +104,8 @@ fi
 install -D -m 644 $CWD/gala-multitaskingview.desktop $PKG/usr/share/applications/ || exit 1
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-DOCS="AUTHORS COPYING HACKING README.md"  
-cp -a $DOCS $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a AUTHORS COPYING HACKING README.md \
+    $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
