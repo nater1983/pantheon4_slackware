@@ -21,13 +21,17 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+
+wget -c https://download.gnome.org/sources/gcr/4.1/gcr-4.1.0.tar.xz
+
 cd $(dirname $0) ; CWD=$(pwd)
 
-PKGNAM=gcr4
+PRGNAM=gcr4
 SRCNAM=gcr
-VERSION=${VERSION:-4.0.0}
+VERSION=${VERSION:-4.1.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
+PKGTYPE=${PKGTYPE:-txz}
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -37,18 +41,13 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-# If the variable PRINT_PACKAGE_NAME is set, then this script will report what
-# the name of the created package would be, and then exit. This information
-# could be useful to other scripts.
 if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
-  echo "$PKGNAM-$VERSION-$ARCH-$BUILD.txz"
+  echo "$PRGNAM-$VERSION-$ARCH-$BUILD.txz"
   exit 0
 fi
 
-NUMJOBS=${NUMJOBS:-" -j$(expr $(nproc) + 1) "}
-
 TMP=${TMP:-/tmp/psb}
-PKG=$TMP/package-$PKGNAM
+PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/var/cache/psb}
 
 if [ "$ARCH" = "i586" ]; then
@@ -69,7 +68,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG
 cd $TMP
 rm -rf $SRCNAM-$VERSION
-tar xvf $CWD/$SRCNAM-$VERSION.tar.xz || exit 1
+tar xvf $CWD/$SRCNAM-$VERSION.tar.?z* || exit 1
 cd $SRCNAM-$VERSION || exit 1
 chown -R root:root .
 find . \
@@ -78,14 +77,6 @@ find . \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
  -exec chmod 644 {} \+
 
-# We disabled these before through ./configure options that don't exist with
-# meson.
-#zcat $CWD/gcr.meson.disable.schemas-compile.update-mime.update-icon-cache.diff.gz | patch -p1 --verbose || exit 1
-
-# Fix for recent meson:
-#zcat $CWD/b3ca1d02bb0148ca787ac4aead164d7c8ce2c4d8.patch.gz | patch -p1 --verbose || exit 1
-
-# Configure, build, and install:
 export CFLAGS="$SLKCFLAGS"
 export CXXFLAGS="$SLKCFLAGS"
 mkdir meson-build
@@ -106,22 +97,22 @@ meson setup \
   -Dgtk4=true \
   -Dgtk_doc=false \
   .. || exit 1
-  "${NINJA:=ninja}" $NUMJOBS || exit 1
-  DESTDIR=$PKG $NINJA install || exit 1
+  "${NINJA:=ninja}"
+  DESTDIR=$PKG $NINJA install
 cd ..
 
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | \
   grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
-mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION
-cp -a \
-  AUTHORS COPYING* HACKING INSTALL NEWS README* \
-  $PKG/usr/doc/$PKGNAM-$VERSION
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a  AUTHORS COPYING* HACKING INSTALL NEWS README* \
+    $PKG/usr/doc/$PRGNAM-$VERSION
+cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 # If there's a ChangeLog, installing at least part of the recent history
 # is useful, but don't let it get totally out of control:
 if [ -r ChangeLog ]; then
-  DOCSDIR=$(echo $PKG/usr/doc/${PKGNAM}-$VERSION)
+  DOCSDIR=$(echo $PKG/usr/doc/${PRGNAM}-$VERSION)
   cat ChangeLog | head -n 1000 > $DOCSDIR/ChangeLog
   touch -r ChangeLog $DOCSDIR/ChangeLog
 fi
@@ -131,4 +122,4 @@ cat $CWD/slack-desc > $PKG/install/slack-desc
 zcat $CWD/doinst.sh.gz > $PKG/install/doinst.sh
 
 cd $PKG
-/sbin/makepkg -l y -c n $OUTPUT/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.txz
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
