@@ -70,8 +70,9 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $SRCNAM-$VERSION
-tar xvf $CWD/$VERSION.tar.gz
+tar xvf $CWD/$SRCNAM-$VERSION.tar.gz
 cd $SRCNAM-$VERSION
+patch -Np1 -i $CWD/drop-tests.patch
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
@@ -83,15 +84,16 @@ mkdir build
 cd build
   CFLAGS="$SLKCFLAGS" \
   CXXFLAGS="$SLKCFLAGS" \
-  meson .. \
+  meson setup ..\
     --buildtype=release \
     --libdir=/usr/lib${LIBDIRSUFFIX} \
     --localstatedir=/var \
     --mandir=/usr/man \
     --prefix=/usr \
-    --sysconfdir=/etc
-  ninja
-  DESTDIR=$PKG ninja install
+    --sysconfdir=/etc \
+    -Dstrip=true
+  "${NINJA:=ninja}"
+  DESTDIR=$PKG $NINJA install
 cd ..
 
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
@@ -103,8 +105,8 @@ for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; r
 fi
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-DOCS="COPYING README.md"
-cp -a $DOCS $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a COPYING README.md \
+    $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
