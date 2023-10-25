@@ -24,10 +24,13 @@
 
 wget -c https://launchpad.net/indicator-application/12.10/12.10.0/+download/indicator-application-12.10.0.tar.gz
 
+cd $(dirname $0) ; CWD=$(pwd)
+
 PRGNAM=indicator-application
 VERSION=${VERSION:-12.10.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
+PKGTYPE=${PKGTYPE:-txz}
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -37,7 +40,11 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-CWD=$(pwd)
+if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
+  echo "$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE"
+  exit 0
+fi
+
 TMP=${TMP:-/tmp/psb}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/var/cache/psb}
@@ -96,20 +103,14 @@ find $PKG/usr/man -type f -exec gzip -9 {} \;
 for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
 fi
 
-find $PKG -name perllocal.pod \
-  -o -name ".packlist" \
-  -o -name "*.bs" \
-  | xargs rm -f
-
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-DOCS="AUTHORS COPYING ChangeLog NEWS README"
-cp -a $DOCS $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a AUTHORS COPYING ChangeLog NEWS README \
+    $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
-cat $CWD/doinst.sh > $PKG/install/doinst.sh
+zcat $CWD/doinst.sh.gz > $PKG/install/doinst.sh
 
 cd $PKG
-/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}
-
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
