@@ -5,9 +5,15 @@
 # You must make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-     |-----handy-ruler------------------------------------------------------|
-pantheon-filemanager: ( ElementaryOS Filemanager )
-pantheon-filemanager:
-pantheon-filemanager:
-pantheon-filemanager: https://github.com/elementary/files 
-pantheon-filemanager:
+              |-----handy-ruler------------------------------------------------------|
+pantheon-files: pantheon-files ( ElementaryOS Filemanager )
+pantheon-files:
+pantheon-files: File browser designed for elementary OS 
+pantheon-files:
+pantheon-files:
+pantheon-files:
+pantheon-files:
+pantheon-files: Homepage: https://github.com/elementary/files 
+pantheon-files:
+pantheon-files:
+pantheon-files:
