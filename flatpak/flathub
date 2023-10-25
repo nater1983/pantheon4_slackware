@@ -21,4 +21,14 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 #flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+export PROFILEDIR=/tmp/tmp-fx-profile.$$.d
+
+if [ -x /usr/bin/chromium ]; then
 chromium --app=https://flathub.org/apps
+elif [ -x /usr/bin/firefox ] ; then
+mkdir $PROFILEDIR
+sh -c 'firefox -profile $PROFILEDIR -no-remote -new-instance http://flathub.org/apps'
+rm -rf $PROFILEDIR
+else
+exit 1
+fi
