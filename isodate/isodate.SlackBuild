@@ -3,6 +3,7 @@
 # Slackware build script for isodate
 
 # Copyright 2014-2017  Dimitris Zlatanidis  Orestiada, Greece
+# MODIFIED BY FRANK HONOLKA <slackernetuk@gmail.com                             #
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -21,9 +22,9 @@
 #  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#  ------------------------------------------------------------------------------#
-#  MODIFIED BY FRANK HONOLKA <slackernetuk@gmail.com                             #
-#  ------------------------------------------------------------------------------#
+
+wget -c https://files.pythonhosted.org/packages/db/7a/c0a56c7d56c7fa723988f122fa1f1ccf8c5c4ccc48efad0d214b49e5b1af/isodate-0.6.1.tar.gz
+
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=isodate
@@ -40,9 +41,6 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-# If the variable PRINT_PACKAGE_NAME is set, then this script will report what
-# the name of the created package would be, and then exit. This information
-# could be useful to other scripts.
 if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
   echo "$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE"
   exit 0
@@ -81,17 +79,14 @@ find -L . \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
   -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-python setup.py install --root=$PKG
-
-if $(python3 -c 'import sys' 2>/dev/null); then
   python3 setup.py install --root=$PKG
-fi
 
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a CHANGES.txt PKG-INFO README.rst TODO.txt  $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a CHANGES.txt PKG-INFO README.rst TODO.txt \
+    $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
@@ -99,4 +94,3 @@ cat $CWD/slack-desc > $PKG/install/slack-desc
 
 cd $PKG
 /sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
-/sbin/upgradepkg --install-new --reinstall $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
