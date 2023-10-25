@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Slackware build script for elementary 
+# Slackware build script for elementary-stylesheet
 
 # Copyright 2021 Frank Honolka <slackernetuk@gmail.com>
 # All rights reserved.
@@ -22,11 +22,16 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-PRGNAM=gtk-theme-elementary
+wget -c https://github.com/elementary/stylesheet/archive/7.2.0/stylesheet-7.2.0.tar.gz
+
+cd $(dirname $0) ; CWD=$(pwd)
+
+PRGNAM=elementary-stylesheet
 SRCNAM=stylesheet
 VERSION=${VERSION:-7.0.1}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
+PKGTYPE=${PKGTYPE:-txz}
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -36,7 +41,6 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-CWD=$(pwd)
 TMP=${TMP:-/tmp/psb}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/var/cache/psb}
@@ -74,32 +78,28 @@ mkdir build
 cd build
   CFLAGS="$SLKCFLAGS" \
   CXXFLAGS="$SLKCFLAGS" \
-  meson .. \
+  meson setup ..\
     --buildtype=release \
     --libdir=/usr/lib${LIBDIRSUFFIX} \
     --localstatedir=/var \
+    --mandir=/usr/man \
     --prefix=/usr \
-    --sysconfdir=/etc 
-  ninja
-  DESTDIR=$PKG ninja install
+    --sysconfdir=/etc \
+    -Dstrip=true
+  "${NINJA:=ninja}"
+  DESTDIR=$PKG $NINJA install
 cd ..
 
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
-find $PKG -name perllocal.pod \
-  -o -name ".packlist" \
-  -o -name "*.bs" \
-  | xargs rm -f
-
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-DOCS="COPYING README.md"
-cp -a $DOCS $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a COPYING README.md \
+    $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
 
 cd $PKG
-/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}
-
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
