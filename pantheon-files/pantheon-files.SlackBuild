@@ -22,11 +22,16 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+wget -c https://github.com/elementary/files/archive/6.5.2/files-6.5.2.tar.gz
+
+cd $(dirname $0) ; CWD=$(pwd)
+
 PRGNAM=pantheon-files
 SRCNAM=files
 VERSION=${VERSION:-6.2.1}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
+PKGTYPE=${PKGTYPE:-txz}
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -36,7 +41,6 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-CWD=$(pwd)
 TMP=${TMP:-/tmp/psb}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/var/cache/psb}
@@ -61,8 +65,9 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $SRCNAM-$VERSION
-tar xvf $CWD/$VERSION.tar.gz
+tar xvf $CWD/$SRCNAM-$VERSION.tar.gz
 cd $SRCNAM-$VERSION
+sed -i 's/flatpak-builder/true/' filechooser-portal/meson.build
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
@@ -82,10 +87,11 @@ cd build
     --mandir=/usr/man \
     --prefix=/usr \
     --sysconfdir=/etc \
-    -Dwith-zeitgeist=auto \
+    -Dstrip=true \
+    -Dwith-zeitgeist=disabled \
     -Dsystemduserunitdir=no
-  ninja
-  DESTDIR=$PKG ninja install
+  "${NINJA:=ninja}"
+  DESTDIR=$PKG $NINJA install
 cd ..
 
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
@@ -96,20 +102,14 @@ find $PKG/usr/man -type f -exec gzip -9 {} \;
 for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
 fi
 
-find $PKG -name perllocal.pod \
-  -o -name ".packlist" \
-  -o -name "*.bs" \
-  | xargs rm -f
-
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-DOCS="AUTHORS COPYING README.md"
-cp -a $DOCS $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a AUTHORS COPYING README.md \
+    $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
-cat $CWD/doinst.sh > $PKG/install/doinst.sh
+zcat $CWD/doinst.sh.gz > $PKG/install/doinst.sh
 
 cd $PKG
-/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}
-
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
