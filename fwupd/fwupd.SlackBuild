@@ -77,27 +77,30 @@ find -L . \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
   -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-CFLAGS="$SLKCFLAGS" \
-CXXFLAGS="$SLKCFLAGS" \
-meson --prefix=/usr \
-  --sysconfdir=/etc \
-  --localstatedir=/var \
-  --libexecdir=/usr/libexec \
-  --buildtype=release \
-  --mandir=/usr/man \
-  -Dbuild=all \
-  -Defi_binary=false \
-  -Dlzma=true \
-  -Dplugin_flashrom=false \
-  -Dplugin_modem_manager=true \
-  -Dplugin_tpm=false \
-  -Dsupported_build=true \
-  -Dsystemd=false \
-  -Dgcab:docs=false \
-  build
-
-"${NINJA:=ninja}" -C build
-DESTDIR=$PKG $NINJA -C build install
+mkdir build
+cd build
+  CFLAGS="$SLKCFLAGS" \
+  CXXFLAGS="$SLKCFLAGS" \
+  meson setup ..\
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --libexecdir=/usr/libexec \
+    --buildtype=release \
+    --mandir=/usr/man \
+    -Dstrip=true \
+    -Dbuild=all \
+    -Defi_binary=false \
+    -Dlzma=true \
+    -Dplugin_flashrom=false \
+    -Dplugin_modem_manager=true \
+    -Dplugin_tpm=false \
+    -Dsupported_build=true \
+    -Dsystemd=false \
+    -Dgcab:docs=false \
+  "${NINJA:=ninja}"
+  DESTDIR=$PKG $NINJA install
+cd ..
 
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
@@ -123,15 +126,13 @@ mkdir -p $PKG/usr/share/dbus-1/system-services
 sed 's|@libexecdir@|/usr/libexec|' data/org.freedesktop.fwupd.service.in > $PKG/usr/share/dbus-1/system-services/org.freedesktop.fwupd.service
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a \
-  AUTHORS CODE_OF_CONDUCT.md COMMITMENT CONTRIBUTING.md COPYING MAINTAINERS README.md RELEASE \
-  $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a AUTHORS CODE_OF_CONDUCT.md COMMITMENT CONTRIBUTING.md COPYING MAINTAINERS README.md RELEASE \
+    $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
-cat $CWD/doinst.sh > $PKG/install/doinst.sh
+zcat $CWD/doinst.sh.gz > $PKG/install/doinst.sh
 
 cd $PKG
 /sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
-/sbin/upgradepkg --install-new --reinstall $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
