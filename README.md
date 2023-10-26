@@ -4,26 +4,12 @@ This project is based on
 
 [Pantheon DE](https://github.com/elementary)<br>
 _designed and developed for elementary OS_<br><br>
-[GFS Project](https://github.com/slackport/gfs)<br>
-_Gnome 40 for Slackware_<br><br>
+[GFS Project]([https://github.com/slackport/gfs](https://reddoglinux.ddns.net/linux/gnome))<br>
+_Gnome 4x.x for Slackware_<br><br>
 [SlackBuilds Team](https://slackbuilds.org/)<br>
 _A community-driven repository for Slackware users_<br><br>
 [Slackware 15](http://www.slackware.com/announce/15.0.php)<br>
 _The Slackware Linux Project_<br><br><br>
-
-<h2>Download and Install Compiled X86_64 Packages</h2>
-
-**1. Download**
-```
-lftp -c mirror https://slackernet.ddns.net/slackware/slackware64-15.0/slackware64/gnome/ -c gnome-x86_64
-lftp -c mirror https://slackernet.ddns.net/slackware/slackware64-15.0/slackware64/pantheon/-c pantheon-x86_64
-```
-
-**2. Install as root**
-```
-upgradepkg --install-new --reinstall gnome-x86_64/*.t?z
-upgradepkg --install-new --reinstall pantheon-x86_64/*.t?z
-```
 
 <h2>Configuration</h2>
 
@@ -93,22 +79,6 @@ fi
 In the `[Seat:*]` section uncomment and change<br>
 <br>`#greeter-session=example-gtk-gnome`<br>to<br>`greeter-session=io.elementary.greeter`<br><br>
 
-<h2>If you would like to compile Pantheon as a desktop environment</h2> 
-
-Add required users and groups, specified in the step 1 configuration section.
-
-```
-git clone https://gitlab.com/slackernetuk/gfs.git -b 15-20211202
-cd gfs
-sh gfs
-```
-```
-git clone https://gitlab.com/slackernetuk/pantheon-for-slackware.git -b stable
-cd pantheon-for-slackware
-sh install.sh
-```
-....then continue with step 2 of configuration section.
-
 <h2>Screenshot</h2>
 ![Screenshot_from_2021-12-20_06-08-57](/uploads/99eb60c4f2595ddcac9d69bc3ca407b1/Screenshot_from_2021-12-20_06-08-57.png)
 
@@ -116,8 +86,3 @@ sh install.sh
 [ElementaryOS Team](https://github.com/elementary)<br>
 [GFS Project](https://github.com/slackport/gfs)<br>
 [SlackBuilds Team](https://slackbuilds.org/)
-
-<h2>Contact</h2>
-slackernetuk@gmail.com
-
-
