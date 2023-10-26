@@ -28,7 +28,7 @@ cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=pantheon-files
 SRCNAM=files
-VERSION=${VERSION:-6.2.1}
+VERSION=${VERSION:-6.5.2}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
