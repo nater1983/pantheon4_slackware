@@ -79,10 +79,7 @@ fi
 In the `[Seat:*]` section uncomment and change<br>
 <br>`#greeter-session=example-gtk-gnome`<br>to<br>`greeter-session=io.elementary.greeter`<br><br>
 
-<h2>Screenshot</h2>
-![Screenshot_from_2021-12-20_06-08-57](/uploads/99eb60c4f2595ddcac9d69bc3ca407b1/Screenshot_from_2021-12-20_06-08-57.png)
-
 <h2>Thanks</h2>
 [ElementaryOS Team](https://github.com/elementary)<br>
-[GFS Project](https://github.com/slackport/gfs)<br>
+[GFS Project](https://reddoglinux.ddns.net/linux/gnome)<br>
 [SlackBuilds Team](https://slackbuilds.org/)
