@@ -24,6 +24,8 @@
 
 wget -c https://github.com/elementary/switchboard-plug-keyboard/archive/3.2.1/switchboard-plug-keyboard-3.2.1.tar.gz
 
+cd $(dirname $0) ; CWD=$(pwd)
+
 PRGNAM=switchboard-plug-keyboard
 VERSION=${VERSION:-3.2.1}
 BUILD=${BUILD:-1}
