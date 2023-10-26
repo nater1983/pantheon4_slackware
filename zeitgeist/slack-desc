@@ -8,7 +8,12 @@
          |-----handy-ruler------------------------------------------------------|
 zeitgeist: zeitgeist (Service logging user activities and events)
 zeitgeist:
+zeitgeist: Zeitgeist is a service which logs the users's activities and events
+zeitgeist: (files opened, websites visites, conversations held with other
+zeitgeist: people, etc.) and makes relevant information available to other
+zeitgeist: applications. It is able to establish relationships between items
+zeitgeist: based on similarity and usage patterns.
 zeitgeist:
 zeitgeist:
-zeitgeist: https://launchpad.net/zeitgeist
+zeitgeist: Homepage: https://launchpad.net/zeitgeist
 zeitgeist:
