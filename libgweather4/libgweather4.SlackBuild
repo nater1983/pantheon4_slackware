@@ -2,7 +2,7 @@
 
 # Slackware build script for libgweather4
 
-# Copyright 2022 Ozan TÃ¼rkyÄ±lmaz, Ä°zmir
+# Copyright 2022-2023 Ozan TÃ¼rkyÄ±lmaz, Ä°zmir
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -22,18 +22,16 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+wget -c https://download.gnome.org/sources/libgweather/4.4/libgweather-4.4.0.tar.xz
+
 cd $(dirname $0) ; CWD=$(pwd)
 
+SRCNAM=libgweather
 PRGNAM=libgweather4
-VERSION=${VERSION:-4.2.0}
+VERSION=${VERSION:-4.4.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
-
-# In purist sense, it's still libgweather but version 4 has different 
-# API and seen as a seperate library than version 3. It can be even installed
-# next to version 3.
-PRGNAM1=libgweather
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -71,9 +69,9 @@ set -e
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-rm -rf $PRGNAM1-$VERSION
-tar xvf $CWD/$PRGNAM1-$VERSION.tar.xz
-cd $PRGNAM1-$VERSION
+rm -rf $SRCNAM-$VERSION
+tar xvf $CWD/$SRCNAM-$VERSION.tar.?z*
+cd $SRCNAM-$VERSION
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
@@ -108,21 +106,13 @@ find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | gr
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-if [ "$GTKDOC" = "yes" ]; then
-  mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION/html
-  mv $PKG/usr/share/doc/libgweather-4.0/* $PKG/usr/doc/$PRGNAM-$VERSION/html
-  rmdir $PKG/usr/share/doc/libgweather-4.0
-fi
-
-cp -a \
-  CONTRIBUTING.md NEWS COPYING README.md \
+cp -a  CONTRIBUTING.md NEWS COPYING README.md \
   $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
-cat $CWD/doinst.sh > $PKG/install/doinst.sh
+zcat $CWD/doinst.sh.gz > $PKG/install/doinst.sh
 
 cd $PKG
 /sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
-
