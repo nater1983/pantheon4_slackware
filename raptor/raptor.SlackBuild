@@ -21,14 +21,13 @@
 #  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#  --------------------------------------------------------------------------#
-#  MODIFIED BY FRANK HONOLKA  <slackernetuk@gmail.com>                       #
-#  --------------------------------------------------------------------------#
-# some stuff is "inspired" by the official ex-raptor{,2}.SlackBuild
+
+wget -c http://download.librdf.org/source/raptor2-2.0.16.tar.gz
+
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=raptor
-VERSION=${VERSION:-2.0.15}
+VERSION=${VERSION:-2.0.16}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
@@ -41,9 +40,6 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-# If the variable PRINT_PACKAGE_NAME is set, then this script will report what
-# the name of the created package would be, and then exit. This information
-# could be useful to other scripts.
 if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
   echo "$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE"
   exit 0
@@ -66,8 +62,6 @@ else
   SLKCFLAGS="-O2"
   LIBDIRSUFFIX=""
 fi
-
-DOCS="AUTHORS COPYING* INSTALL* LICENSE* NEWS* NOTICE README* RELEASE.html"
 
 set -e 
 
@@ -105,9 +99,11 @@ find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | gr
 find $PKG/usr/man -type f -exec gzip -9 {} \;
 for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
 
+rm -fr /usr/share/gtk-doc/html/${PRGNAM}2
+
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a $DOCS $PKG/usr/doc/$PRGNAM-$VERSION
-( cd $PKG/usr/doc/$PRGNAM-$VERSION ; ln -s /usr/share/gtk-doc/html/${PRGNAM}2 html )
+cp -a AUTHORS COPYING* INSTALL* LICENSE* NEWS* NOTICE README* RELEASE.html \
+    $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
@@ -115,4 +111,3 @@ cat $CWD/slack-desc > $PKG/install/slack-desc
 
 cd $PKG
 /sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
-/sbin/upgradepkg --install-new --reinstall $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
