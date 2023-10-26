@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Slackware build script for pantheon-session 
+# Slackware build script for pantheon-shell 
 
 # Copyright 2021 Frank Honolka <slackernetuk@gmail.com>
 # All rights reserved.
