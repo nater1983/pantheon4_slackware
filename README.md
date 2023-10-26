@@ -4,7 +4,7 @@ This project is based on
 
 [Pantheon DE](https://github.com/elementary)<br>
 _designed and developed for elementary OS_<br><br>
-[GFS Project]([https://github.com/slackport/gfs](https://reddoglinux.ddns.net/linux/gnome)<br>
+[GFS Project](https://reddoglinux.ddns.net/linux/gnome)<br>
 _Gnome 4x.x for Slackware_<br><br>
 [SlackBuilds Team](https://slackbuilds.org/)<br>
 _A community-driven repository for Slackware users_<br><br>
