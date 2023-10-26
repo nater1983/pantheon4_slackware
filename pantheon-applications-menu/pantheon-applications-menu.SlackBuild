@@ -24,9 +24,11 @@
 
 wget -c https://github.com/elementary/applications-menu/archive/2.11.1/applications-menu-2.11.1.tar.gz
 
+cd $(dirname $0) ; CWD=$(pwd)
+
 PRGNAM=pantheon-applications-menu
 SRCNAM=applications-menu
-VERSION=${VERSION:-2.11.0}
+VERSION=${VERSION:-2.11.1}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
@@ -68,7 +70,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $SRCNAM-$VERSION
-tar xvf $CWD/$SRCNAM-$VERSION.tar.gz
+tar xvf $CWD/$SRCNAM-$VERSION.tar.?z*
 cd $SRCNAM-$VERSION
 chown -R root:root .
 find -L . \
@@ -102,8 +104,8 @@ for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; r
 fi
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-DOCS="README.md COPYING"
-cp -a $DOCS $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a README.md COPYING \
+    $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
