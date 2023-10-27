@@ -78,20 +78,31 @@ find -L . \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
   -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-mkdir -p build
+mkdir build
 cd build
-  cmake \
-    -DCMAKE_C_FLAGS:STRING="$SLKCFLAGS" \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_BUILD_TYPE=Release ..
-  make
-  make install DESTDIR=$PKG
+cmake \
+  -DCMAKE_C_FLAGS:STRING="$SLKCFLAGS" \
+  -DCMAKE_CXX_FLAGS:STRING="$SLKCFLAGS" \
+  -DCMAKE_INSTALL_PREFIX=/usr \
+  -DCMAKE_INSTALL_LIBDIR=lib$LIBDIRSUFFIX \
+  -DENABLE_BINDINGS_MONO=OFF \
+  -DENABLE_BINDINGS_VALA=ON \
+  -DENABLE_COVERAGE=OFF \
+  -DENABLE_GTKDOC=ON \
+  -DENABLE_TESTS=OFF \
+  -DENABLE_WERROR=OFF \
+  -DFLAVOUR_GTK2=OFF \
+  -DFLAVOUR_GTK3=ON \
+  -DGLIB_GENMARSHAL=/usr/bin/glib-genmarshal \
+  -DGLIB_MKENUMS=/usr/bin/glib-mkenums \
+  -DGTKDOC=/usr/bin/gtkdoc-scan \
+  ..
+make
+make install DESTDIR=$PKG
 cd ..
 
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
-
-find $PKG -name perllocal.pod -o -name ".packlist" -o -name "*.bs" | xargs rm -f || true
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cp -a AUTHORS COPYING COPYING.LGPL.2.1 ChangeLog NEWS README \
