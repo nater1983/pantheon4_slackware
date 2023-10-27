@@ -24,6 +24,8 @@
 
 wget -c https://github.com/elementary/switchboard-plug-onlineaccounts/archive/6.5.3/switchboard-plug-onlineaccounts-6.5.3.tar.gz
 
+cd $(dirname $0) ; CWD=$(pwd)
+
 PRGNAM=switchboard-plug-onlineaccounts
 VERSION=${VERSION:-6.5.3}
 BUILD=${BUILD:-1}
