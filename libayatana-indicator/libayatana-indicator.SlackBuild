@@ -73,14 +73,24 @@ find -L . \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
   -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-mkdir -p build
+mkdir build
 cd build
-  cmake \
-    -DCMAKE_C_FLAGS:STRING="$SLKCFLAGS" \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_BUILD_TYPE=Release ..
-  make
-  make install DESTDIR=$PKG
+cmake \
+  -DCMAKE_C_FLAGS:STRING="$SLKCFLAGS" \
+  -DCMAKE_CXX_FLAGS:STRING="$SLKCFLAGS" \
+  -DCMAKE_INSTALL_PREFIX=/usr \
+  -DCMAKE_INSTALL_LIBDIR=lib$LIBDIRSUFFIX \
+  -DENABLE_IDO=ON \
+  -DENABLE_LOADER=ON \
+  -DENABLE_TESTS=OFF \
+  -DENABLE_WERROR=OFF \
+  -DFLAVOUR_GTK2=OFF \
+  -DFLAVOUR_GTK3=ON \
+  -DGLIB_GENMARSHAL=/usr/bin/glib-genmarshal \
+  -DGLIB_MKENUMS=/usr/bin/glib-mkenums \
+  ..
+make
+make install DESTDIR=$PKG
 cd ..
 
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
