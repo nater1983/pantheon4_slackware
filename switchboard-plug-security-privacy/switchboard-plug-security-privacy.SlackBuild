@@ -27,7 +27,7 @@ wget -c https://github.com/elementary/switchboard-plug-security-privacy/archive/
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=switchboard-plug-security-privacy
-VERSION=${VERSION:-2.4.1}
+VERSION=${VERSION:-7.1.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
