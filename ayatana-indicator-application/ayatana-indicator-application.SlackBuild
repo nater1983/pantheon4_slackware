@@ -3,6 +3,7 @@
 # Slackware build script for ayatana-indicator-application 
 
 # Copyright 2021 Frank Honolka <slackernetuk@gmail.com>
+# Copyright 2023  Edinaldo P. Silva, Rio de Janeiro, Brazil.
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -22,7 +23,7 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://github.com/AyatanaIndicators/ayatana-indicator-application/archive/refs/tags/22.2.0.tar.gz
+wget -c https://github.com/AyatanaIndicators/ayatana-indicator-application/archive/22.2.0/ayatana-indicator-application-22.2.0.tar.gz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
