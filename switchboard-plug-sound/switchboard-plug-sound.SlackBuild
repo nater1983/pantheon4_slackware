@@ -27,7 +27,7 @@ wget -c https://github.com/elementary/switchboard-plug-sound/archive/2.3.3/switc
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=switchboard-plug-sound
-VERSION=${VERSION:-2.3.2}
+VERSION=${VERSION:-2.3.3}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
