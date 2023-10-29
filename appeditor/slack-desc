@@ -8,7 +8,12 @@
      |-----handy-ruler------------------------------------------------------|
 appeditor: appeditor ( allows you to edit application entries )
 appeditor:
+appeditor: AppEditor allows you to edit application entries in the
+appeditor: application menu. Some of its features include:
 appeditor:
+appeditor: *Hide and show applications from the application menu
+appeditor: *Create new application entries
+appeditor: *Change application's display name, icon and more
 appeditor:
-appeditor: https://github.com/donadigo/appeditor
+appeditor: Homepage: https://github.com/donadigo/appeditor
 appeditor:
