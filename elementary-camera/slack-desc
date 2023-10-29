@@ -5,9 +5,15 @@
 # You must make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-     |-----handy-ruler------------------------------------------------------|
-elementary-camera: elementary-camera ( ElementaryOS camera app )
+                 |-----handy-ruler------------------------------------------------------|
+elementary-camera: elementary-camera ( Camera app designed for elementary )
+elementary-camera:
+elementary-camera: Camera is a simple app to take photos with a webcam.
 elementary-camera:
 elementary-camera:
-elementary-camera: https://github.com/elementary/camera
+elementary-camera:
+elementary-camera: Homepage: https://github.com/elementary/camera
+elementary-camera:
+elementary-camera:
+elementary-camera:
 elementary-camera:
