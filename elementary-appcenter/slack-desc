@@ -5,10 +5,15 @@
 # You must make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-     |-----handy-ruler------------------------------------------------------|
-elementary-appcenter: elementary-appcenter ( Browse and manage apps )
+                    |-----handy-ruler------------------------------------------------------|
+elementary-appcenter: elementary-appcenter ( Pay-what-you-can app store for elementary OS )
+elementary-appcenter:
+elementary-appcenter: AppCenter is a native Gtk+ app store built on AppStream.
+elementary-appcenter:
+elementary-appcenter: 
 elementary-appcenter:
 elementary-appcenter:
+elementary-appcenter: Homepage https://github.com/elementary/appcenter
 elementary-appcenter:
-elementary-appcenter: https://github.com/elementary/appcenter
+elementary-appcenter:
 elementary-appcenter:
