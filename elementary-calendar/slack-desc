@@ -5,10 +5,15 @@
 # You must make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-     |-----handy-ruler------------------------------------------------------|
-elementary-calendar: elementary-calendar ( Calendar app for ElementaryOS )
+                   |-----handy-ruler------------------------------------------------------|
+elementary-calendar: elementary-calendar ( Desktop calendar app designed for elementary )
+elementary-calendar:
+elementary-calendar: A slim, lightweight calendar app that syncs and manages multiple
+elementary-calendar: calendars in one place, like Google Calendar, Outlook and CalDAV.
 elementary-calendar:
 elementary-calendar:
 elementary-calendar:
-elementary-calendar: https://github.com/elementary/calendar
+elementary-calendar:
+elementary-calendar: Homepage: https://github.com/elementary/calendar
+elementary-calendar:
 elementary-calendar:
