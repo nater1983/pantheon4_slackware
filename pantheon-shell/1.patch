@@ -1,7 +1,7 @@
 From 9504806dc3535091535a66e30b9ff02dcb539464 Mon Sep 17 00:00:00 2001
 From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
 Date: Mon, 30 Oct 2023 02:21:04 +0000
-Subject: [PATCH 1/2] Update meson.build
+Subject: [PATCH 1/4] Update meson.build
 
 ---
  session/meson.build | 6 ------
@@ -33,7 +33,7 @@ index 221560a..2390fc9 100644
 From 71ce7e696e9cb2ee1017372c3417980ac109b267 Mon Sep 17 00:00:00 2001
 From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
 Date: Mon, 30 Oct 2023 02:39:17 +0000
-Subject: [PATCH 2/2] Update meson.build
+Subject: [PATCH 2/4] Update meson.build
 
 ---
  session/meson.build | 2 --
@@ -57,3 +57,54 @@ index 2390fc9..dcda2a6 100644
    onboard_prefix = onboard.path().split('/bin')[0]
    orca_prefix = orca.path().split('/bin')[0]
  
+
+From 3f45abbc1825b174735de662fe0c4590732407bf Mon Sep 17 00:00:00 2001
+From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
+Date: Mon, 30 Oct 2023 02:48:02 +0000
+Subject: [PATCH 3/4] Update meson.build
+
+---
+ meson.build | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/meson.build b/meson.build
+index cf95302..06d1145 100644
+--- a/meson.build
++++ b/meson.build
+@@ -12,10 +12,6 @@ endif
+ subdir('session')
+ subdir('xsessions')
+ 
+-if get_option('systemd')
+-    subdir('systemd')
+-endif
+-
+ if get_option('wayland')
+     subdir('wayland-sessions')
+ endif
+
+From 78921d4e805cf9eedd06f8f1f310bab5441ad9a3 Mon Sep 17 00:00:00 2001
+From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
+Date: Mon, 30 Oct 2023 02:49:08 +0000
+Subject: [PATCH 4/4] Update meson_options.txt
+
+---
+ meson_options.txt | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/meson_options.txt b/meson_options.txt
+index 9734566..32ce3e8 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -7,11 +7,5 @@ option('fallback-session', type : 'string', value: 'ubuntu',
+ option('detect-program-prefixes', type: 'boolean', value: false,
+        description : 'This is needed for platforms that install packages into individual prefixes (like Guix System or NixOS')
+ 
+-option('systemd', type: 'boolean', value: true,
+-       description : 'Install systemd unit files for managing the Pantheon session with gnome-session systemd support')
+-
+-option('systemduserunitdir', type: 'string', value: '',
+-       description : 'Custom directory for systemd user units')
+-
+ option('wayland', type: 'boolean', value: false,
+        description: 'Install Wayland session')
