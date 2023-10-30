@@ -56,7 +56,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $SRCNAM
-tar xvf $CWD/$SRCNAM_$VERSION.tar.?z*
+tar xvf $CWD/$SRCNAM*$VERSION.tar.?z*
 cd $SRCNAM
 chown -R root:root .
 find -L . \
