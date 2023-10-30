@@ -6,3 +6,6 @@ option('fallback-session', type : 'string', value: 'ubuntu',
 
 option('detect-program-prefixes', type: 'boolean', value: false,
        description : 'This is needed for platforms that install packages into individual prefixes (like Guix System or NixOS')
+
+ option('wayland', type: 'boolean', value: false,
+        description: 'Install Wayland session')
