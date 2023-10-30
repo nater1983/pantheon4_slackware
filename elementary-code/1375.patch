@@ -1,0 +1,44 @@
+From bbdc911c913db4fa885fb6ef4d13ad8417a43a0a Mon Sep 17 00:00:00 2001
+From: Thibault VALLOIS <thibault.vallois@protonmail.com>
+Date: Thu, 12 Oct 2023 18:55:46 +0200
+Subject: [PATCH] bump principal dependencies in meson to gtk4
+
+---
+ meson.build       | 6 +++---
+ src/codecore.deps | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/meson.build b/meson.build
+index 57876f8ce..61b279da0 100644
+--- a/meson.build
++++ b/meson.build
+@@ -29,10 +29,10 @@ i18n = import('i18n')
+ glib_dep = dependency('glib-2.0', version: '>=2.30.0')
+ gio_unix_dep = dependency('gio-unix-2.0', version: '>=2.20')
+ gee_dep = dependency('gee-0.8', version: '>=0.8.5')
+-gtk_dep = dependency('gtk+-3.0', version: '>=3.6.0')
+-granite_dep = dependency('granite', version: '>=6.0.0')
++gtk_dep = dependency('gtk4', version: '>=4.6.0')
++granite_dep = dependency('granite-7')
+ handy_dep = dependency('libhandy-1', version: '>=0.90.0')
+-gtksourceview_dep = dependency('gtksourceview-4')
++gtksourceview_dep = dependency('gtksourceview-5')
+ peas_dep = dependency('libpeas-1.0')
+ peasgtk_dep = dependency('libpeas-gtk-1.0')
+ git_dep = dependency('libgit2-glib-1.0')
+diff --git a/src/codecore.deps b/src/codecore.deps
+index dcfdbb461..57f803bf6 100644
+--- a/src/codecore.deps
++++ b/src/codecore.deps
+@@ -1,8 +1,8 @@
+ codecore
+-gtksourceview-4
++gtksourceview-5
+ gee-0.8
+ gobject-2.0
+ gio-2.0
+-gtk+-3.0
+-granite
++gtk4
++granite-7
+ libpeas-1.0
