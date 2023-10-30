@@ -3226,35 +3226,6 @@ index a077a911b..000000000
 -    }
 -}
 -}
-diff --git a/plugins/pantheon-photos-publishing-extras/icons/tumblr.png b/plugins/pantheon-photos-publishing-extras/icons/tumblr.png
-deleted file mode 100644
-index d5bf02b2ff4b36bb0578eef287487ff2780e675e..0000000000000000000000000000000000000000
-GIT binary patch
-literal 0
-HcmV?d00001
-
-literal 1007
-zcmV<L0}%X)P)<h;3K|Lk000e1NJLTq000;O000;W1^@s6;CDUv00006VoOIv0RI60
-z0RN!9r;`8x010qNS#tmY3ljhU3ljkVnw%H_000McNliru+zAa43@p{#Ch!0N1AIwD
-zK~zY`?Uhkz97Pz%e>1zcv%7c6ndXusv8_d<h-fJ-YFe~V(271O)JQ?Z=PDM|2Va7M
-zSOi~+KKLerPeLDBQbZ`W57lB-8mp<Lmlk82-qpk;cfHHy_I7v1hg`0AX|7H1)q#bX
-z|IB><{eRy#-v|GXdknD>*uL+zRPw(5M}!aq4M+nuz^rnAu>}u-o50lfUw_g(Yqy>r
-zcxXpP`CZ3>CsyvQVHjW<cmX)S49Ye+(t2G;YZqV}V=%^Gv_{7<TE{f8)jwg3$r_{I
-zZnfF=mzLvf*HI{p)=ey(R2+D2C%;YPIs5xxYf+NvNRaIA74=%REiwZSWO!x&OXy=K
-zIsMc4S_pJUf>cjdRLk=ivvkIDY+iikNy0Fswzxp8Qfl~8AcVMEEIJYN%i_!wI*!<o
-zPVwnS@33X_CaTpck8j(``-ffy;OL1{j9r{qzXHE&gNW)i;xMFVQ<i~jKS2-x(3k0@
-zFVhRacV~VktSzpeAmJvhIF5<qh{<a=7&&}|k#`RQ@XN2`jDC9>fXi3@B#xs_9_mbh
-z(LzdzmXc~MU~K#nQM6<zUzq01x$`Y4E!VFgSS(w1!bM1HNs;3r8-^^~CZW9lmPM7~
-zjBvapM#lgs*GDPUn0vT>SDPhE2!s?wv0fWNdA1;xmu#+8%E$M805%TvV>=3IC9q70
-z<+zNzae!=JFJB$~h953my?2^c=Kq$x8@D!dJQfy_hVGQl-lvE7Eag$Il+n`X*vYf(
-z-Lo5j_YMuR|INdzDrk+AsNR|rc0yr09=79wbU5<m2^>e^c^*&g9^(0Z&ysLG^0QTf
-zP~&+Xr_TM+ykk4w>Ml}B5!V9@2HEmTf4p#+m*4uBE%#@!Ey?s;iR*=b&{}iwgU{*d
-zPIBq$RO`#Gw8d$8GCVx&+{hOmQ>o0Zgz`meDX0Z?ZqCe;pPr*sUci_oH&+%GnVGwF
-zJIjr(D^dUO(Fgml<Z`)o1+MF6_YCb27jwB{A)o8El_#_|V2oI<KeCa&+89hrNtDvU
-zv8{M>wre8Wlk}rR+HEwW+XTiK?Ye4V=eCE(wAP76eec{|R_sYBjb&N0jm~ywM+<^r
-zS}FB~l=8S`S=L>uWk*7-b)dDLDwRsX9R!n;li}dt;I&jLbv>O<ue-TNQADv=q*|@&
-d(b3T+{x4k+cU~=b7SR9z002ovPDHLkV1gZ%;!OYm
-
 diff --git a/plugins/pantheon-photos-publishing-extras/io.elementary.photos.plugins.publishing-extras.gresource.xml b/plugins/pantheon-photos-publishing-extras/io.elementary.photos.plugins.publishing-extras.gresource.xml
 deleted file mode 100644
 index 1b2c4a016..000000000
