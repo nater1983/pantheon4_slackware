@@ -99,7 +99,7 @@ cd build
     -Dplugin_tpm=false \
     -Dsupported_build=true \
     -Dsystemd=false \
-    -Dgcab:docs=false \
+    -Dgcab:docs=false
   "${NINJA:=ninja}"
   DESTDIR=$PKG $NINJA install
 cd ..
