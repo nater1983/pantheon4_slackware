@@ -24,6 +24,8 @@
 
 wget -c https://github.com/elementary/icons/archive/7.3.1/icons-7.3.1.tar.gz
 
+cd $(dirname $0) ; CWD=$(pwd)
+
 PRGNAM=pantheon-icons
 SRCNAM=icons
 VERSION=${VERSION:-7.3.1}
