@@ -6,46 +6,9 @@ if [ ! -d ${PSB} ]; then
 fi
 
 src=(
-        telepathy-glib
-	wingpanel 
-	switchboard 
-	python3-rdflib 
-	zeitgeist 
-	pantheon-applications-menu
-        cerbere
-        python-onboard
-        liblouis
-        orca
-	pantheon-agent-polkit 
-	wingpanel-indicator-session 
-	pantheon-session 
-        tumbler	
-	elementary-wallpapers 
-	elementary-dock 
-	switchboard-plug-pantheon-shell
-	libstemmer 
-	AppStream 
-	wingpanel-indicator-keyboard
-	libgnomekbd 
-	switchboard-plug-keyboard 
-	wingpanel-indicator-sound 
-	switchboard-plug-sound
-	webkit2gtk4.1
-	evolution-data-server 
-	wingpanel-indicator-datetime 
-	switchboard-plug-datetime 
-	libcloudproviders
-        http-parser
-        libgit2
-        libgit2-glib
-	pantheon-filemanager 
-	gtk-theme-elementary 
-	pantheon-icons 
-	pantheon-terminal 
 	pantheon-tweaks 
 	switchboard-plug-network
         librest
-        webkit2gtk4.1
 	elementary-photos 
 	bash-completion 
 	wingpanel-indicator-power 

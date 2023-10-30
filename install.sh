@@ -48,7 +48,7 @@ src=(
 	zeitgeist 
 	pantheon-applications-menu
         cerbere
-        python-onboard
+        python3-onboard
         liblouis
         orca
 	pantheon-agent-polkit 
@@ -78,14 +78,13 @@ src=(
         http-parser
         libgit2
         libgit2-glib
-	pantheon-filemanager 
-	gtk-theme-elementary 
+	pantheon-files
+	elementary-stylesheet
 	pantheon-icons 
 	pantheon-terminal 
 	pantheon-tweaks 
 	switchboard-plug-network
         rest
-        webkit2gtk
 	elementary-photos 
 	bash-completion 
 	wingpanel-indicator-power 
