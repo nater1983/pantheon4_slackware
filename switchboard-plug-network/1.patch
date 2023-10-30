@@ -1,0 +1,65 @@
+From 50c06caae274c9b7b6c26aaaa6a8aa3a8084df0e Mon Sep 17 00:00:00 2001
+From: Marius Meisenzahl <meisenzahl@users.noreply.github.com>
+Date: Mon, 24 Apr 2023 15:49:42 +0200
+Subject: [PATCH] Add support for libnm 1.43 (#357)
+
+---
+ src/Utils.vala  |  8 ++++++++
+ src/meson.build | 10 +++++++++-
+ 2 files changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/src/Utils.vala b/src/Utils.vala
+index b2d03cd5..c4d71eef 100644
+--- a/src/Utils.vala
++++ b/src/Utils.vala
+@@ -24,10 +24,18 @@ namespace Network {
+         public delegate void UpdateSecretCallback ();
+ 
+         public static void update_secrets (NM.RemoteConnection connection, UpdateSecretCallback callback) {
++#if HAS_NM_1_43
++            connection.get_secrets_async.begin (NM.SettingWirelessSecurity.SETTING_NAME, null, (obj, res) => {
++#else
+             connection.get_secrets_async.begin (NM.SettingWireless.SECURITY_SETTING_NAME, null, (obj, res) => {
++#endif
+                 try {
+                     var secrets = connection.get_secrets_async.end (res);
++#if HAS_NM_1_43
++                    connection.update_secrets (NM.SettingWirelessSecurity.SETTING_NAME, secrets);
++#else
+                     connection.update_secrets (NM.SettingWireless.SECURITY_SETTING_NAME, secrets);
++#endif
+                 } catch (Error e) {
+                     warning ("%s\n", e.message);
+                     return;
+diff --git a/src/meson.build b/src/meson.build
+index b45e901d..905dc648 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -26,6 +26,13 @@ plug_files = files(
+ switchboard_dep = dependency('switchboard-2.0')
+ switchboard_plugsdir = switchboard_dep.get_pkgconfig_variable('plugsdir', define_variable: ['libdir', libdir])
+ 
++libnm_dep = dependency('libnm', version: '>=1.20.6')
++
++args = []
++if libnm_dep.version().version_compare('>=1.43.3')
++    args += '--define=HAS_NM_1_43'
++endif
++
+ shared_module(
+     meson.project_name(),
+     plug_files,
+@@ -35,11 +42,12 @@ shared_module(
+         dependency('gobject-2.0'),
+         dependency('granite', version: '>=5.2.3'),
+         dependency('gtk+-3.0'),
+-        dependency('libnm', version: '>=1.20.6'),
++        libnm_dep,
+         dependency('libnma'),
+         meson.get_compiler('vala').find_library('posix'),
+         switchboard_dep
+     ],
++    vala_args: args,
+     install: true,
+     install_dir : join_paths(switchboard_plugsdir, 'network')
+ )
