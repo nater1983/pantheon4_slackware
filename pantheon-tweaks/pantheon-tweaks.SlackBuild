@@ -24,6 +24,8 @@
 
 wget -c https://github.com/pantheon-tweaks/pantheon-tweaks/archive/1.1.0/pantheon-tweaks-1.1.0.tar.gz
 
+cd $(dirname $0) ; CWD=$(pwd)
+
 PRGNAM=pantheon-tweaks
 VERSION=${VERSION:-1.1.0}
 BUILD=${BUILD:-1}
