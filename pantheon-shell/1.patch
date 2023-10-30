@@ -89,22 +89,17 @@ Date: Mon, 30 Oct 2023 02:49:08 +0000
 Subject: [PATCH 4/4] Update meson_options.txt
 
 ---
- meson_options.txt | 6 ------
- 1 file changed, 6 deletions(-)
+ meson_options.txt | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/meson_options.txt b/meson_options.txt
 index 9734566..32ce3e8 100644
 --- a/meson_options.txt
 +++ b/meson_options.txt
-@@ -7,11 +7,5 @@ option('fallback-session', type : 'string', value: 'ubuntu',
+@@ -6,3 +6,6 @@ option('fallback-session', type : 'string', value: 'ubuntu',
+ 
  option('detect-program-prefixes', type: 'boolean', value: false,
         description : 'This is needed for platforms that install packages into individual prefixes (like Guix System or NixOS')
- 
--option('systemd', type: 'boolean', value: true,
--       description : 'Install systemd unit files for managing the Pantheon session with gnome-session systemd support')
--
--option('systemduserunitdir', type: 'string', value: '',
--       description : 'Custom directory for systemd user units')
--
- option('wayland', type: 'boolean', value: false,
-        description: 'Install Wayland session')
++
++ option('wayland', type: 'boolean', value: false,
++        description: 'Install Wayland session')
