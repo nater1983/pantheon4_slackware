@@ -1,29 +1,16 @@
 From 9504806dc3535091535a66e30b9ff02dcb539464 Mon Sep 17 00:00:00 2001
 From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
 Date: Mon, 30 Oct 2023 02:21:04 +0000
-Subject: [PATCH] Update meson.build
+Subject: [PATCH 1/2] Update meson.build
 
 ---
- session/meson.build | 8 ------
- 1 file changed, 8 deletions(-)
+ session/meson.build | 6 ------
+ 1 file changed, 6 deletions(-)
 
 diff --git a/session/meson.build b/session/meson.build
 index 221560a..2390fc9 100644
 --- a/session/meson.build
 +++ b/session/meson.build
-@@ -116,13 +116,11 @@ foreach component : gsd_components
-   )
- endforeach
- 
--gnome_keyring = find_program('gnome-keyring-daemon')
- onboard = find_program('onboard')
- orca = find_program('orca')
- 
- if get_option('detect-program-prefixes') == true
-   # TODO: use fs module in meson 0.53.0
--  gnome_keyring_prefix = gnome_keyring.path().split('/bin')[0]
-   onboard_prefix = onboard.path().split('/bin')[0]
-   orca_prefix = orca.path().split('/bin')[0]
 @@ -127,17 +127,11 @@ if get_option('detect-program-prefixes') == true
    orca_prefix = orca.path().split('/bin')[0]
  
@@ -42,3 +29,31 @@ index 221560a..2390fc9 100644
      'onboard-autostart': join_paths(autostartdir, 'onboard-autostart.desktop'),
      'orca-autostart': join_paths(autostartdir, 'orca-autostart.desktop'),
    }
+
+From 71ce7e696e9cb2ee1017372c3417980ac109b267 Mon Sep 17 00:00:00 2001
+From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
+Date: Mon, 30 Oct 2023 02:39:17 +0000
+Subject: [PATCH 2/2] Update meson.build
+
+---
+ session/meson.build | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/session/meson.build b/session/meson.build
+index 2390fc9..dcda2a6 100644
+--- a/session/meson.build
++++ b/session/meson.build
+@@ -116,13 +116,11 @@ foreach component : gsd_components
+   )
+ endforeach
+ 
+-gnome_keyring = find_program('gnome-keyring-daemon')
+ onboard = find_program('onboard')
+ orca = find_program('orca')
+ 
+ if get_option('detect-program-prefixes') == true
+   # TODO: use fs module in meson 0.53.0
+-  gnome_keyring_prefix = gnome_keyring.path().split('/bin')[0]
+   onboard_prefix = onboard.path().split('/bin')[0]
+   orca_prefix = orca.path().split('/bin')[0]
+ 
