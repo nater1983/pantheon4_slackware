@@ -4,13 +4,26 @@ Date: Mon, 30 Oct 2023 02:21:04 +0000
 Subject: [PATCH] Update meson.build
 
 ---
- session/meson.build | 6 ------
- 1 file changed, 6 deletions(-)
+ session/meson.build | 8 ------
+ 1 file changed, 8 deletions(-)
 
 diff --git a/session/meson.build b/session/meson.build
 index 221560a..2390fc9 100644
 --- a/session/meson.build
 +++ b/session/meson.build
+@@ -116,13 +116,11 @@ foreach component : gsd_components
+   )
+ endforeach
+ 
+-gnome_keyring = find_program('gnome-keyring-daemon')
+ onboard = find_program('onboard')
+ orca = find_program('orca')
+ 
+ if get_option('detect-program-prefixes') == true
+   # TODO: use fs module in meson 0.53.0
+-  gnome_keyring_prefix = gnome_keyring.path().split('/bin')[0]
+   onboard_prefix = onboard.path().split('/bin')[0]
+   orca_prefix = orca.path().split('/bin')[0]
 @@ -127,17 +127,11 @@ if get_option('detect-program-prefixes') == true
    orca_prefix = orca.path().split('/bin')[0]
  
