@@ -15,29 +15,6 @@ Subject: [PATCH] Add optional Wayland session (#66)
  create mode 100644 wayland-sessions/meson.build
  create mode 100644 wayland-sessions/pantheon-wayland.desktop
 
-diff --git a/meson.build b/meson.build
-index 41804c3..cf95302 100644
---- a/meson.build
-+++ b/meson.build
-@@ -15,3 +15,7 @@ subdir('xsessions')
- if get_option('systemd')
-     subdir('systemd')
- endif
-+
-+if get_option('wayland')
-+    subdir('wayland-sessions')
-+endif
-diff --git a/meson_options.txt b/meson_options.txt
-index 2ae76a7..9734566 100644
---- a/meson_options.txt
-+++ b/meson_options.txt
-@@ -12,3 +12,6 @@ option('systemd', type: 'boolean', value: true,
- 
- option('systemduserunitdir', type: 'string', value: '',
-        description : 'Custom directory for systemd user units')
-+
-+option('wayland', type: 'boolean', value: false,
-+       description: 'Install Wayland session')
 diff --git a/session/meson.build b/session/meson.build
 index d1474e4..221560a 100644
 --- a/session/meson.build
