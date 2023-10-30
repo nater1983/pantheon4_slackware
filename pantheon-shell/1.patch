@@ -64,24 +64,21 @@ Date: Mon, 30 Oct 2023 02:48:02 +0000
 Subject: [PATCH 3/4] Update meson.build
 
 ---
- meson.build | 4 ----
- 1 file changed, 4 deletions(-)
+ meson.build | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/meson.build b/meson.build
 index cf95302..06d1145 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -12,10 +12,6 @@ endif
+@@ -11,3 +11,7 @@ endif
+ 
  subdir('session')
  subdir('xsessions')
- 
--if get_option('systemd')
--    subdir('systemd')
--endif
--
- if get_option('wayland')
-     subdir('wayland-sessions')
- endif
++
++ if get_option('wayland')
++     subdir('wayland-sessions')
++ endif
 
 From 78921d4e805cf9eedd06f8f1f310bab5441ad9a3 Mon Sep 17 00:00:00 2001
 From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
