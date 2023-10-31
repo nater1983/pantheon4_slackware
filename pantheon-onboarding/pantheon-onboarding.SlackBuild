@@ -24,6 +24,8 @@
 
 wget -c https://github.com/elementary/onboarding/archive/7.2.0/onboarding-7.2.0.tar.gz
 
+cd $(dirname $0) ; CWD=$(pwd)
+
 PRGNAM=pantheon-onboarding
 SRCNAM=onboarding
 VERSION=${VERSION:-7.2.0}
