@@ -105,7 +105,7 @@ src=(
 	perl-xml-libxml 
 	libayatana-appindicator 
 	ayatana-indicator-application 
-	wingpanel-indicator-ayatana 
+	wingpanel-community-indicators
 	switcheroo-control 
 	switchboard-plug-about 
 	switchboard-plug-locale 
