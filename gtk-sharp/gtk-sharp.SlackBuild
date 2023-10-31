@@ -84,7 +84,6 @@ patch -p1 < $CWD/fix-build.patch
 sed -i 's/gmcs/mcs/' configure.ac || exit 1
 sed -e '/MONO_PROFILE_ENTER_LEAVE/d' -i gtk/gui-thread-check/profiler/gui-thread-check.c || exit 1
 
-./autogen.sh
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
 ./configure \
