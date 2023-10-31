@@ -6,16 +6,13 @@ if [ ! -d ${PSB} ]; then
 fi
 
 src=(
-	ninja 
-	meson 
 	protobuf3
 	protobuf-c
 	libsmbios
 	gcab
 	libxmlb
-	lxml
+	python3-lxml
 	fwupd 
-	gnome-keyring 
 	sleuthkit 
 	lsb-release 
 	raptor
@@ -28,7 +25,6 @@ src=(
 	granite 
 	granite7
         gnome-desktop
-        libsoup3
         geocode-glib
         gsettings-desktop-schemas
         libgweather4
@@ -39,12 +35,11 @@ src=(
 	sysprof
         mutter
 	gala 
-	libhandy
         pantheon-notifications
         telepathy-glib
 	wingpanel 
 	switchboard 
-	rdflib 
+	python3-rdflib 
 	zeitgeist 
 	pantheon-applications-menu
         cerbere
@@ -53,13 +48,7 @@ src=(
         orca
 	pantheon-agent-polkit 
 	wingpanel-indicator-session 
-	pantheon-session 
-	xfce4-dev-tools 
-	libxfce4util 
-	xfconf 
-	libxfce4ui 
-	exo
-        tumbler	
+	pantheon-shell
 	elementary-wallpapers 
 	elementary-dock 
 	switchboard-plug-pantheon-shell
@@ -84,15 +73,13 @@ src=(
 	pantheon-terminal 
 	pantheon-tweaks 
 	switchboard-plug-network
-        rest
+        librest
 	elementary-photos 
-	bash-completion 
 	wingpanel-indicator-power 
 	switchboard-plug-power 
 	switchboard-plug-notifications 
 	wingpanel-indicator-notifications 
 	switchboard-plug-display 
-	gtkspell3
 	gtksourceview4
 	libpeas 
 	elementary-code
@@ -148,7 +135,6 @@ src=(
 	wingpanel-indicator-network 
 	indicator-application 
 	lightdm 
-	lightdm-gtk-greeter 
 	lightdm-pantheon-greeter
 )
 
