@@ -22,13 +22,13 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://github.com/RDFLib/rdflib/releases/download/7.0.0/rdflib-7.0.0.tar.gz
+wget -c https://github.com/RDFLib/rdflib/archive/6.1.1/rdflib-6.1.1.tar.gz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=python3-rdflib
 SRCNAM=rdflib
-VERSION=${VERSION:-7.0.0}
+VERSION=${VERSION:-6.1.1}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
