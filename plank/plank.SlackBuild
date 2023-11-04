@@ -96,7 +96,7 @@ make
 make install DESTDIR=$PKG
 
 # changing launcher to run preferences first...
-install -Dm644 $CWD/plank.desktop $PKG/usr/share/applications/plank.desktop
+install -Dm644 $CWD/plank.desktop $PKG/etc/xdg/autostart/plank.desktop || exit 1
 
 rm -f $PKG/{,usr/}lib${LIBDIRSUFFIX}/*.la
 
