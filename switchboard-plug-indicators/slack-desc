@@ -5,10 +5,15 @@
 # You must make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-        |-----handy-ruler----------------------------------------------------------|
-wingpanel-indicator-ayatana: ( Wingpanel Ayatana Indicator )
-wingpanel-indicator-ayatana:
-wingpanel-indicator-ayatana:
-wingpanel-indicator-ayatana:
-wingpanel-indicator-ayatana: https://github.com/eth-p/wingpanel-indicator-ayatana 
-wingpanel-indicator-ayatana:
+                           |-----handy-ruler----------------------------------------------------------|
+switchboard-plug-indicators: switchboard-plug-indicators ( Switchboard plug for community indicators )
+switchboard-plug-indicators:
+switchboard-plug-indicators: Switchboard plug for community indicators project. 
+switchboard-plug-indicators: This is a switchboard plug for elementary switchboard, that lets you
+switchboard-plug-indicators: change settings for wingpanel-community-indicators. 
+switchboard-plug-indicators:
+switchboard-plug-indicators:
+switchboard-plug-indicators:
+switchboard-plug-indicators: Homepage: https://github.com/MvBonin/switchboard-plug-indicators
+switchboard-plug-indicators:
+switchboard-plug-indicators:
