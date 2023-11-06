@@ -105,6 +105,7 @@ for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; r
 fi
 
 install -D -m 644 $CWD/gala-multitaskingview.desktop $PKG/usr/share/applications/ || exit 1
+install -vDm 0755 $CWD/xinitrc.pantheon -t $PKG/etc/X11/xinit
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$SRCVER
 cp -a AUTHORS COPYING HACKING README.md \
