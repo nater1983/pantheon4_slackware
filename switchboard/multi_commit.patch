@@ -1,0 +1,23 @@
+From baedd88b49ae24a4f7243f9195c86f47429e155e Mon Sep 17 00:00:00 2001
+From: Ryo Nakano <26003928+ryonakano@users.noreply.github.com>
+Date: Tue, 1 Nov 2022 04:17:59 +0900
+Subject: [PATCH] Plug: Remove unused category other (#252)
+
+---
+ lib/Plug.vala | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/lib/Plug.vala b/lib/Plug.vala
+index dcb73049..f1a51e7a 100644
+--- a/lib/Plug.vala
++++ b/lib/Plug.vala
+@@ -23,8 +23,7 @@ public abstract class Switchboard.Plug : GLib.Object {
+         PERSONAL = 0,
+         HARDWARE = 1,
+         NETWORK = 2,
+-        SYSTEM = 3,
+-        OTHER = 4
++        SYSTEM = 3
+     }
+ 
+     /**
