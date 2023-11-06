@@ -108,8 +108,8 @@ find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | gr
 find $PKG/usr/man -type f -exec gzip -9 {} \;
 for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
 
-mkdir -p $PKG/etc/X11/xinit
-install -vDm 0755 $CWD/xinitrc.gnome -t $PKG/etc/X11/xinit
+# Remove Gnome specific files for wayland-session and xsession
+rm -fr $PKG/usr/share/{wayland-sessions,xsessions}
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cp -a  AUTHORS HACKING NEWS COPYING MAINTAINERS README \
