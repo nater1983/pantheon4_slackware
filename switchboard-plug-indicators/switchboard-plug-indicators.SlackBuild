@@ -1,9 +1,8 @@
 #!/bin/sh
 
-# Slackware build script for wingpanel-community-indicators
+# Slackware build script for switchboard-plug-indicator
 
-# Copyright 2021 Frank Honolka <slackernetuk@gmail.com> (wingpanel-indicator-ayatana)
-# Copyright 2023 Nathaniel Russell <naterussell83@gmail.com> (wingpanel-community-indicators)
+# Copyright 2023 Nathaniel Russell <naterussell83@gmail.com> (switchboard-plug-indicator)
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -23,15 +22,14 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://github.com/MvBonin/wingpanel-community-indicators/archive/2.0.10/wingpanel-community-indicators-2.0.10.tar.gz
-
 cd $(dirname $0) ; CWD=$(pwd)
 
-PRGNAM=wingpanel-community-indicators
-VERSION=${VERSION:-2.0.10}
+PRGNAM=switchboard-plug-indicator
+VERSION=${VERSION:-6.1.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
+_commit=fac9d48762ced77ae3750ddb861ca5ed2e793fe3
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -69,9 +67,10 @@ set -e
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-rm -rf $PRGNAM-$VERSION
-tar xvf $CWD/$PRGNAM-$VERSION.tar.?z*
-cd $PRGNAM-$VERSION
+rm -rf $PRGNAM
+git clone https://github.com/MvBonin/switchboard-plug-indicators.git
+cd $PRGNAM
+git checkout $_commit
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
@@ -105,7 +104,7 @@ for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; r
 fi
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a CODE_OF_CONDUCT.md COPYING README.md \
+cp -a LICENSE README.md \
     $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
