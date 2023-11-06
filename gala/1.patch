@@ -1,3 +1,558 @@
+From 84e2acdd2d42120201755b571e179aa3b9903260 Mon Sep 17 00:00:00 2001
+From: Leo <lenemter@gmail.com>
+Date: Fri, 27 Oct 2023 15:42:14 +0900
+Subject: Move to Workspace: Fix segmentation fault when `focus_window` is null
+ (#1785)
+
+---
+ src/WindowManager.vala | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/WindowManager.vala b/src/WindowManager.vala
+index b14c2e93..ee21b698 100644
+--- a/src/WindowManager.vala
++++ b/src/WindowManager.vala
+@@ -566,7 +566,9 @@ namespace Gala {
+                 var direction = gesture_tracker.settings.get_natural_scroll_direction (gesture);
+ 
+                 moving = display.focus_window;
+-                moving.change_workspace (manager.get_active_workspace ().get_neighbor (direction));
++                if (moving != null) {
++                    moving.change_workspace (manager.get_active_workspace ().get_neighbor (direction));
++                }
+ 
+                 switch_to_next_workspace (direction);
+                 return;
+-- 
+cgit v1.2.3
+
+From 433c4e911b86d1e22e8e1a6100b9ef2512025299 Mon Sep 17 00:00:00 2001
+From: Leo <lenemter@gmail.com>
+Date: Sat, 28 Oct 2023 03:29:20 +0900
+Subject: Increase `window-clone` shadow size (#1781)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Co-authored-by: Danielle Foré <danielle@elementary.io>
+---
+ plugins/pip/PopupWindow.vala | 3 +--
+ src/Widgets/WindowClone.vala | 2 +-
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/plugins/pip/PopupWindow.vala b/plugins/pip/PopupWindow.vala
+index 4db65476..270b71c8 100644
+--- a/plugins/pip/PopupWindow.vala
++++ b/plugins/pip/PopupWindow.vala
+@@ -7,7 +7,6 @@
+ public class Gala.Plugins.PIP.PopupWindow : Clutter.Actor {
+     private int button_size;
+     private int container_margin;
+-    private const int SHADOW_SIZE = 100;
+     private const uint FADE_OUT_TIMEOUT = 200;
+     private const float MINIMUM_SCALE = 0.1f;
+     private const float MAXIMUM_SCALE = 1.0f;
+@@ -88,7 +87,7 @@ public class Gala.Plugins.PIP.PopupWindow : Clutter.Actor {
+         container = new Clutter.Actor ();
+         container.reactive = true;
+         container.set_scale (0.35f, 0.35f);
+-        container.add_effect (new ShadowEffect (SHADOW_SIZE) { css_class = "window-clone" });
++        container.add_effect (new ShadowEffect (55) { css_class = "window-clone" });
+         container.add_child (clone);
+         container.add_action (move_action);
+ 
+diff --git a/src/Widgets/WindowClone.vala b/src/Widgets/WindowClone.vala
+index e4625bee..14af8f69 100644
+--- a/src/Widgets/WindowClone.vala
++++ b/src/Widgets/WindowClone.vala
+@@ -241,7 +241,7 @@ public class Gala.WindowClone : Clutter.Actor {
+ 
+         if (window.fullscreen || window.maximized_horizontally && window.maximized_vertically) {
+             if (shadow_effect == null) {
+-                shadow_effect = new ShadowEffect (40) { css_class = "window-clone" };
++                shadow_effect = new ShadowEffect (55) { css_class = "window-clone" };
+                 shadow_opacity = 0;
+                 clone.add_effect_with_name ("shadow", shadow_effect);
+             }
+-- 
+cgit v1.2.3
+
+From b8bea1fd01a8703cb50cbb614c432e09ebb1f67a Mon Sep 17 00:00:00 2001
+From: Leo <lenemter@gmail.com>
+Date: Sat, 28 Oct 2023 03:53:11 +0900
+Subject: Redraw tooltip to avoid corner glitches (#1760)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Co-authored-by: Danielle Foré <danielle@elementary.io>
+---
+ src/Widgets/Tooltip.vala | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/Widgets/Tooltip.vala b/src/Widgets/Tooltip.vala
+index 4611c46a..9eb6ecfb 100644
+--- a/src/Widgets/Tooltip.vala
++++ b/src/Widgets/Tooltip.vala
+@@ -132,9 +132,13 @@ public class Gala.Tooltip : Clutter.Actor {
+         }
+ 
+         ctx.save ();
++        ctx.set_operator (Cairo.Operator.CLEAR);
++        ctx.paint ();
++        ctx.clip ();
++        ctx.reset_clip ();
++        ctx.set_operator (Cairo.Operator.OVER);
+ 
+         style_context.render_background (ctx, 0, 0, width, height);
+-        style_context.render_frame (ctx, 0, 0, width, height);
+ 
+         ctx.restore ();
+ 
+-- 
+cgit v1.2.3
+
+From ae07ad5abe9d58572c03a55f6f94c3613bb6cdcd Mon Sep 17 00:00:00 2001
+From: Leo <lenemter@gmail.com>
+Date: Sat, 28 Oct 2023 21:35:22 +0900
+Subject: WindowClone: reset cursor early (#1786)
+
+---
+ src/Widgets/WindowClone.vala | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/Widgets/WindowClone.vala b/src/Widgets/WindowClone.vala
+index 14af8f69..cb5c2c8a 100644
+--- a/src/Widgets/WindowClone.vala
++++ b/src/Widgets/WindowClone.vala
+@@ -743,6 +743,8 @@ public class Gala.WindowClone : Clutter.Actor {
+ 
+         active_shape.show ();
+ 
++        wm.get_display ().set_cursor (Meta.Cursor.DEFAULT);
++
+         if (destination is IconGroup) {
+             workspace = ((IconGroup) destination).workspace;
+         } else if (destination is FramedBackground) {
+@@ -803,8 +805,6 @@ public class Gala.WindowClone : Clutter.Actor {
+             // if we're dropped at the place where we came from interpret as cancel
+             drag_canceled ();
+         }
+-
+-        wm.get_display ().set_cursor (Meta.Cursor.DEFAULT);
+     }
+ 
+     /**
+-- 
+cgit v1.2.3
+
+From 82b60f140aec9c486f2269028c214dd70e16c00b Mon Sep 17 00:00:00 2001
+From: Leo <lenemter@gmail.com>
+Date: Mon, 30 Oct 2023 17:45:58 +0900
+Subject: WorkspaceManager: count windows on primary monitor only (#1789)
+
+---
+ data/gala.metainfo.xml.in |  1 +
+ lib/Utils.vala            | 16 ++++++++++------
+ src/WorkspaceManager.vala |  4 ++--
+ 3 files changed, 13 insertions(+), 8 deletions(-)
+
+diff --git a/data/gala.metainfo.xml.in b/data/gala.metainfo.xml.in
+index 049600cd..f3920349 100644
+--- a/data/gala.metainfo.xml.in
++++ b/data/gala.metainfo.xml.in
+@@ -31,6 +31,7 @@
+         <ul>
+           <li>Changing the wallpaper or going to sleep respects the "Reduce Motion" option</li>
+           <li>Use appropriate drag-and-drop pointers when moving windows</li>
++          <li>Improve dynamic workspaces behaviour with multiple monitors</li>
+           <li>Updated translations</li>
+         </ul>
+       </description>
+diff --git a/lib/Utils.vala b/lib/Utils.vala
+index 505073c5..394269e6 100644
+--- a/lib/Utils.vala
++++ b/lib/Utils.vala
+@@ -261,16 +261,20 @@ namespace Gala {
+          *
+          * @param workspace The workspace on which to count the windows
+          */
+-        public static uint get_n_windows (Meta.Workspace workspace) {
++        public static uint get_n_windows (Meta.Workspace workspace, bool on_primary = false) {
+             var n = 0;
+-            foreach (weak Meta.Window window in workspace.list_windows ()) {
+-                if (window.on_all_workspaces)
++            foreach (unowned var window in workspace.list_windows ()) {
++                if (window.on_all_workspaces) {
+                     continue;
++                }
++
+                 if (
+-                    window.window_type == Meta.WindowType.NORMAL ||
+-                    window.window_type == Meta.WindowType.DIALOG ||
+-                    window.window_type == Meta.WindowType.MODAL_DIALOG)
++                    (window.window_type == Meta.WindowType.NORMAL
++                    || window.window_type == Meta.WindowType.DIALOG
++                    || window.window_type == Meta.WindowType.MODAL_DIALOG)
++                    && (!on_primary || (on_primary && window.is_on_primary_monitor ()))) {
+                     n ++;
++                }
+             }
+ 
+             return n;
+diff --git a/src/WorkspaceManager.vala b/src/WorkspaceManager.vala
+index fc421e9e..c78ea0c5 100644
+--- a/src/WorkspaceManager.vala
++++ b/src/WorkspaceManager.vala
+@@ -156,7 +156,7 @@ namespace Gala {
+             // or we are in modal-mode
+             if ((!is_active_workspace || wm.is_modal ())
+                 && remove_freeze_count < 1
+-                && Utils.get_n_windows (workspace) == 0
++                && Utils.get_n_windows (workspace, true) == 0
+                 && workspace != last_workspace) {
+                 remove_workspace (workspace);
+             }
+@@ -164,7 +164,7 @@ namespace Gala {
+             // if window is the second last and empty, make it the last workspace
+             if (is_active_workspace
+                 && remove_freeze_count < 1
+-                && Utils.get_n_windows (workspace) == 0
++                && Utils.get_n_windows (workspace, true) == 0
+                 && workspace.index () == last_workspace_index - 1) {
+                 remove_workspace (last_workspace);
+             }
+-- 
+cgit v1.2.3
+
+From aa1dc31a1d160b733cce0c54714b5de7c4fbcc00 Mon Sep 17 00:00:00 2001
+From: Leo <lenemter@gmail.com>
+Date: Mon, 30 Oct 2023 18:01:15 +0900
+Subject: DragDropAction: pass correct coordinates to `drag_begin` (#1791)
+
+---
+ lib/DragDropAction.vala      | 2 +-
+ src/Widgets/WindowClone.vala | 6 ++++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/lib/DragDropAction.vala b/lib/DragDropAction.vala
+index 408dac0f..9954e943 100644
+--- a/lib/DragDropAction.vala
++++ b/lib/DragDropAction.vala
+@@ -291,7 +291,7 @@ namespace Gala {
+                     if (!dragging && clicked) {
+                         var drag_threshold = Clutter.Settings.get_default ().dnd_drag_threshold;
+                         if (Math.fabsf (last_x - x) > drag_threshold || Math.fabsf (last_y - y) > drag_threshold) {
+-                            handle = drag_begin (x, y);
++                            handle = drag_begin (last_x, last_y);
+                             if (handle == null) {
+                                 ungrab_actor ();
+                                 critical ("No handle has been returned by the started signal, aborting drag.");
+diff --git a/src/Widgets/WindowClone.vala b/src/Widgets/WindowClone.vala
+index cb5c2c8a..a58dc2eb 100644
+--- a/src/Widgets/WindowClone.vala
++++ b/src/Widgets/WindowClone.vala
+@@ -669,8 +669,10 @@ public class Gala.WindowClone : Clutter.Actor {
+         window_icon.save_easing_state ();
+         window_icon.set_easing_duration (duration);
+         window_icon.set_easing_mode (Clutter.AnimationMode.EASE_IN_OUT_CUBIC);
+-        window_icon.set_position (click_x - (abs_x + prev_parent_x) - window_icon.width / 2,
+-            click_y - (abs_y + prev_parent_y) - window_icon.height / 2);
++        window_icon.set_position (
++            click_x - (abs_x + prev_parent_x) - window_icon.width / 2,
++            click_y - (abs_y + prev_parent_y) - window_icon.height / 2
++        );
+         window_icon.restore_easing_state ();
+ 
+         close_button.opacity = 0;
+-- 
+cgit v1.2.3
+
+From 69db03560b09346714846eb8c85eeef7aacf2527 Mon Sep 17 00:00:00 2001
+From: Leo <lenemter@gmail.com>
+Date: Mon, 30 Oct 2023 18:05:44 +0900
+Subject: MultitaskingView: code style (#1790)
+
+---
+ src/Widgets/MultitaskingView.vala | 81 +++++++++++++++++++++++----------------
+ 1 file changed, 48 insertions(+), 33 deletions(-)
+
+diff --git a/src/Widgets/MultitaskingView.vala b/src/Widgets/MultitaskingView.vala
+index 7604ef1c..81f99376 100644
+--- a/src/Widgets/MultitaskingView.vala
++++ b/src/Widgets/MultitaskingView.vala
+@@ -68,7 +68,6 @@ namespace Gala {
+             workspace_gesture_tracker.on_gesture_detected.connect (on_workspace_gesture_detected);
+ 
+             workspaces = new Clutter.Actor ();
+-            workspaces.set_easing_mode (Clutter.AnimationMode.EASE_OUT_QUAD);
+ 
+             icon_groups = new IconGroupContainer (wm, display.get_monitor_scale (display.get_primary_monitor ()));
+ 
+@@ -107,8 +106,9 @@ namespace Gala {
+                 }
+ 
+                 if (Meta.Prefs.get_dynamic_workspaces () ||
+-                    (pref != Meta.Preference.DYNAMIC_WORKSPACES && pref != Meta.Preference.NUM_WORKSPACES))
++                    (pref != Meta.Preference.DYNAMIC_WORKSPACES && pref != Meta.Preference.NUM_WORKSPACES)) {
+                     return;
++                }
+ 
+                 Idle.add (() => {
+                     unowned List<Meta.Workspace> existing_workspaces = null;
+@@ -116,8 +116,8 @@ namespace Gala {
+                         existing_workspaces.append (manager.get_workspace_by_index (i));
+                     }
+ 
+-                    foreach (var child in workspaces.get_children ()) {
+-                        unowned WorkspaceClone workspace_clone = (WorkspaceClone) child;
++                    foreach (unowned var child in workspaces.get_children ()) {
++                        unowned var workspace_clone = (WorkspaceClone) child;
+                         if (existing_workspaces.index (workspace_clone.workspace) < 0) {
+                             workspace_clone.window_selected.disconnect (window_selected);
+                             workspace_clone.selected.disconnect (activate_workspace);
+@@ -131,7 +131,7 @@ namespace Gala {
+                     update_monitors ();
+                     update_positions (false);
+ 
+-                    return false;
++                    return Source.REMOVE;
+                 });
+             });
+         }
+@@ -141,15 +141,17 @@ namespace Gala {
+          * MonitorClones at the right positions
+          */
+         private void update_monitors () {
+-            foreach (var monitor_clone in window_containers_monitors)
++            foreach (var monitor_clone in window_containers_monitors) {
+                 monitor_clone.destroy ();
++            }
+ 
+             var primary = display.get_primary_monitor ();
+ 
+             if (InternalUtils.workspaces_only_on_primary ()) {
+                 for (var monitor = 0; monitor < display.get_n_monitors (); monitor++) {
+-                    if (monitor == primary)
++                    if (monitor == primary) {
+                         continue;
++                    }
+ 
+                     var monitor_clone = new MonitorClone (wm, display, monitor, multitasking_gesture_tracker);
+                     monitor_clone.window_selected.connect (window_selected);
+@@ -167,8 +169,8 @@ namespace Gala {
+             primary_monitor_container.set_position (primary_geometry.x, primary_geometry.y);
+             primary_monitor_container.set_size (primary_geometry.width, primary_geometry.height);
+ 
+-            foreach (var child in workspaces.get_children ()) {
+-                unowned WorkspaceClone workspace_clone = (WorkspaceClone) child;
++            foreach (unowned var child in workspaces.get_children ()) {
++                unowned var workspace_clone = (WorkspaceClone) child;
+                 workspace_clone.scale_factor = scale;
+                 workspace_clone.update_size (primary_geometry);
+             }
+@@ -353,6 +355,7 @@ namespace Gala {
+                                (uint) calculated_duration;
+ 
+                 workspaces.save_easing_state ();
++                workspaces.set_easing_mode (Clutter.AnimationMode.EASE_OUT_QUAD);
+                 workspaces.set_easing_duration (duration);
+                 workspaces.x = (is_nudge_animation || cancel_action) ? initial_x : target_x;
+                 workspaces.restore_easing_state ();
+@@ -439,6 +442,7 @@ namespace Gala {
+             }
+ 
+             workspaces.save_easing_state ();
++            workspaces.set_easing_mode (Clutter.AnimationMode.EASE_OUT_QUAD);
+             workspaces.set_easing_duration ((animate && wm.enable_animations) ? AnimationDuration.WORKSPACE_SWITCH_MIN : 0);
+             workspaces.x = -active_x;
+             workspaces.restore_easing_state ();
+@@ -465,24 +469,27 @@ namespace Gala {
+             } else
+                 icon_groups.x = primary_monitor_container.width / 2 - icon_groups_width / 2;
+ 
+-            if (animate)
++            if (animate) {
+                 icon_groups.restore_easing_state ();
++            }
+         }
+ 
+         private void add_workspace (int num) {
+-            unowned Meta.WorkspaceManager manager = display.get_workspace_manager ();
++            unowned var manager = display.get_workspace_manager ();
+             var scale = display.get_monitor_scale (display.get_primary_monitor ());
+-            var workspace = new WorkspaceClone (wm, manager.get_workspace_by_index (num), multitasking_gesture_tracker, scale);
+-            workspace.window_selected.connect (window_selected);
+-            workspace.selected.connect (activate_workspace);
+ 
++            var workspace = new WorkspaceClone (wm, manager.get_workspace_by_index (num), multitasking_gesture_tracker, scale);
+             workspaces.insert_child_at_index (workspace, num);
+             icon_groups.add_group (workspace.icon_group);
+ 
++            workspace.window_selected.connect (window_selected);
++            workspace.selected.connect (activate_workspace);
++
+             update_positions (false);
+ 
+-            if (opened)
++            if (opened) {
+                 workspace.open ();
++            }
+         }
+ 
+         private void remove_workspace (int num) {
+@@ -495,16 +502,17 @@ namespace Gala {
+                 existing_workspaces.append (manager.get_workspace_by_index (i));
+             }
+ 
+-            foreach (var child in workspaces.get_children ()) {
+-                unowned WorkspaceClone clone = (WorkspaceClone) child;
++            foreach (unowned var child in workspaces.get_children ()) {
++                unowned var clone = (WorkspaceClone) child;
+                 if (existing_workspaces.index (clone.workspace) < 0) {
+                     workspace = clone;
+                     break;
+                 }
+             }
+ 
+-            if (workspace == null)
++            if (workspace == null) {
+                 return;
++            }
+ 
+             workspace.window_selected.disconnect (window_selected);
+             workspace.selected.disconnect (activate_workspace);
+@@ -532,8 +540,9 @@ namespace Gala {
+ 
+             clone.workspace.activate (display.get_current_time ());
+ 
+-            if (close_view)
++            if (close_view) {
+                 toggle ();
++            }
+         }
+ 
+         /**
+@@ -545,8 +554,9 @@ namespace Gala {
+ #else
+         public override bool key_press_event (Clutter.KeyEvent event) {
+ #endif
+-            if (!opened)
++            if (!opened) {
+                 return true;
++            }
+ 
+             switch (event.get_key_symbol ()) {
+                 case Clutter.Key.Escape:
+@@ -593,7 +603,7 @@ namespace Gala {
+          */
+         private WorkspaceClone get_active_workspace_clone () {
+             unowned Meta.WorkspaceManager manager = display.get_workspace_manager ();
+-            foreach (var child in workspaces.get_children ()) {
++            foreach (unowned var child in workspaces.get_children ()) {
+                 unowned WorkspaceClone workspace_clone = (WorkspaceClone) child;
+                 if (workspace_clone.workspace == manager.get_active_workspace ()) {
+                     return workspace_clone;
+@@ -608,9 +618,9 @@ namespace Gala {
+             unowned Meta.WorkspaceManager manager = display.get_workspace_manager ();
+             var workspace = window.get_workspace ();
+ 
+-            if (workspace != manager.get_active_workspace ())
++            if (workspace != manager.get_active_workspace ()) {
+                 workspace.activate (time);
+-            else {
++            } else {
+                 window.activate (time);
+                 toggle ();
+             }
+@@ -696,18 +706,19 @@ namespace Gala {
+             WorkspaceClone? active_workspace = null;
+             unowned Meta.WorkspaceManager manager = display.get_workspace_manager ();
+             var active = manager.get_active_workspace ();
+-            foreach (var child in workspaces.get_children ()) {
++            foreach (unowned var child in workspaces.get_children ()) {
+                 unowned WorkspaceClone workspace = (WorkspaceClone) child;
+                 if (workspace.workspace == active) {
+                     active_workspace = workspace;
+                     break;
+                 }
+             }
+-            if (active_workspace != null)
++            if (active_workspace != null) {
+                 workspaces.set_child_above_sibling (active_workspace, null);
++            }
+ 
+             workspaces.remove_all_transitions ();
+-            foreach (var child in workspaces.get_children ()) {
++            foreach (unowned var child in workspaces.get_children ()) {
+                 child.remove_all_transitions ();
+             }
+ 
+@@ -715,7 +726,7 @@ namespace Gala {
+                 update_positions (false);
+             }
+ 
+-            foreach (var child in workspaces.get_children ()) {
++            foreach (unowned var child in workspaces.get_children ()) {
+                 unowned WorkspaceClone workspace = (WorkspaceClone) child;
+                 if (opening) {
+                     workspace.open (with_gesture, is_cancel_animation);
+@@ -755,7 +766,7 @@ namespace Gala {
+                         toggle (false, true);
+                     }
+ 
+-                    return false;
++                    return Source.REMOVE;
+                 });
+             };
+ 
+@@ -771,17 +782,20 @@ namespace Gala {
+             foreach (unowned Meta.WindowActor actor in window_actors) {
+                 const int MAX_OFFSET = 85;
+ 
+-                if (actor.is_destroyed ())
++                if (actor.is_destroyed ()) {
+                     continue;
++                }
+ 
+                 unowned Meta.Window window = actor.get_meta_window ();
+                 var monitor = window.get_monitor ();
+ 
+-                if (window.window_type != Meta.WindowType.DOCK)
++                if (window.window_type != Meta.WindowType.DOCK) {
+                     continue;
++                }
+ 
+-                if (display.get_monitor_in_fullscreen (monitor))
++                if (display.get_monitor_in_fullscreen (monitor)) {
+                     continue;
++                }
+ 
+                 var monitor_geom = display.get_monitor_geometry (monitor);
+ 
+@@ -789,8 +803,9 @@ namespace Gala {
+                 var top = monitor_geom.y + MAX_OFFSET > window_geom.y;
+                 var bottom = monitor_geom.y + monitor_geom.height - MAX_OFFSET > window_geom.y;
+ 
+-                if (!top && !bottom)
++                if (!top && !bottom) {
+                     continue;
++                }
+ 
+                 var initial_x = actor.x;
+                 var initial_y = actor.y;
+@@ -829,7 +844,7 @@ namespace Gala {
+         }
+ 
+         private void hide_docks (bool with_gesture, bool is_cancel_animation) {
+-            foreach (var child in dock_clones.get_children ()) {
++            foreach (unowned var child in dock_clones.get_children ()) {
+                 var dock = (Clutter.Clone) child;
+                 var initial_y = dock.y;
+                 var target_y = dock.source.y;
+-- 
+cgit v1.2.3
+
 From ebbf6b6010feaec61a38d7176e578e328f191720 Mon Sep 17 00:00:00 2001
 From: Marius Meisenzahl <meisenzahl@users.noreply.github.com>
 Date: Mon, 30 Oct 2023 10:23:14 +0100
@@ -25,6 +580,226 @@ index ee21b698..1ae7cf30 100644
                  accent_color_manager = new AccentColorManager ();
  
                  // initialize plugins and add default components if no plugin overrides them
+-- 
+cgit v1.2.3
+
+From 8526de33b11de17e0ed6c5e3418809ddb456a3b5 Mon Sep 17 00:00:00 2001
+From: lenemter <lenemter@gmail.com>
+Date: Tue, 31 Oct 2023 09:58:25 +0900
+Subject: Make it work
+
+---
+ src/Background/BackgroundManager.vala | 30 ++++++++++++++++++------------
+ 1 file changed, 18 insertions(+), 12 deletions(-)
+
+diff --git a/src/Background/BackgroundManager.vala b/src/Background/BackgroundManager.vala
+index 23f17e2f..425ac276 100644
+--- a/src/Background/BackgroundManager.vala
++++ b/src/Background/BackgroundManager.vala
+@@ -95,9 +95,6 @@ namespace Gala {
+ 
+             new_background_actor = create_background_actor ();
+             var new_content = (Meta.BackgroundContent)new_background_actor.content;
+-            var old_content = (Meta.BackgroundContent)background_actor.content;
+-            new_content.vignette_sharpness = old_content.vignette_sharpness;
+-            new_content.brightness = old_content.brightness;
+             new_background_actor.visible = background_actor.visible;
+ 
+ 
+@@ -133,19 +130,28 @@ namespace Gala {
+             unowned var content = (Meta.BackgroundContent) background_actor.content;
+             content.background = background.background;
+ 
++            unowned var manager = display.get_workspace_manager ();
++            unowned var workspace = manager.get_workspace_by_index (0);
++
++            var workarea = workspace.get_work_area_for_monitor (monitor_index);
++            var monitor = display.get_monitor_geometry (monitor_index);
++
++            var rect = Graphene.Rect();
++            rect.origin.x = workarea.x - monitor.x;
++            rect.origin.y = workarea.y - monitor.y;
++            rect.size.width = workarea.width;
++            rect.size.height = workarea.height;
++    
++            content.set_rounded_clip_bounds(rect);
++
++            content.rounded_clip_radius = Utils.scale_to_int (6, display.get_monitor_scale (monitor_index));
+             if (background_source.should_dim) {
+-                // It doesn't work without Idle :( 
+-                Idle.add (() => {
+-                    content.vignette = true;
+-                    content.brightness = DIM_OPACITY;
+-                    content.rounded_clip_radius = Utils.scale_to_int (6, display.get_monitor_scale (monitor_index));
+-                    return Source.REMOVE;
+-                });
++                content.vignette = true;
++                content.brightness = DIM_OPACITY;
+             }
+-
++                
+             insert_child_below (background_actor, null);
+ 
+-            var monitor = display.get_monitor_geometry (monitor_index);
+             background_actor.set_size (monitor.width, monitor.height);
+ 
+             if (control_position) {
+-- 
+cgit v1.2.3
+
+From 7ac565ade143f370196b27e6ece4d1a81e23274e Mon Sep 17 00:00:00 2001
+From: lenemter <lenemter@gmail.com>
+Date: Tue, 31 Oct 2023 10:01:29 +0900
+Subject: Fix lint
+
+---
+ src/Background/BackgroundManager.vala | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/src/Background/BackgroundManager.vala b/src/Background/BackgroundManager.vala
+index 425ac276..c96a431b 100644
+--- a/src/Background/BackgroundManager.vala
++++ b/src/Background/BackgroundManager.vala
+@@ -97,7 +97,6 @@ namespace Gala {
+             var new_content = (Meta.BackgroundContent)new_background_actor.content;
+             new_background_actor.visible = background_actor.visible;
+ 
+-
+             var background = new_content.background.get_data<unowned Background> ("delegate");
+ 
+             if (background.is_loaded) {
+@@ -136,20 +135,20 @@ namespace Gala {
+             var workarea = workspace.get_work_area_for_monitor (monitor_index);
+             var monitor = display.get_monitor_geometry (monitor_index);
+ 
+-            var rect = Graphene.Rect();
++            var rect = Graphene.Rect ();
+             rect.origin.x = workarea.x - monitor.x;
+             rect.origin.y = workarea.y - monitor.y;
+             rect.size.width = workarea.width;
+             rect.size.height = workarea.height;
+-    
+-            content.set_rounded_clip_bounds(rect);
++
++            content.set_rounded_clip_bounds (rect);
+ 
+             content.rounded_clip_radius = Utils.scale_to_int (6, display.get_monitor_scale (monitor_index));
+             if (background_source.should_dim) {
+                 content.vignette = true;
+                 content.brightness = DIM_OPACITY;
+             }
+-                
++
+             insert_child_below (background_actor, null);
+ 
+             background_actor.set_size (monitor.width, monitor.height);
+-- 
+cgit v1.2.3
+
+From 6a16e4a7b98d553189d24fcea513a80fb53e87a5 Mon Sep 17 00:00:00 2001
+From: lenemter <lenemter@gmail.com>
+Date: Tue, 31 Oct 2023 10:06:43 +0900
+Subject: Fixes
+
+---
+ src/Background/BackgroundManager.vala | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
+
+diff --git a/src/Background/BackgroundManager.vala b/src/Background/BackgroundManager.vala
+index c96a431b..4bea480f 100644
+--- a/src/Background/BackgroundManager.vala
++++ b/src/Background/BackgroundManager.vala
+@@ -129,17 +129,11 @@ namespace Gala {
+             unowned var content = (Meta.BackgroundContent) background_actor.content;
+             content.background = background.background;
+ 
+-            unowned var manager = display.get_workspace_manager ();
+-            unowned var workspace = manager.get_workspace_by_index (0);
+-
+-            var workarea = workspace.get_work_area_for_monitor (monitor_index);
+             var monitor = display.get_monitor_geometry (monitor_index);
+-
+-            var rect = Graphene.Rect ();
+-            rect.origin.x = workarea.x - monitor.x;
+-            rect.origin.y = workarea.y - monitor.y;
+-            rect.size.width = workarea.width;
+-            rect.size.height = workarea.height;
++            var rect = Graphene.Rect () {
++                origin = {monitor.x, monitor.y},
++                size = {monitor.width, monitor.height},
++            };
+ 
+             content.set_rounded_clip_bounds (rect);
+ 
+-- 
+cgit v1.2.3
+
+From b0c6cf8731c73289a4ee447b242118aae546bc2c Mon Sep 17 00:00:00 2001
+From: lenemter <lenemter@gmail.com>
+Date: Tue, 31 Oct 2023 10:09:26 +0900
+Subject: Reduce diff
+
+---
+ src/Background/BackgroundManager.vala | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/src/Background/BackgroundManager.vala b/src/Background/BackgroundManager.vala
+index 4bea480f..0dde4d12 100644
+--- a/src/Background/BackgroundManager.vala
++++ b/src/Background/BackgroundManager.vala
+@@ -95,8 +95,12 @@ namespace Gala {
+ 
+             new_background_actor = create_background_actor ();
+             var new_content = (Meta.BackgroundContent)new_background_actor.content;
++            var old_content = (Meta.BackgroundContent)background_actor.content;
++            new_content.vignette_sharpness = old_content.vignette_sharpness;
++            new_content.brightness = old_content.brightness;
+             new_background_actor.visible = background_actor.visible;
+ 
++
+             var background = new_content.background.get_data<unowned Background> ("delegate");
+ 
+             if (background.is_loaded) {
+@@ -139,8 +143,12 @@ namespace Gala {
+ 
+             content.rounded_clip_radius = Utils.scale_to_int (6, display.get_monitor_scale (monitor_index));
+             if (background_source.should_dim) {
+-                content.vignette = true;
+-                content.brightness = DIM_OPACITY;
++                // It doesn't work without Idle :( 
++                Idle.add (() => {
++                    content.vignette = true;
++                    content.brightness = DIM_OPACITY;
++                    return Source.REMOVE;
++                });
+             }
+ 
+             insert_child_below (background_actor, null);
+-- 
+cgit v1.2.3
+
+From 594a49d9ab4236cfcb68e30701541bfe532e98f4 Mon Sep 17 00:00:00 2001
+From: lenemter <lenemter@gmail.com>
+Date: Tue, 31 Oct 2023 12:13:19 +0900
+Subject: Increase outline corner radius
+
+---
+ src/Widgets/WorkspaceClone.vala | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/Widgets/WorkspaceClone.vala b/src/Widgets/WorkspaceClone.vala
+index 438aa94a..b9710a7b 100644
+--- a/src/Widgets/WorkspaceClone.vala
++++ b/src/Widgets/WorkspaceClone.vala
+@@ -64,7 +64,7 @@ namespace Gala {
+             var ctx = cached_context;
+ 
+             ctx.set_source_rgba (255, 255, 255, 255);
+-            Drawing.Utilities.cairo_rounded_rectangle (ctx, 0, 0, width, height, 6);
++            Drawing.Utilities.cairo_rounded_rectangle (ctx, 0, 0, width, height, 9);
+             ctx.set_operator (Cairo.Operator.SOURCE);
+             ctx.stroke ();
+             ctx.restore ();
 -- 
 cgit v1.2.3
 
