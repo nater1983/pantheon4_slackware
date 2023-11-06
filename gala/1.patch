@@ -1,0 +1,13 @@
+diff --git a/src/Widgets/WorkspaceClone.vala b/src/Widgets/WorkspaceClone.vala
+index 438aa94a..b9710a7b 100644
+--- a/src/Widgets/WorkspaceClone.vala
++++ b/src/Widgets/WorkspaceClone.vala
+@@ -64,7 +64,7 @@ namespace Gala {
+             var ctx = cached_context;
+ 
+             ctx.set_source_rgba (255, 255, 255, 255);
+-            Drawing.Utilities.cairo_rounded_rectangle (ctx, 0, 0, width, height, 6);
++            Drawing.Utilities.cairo_rounded_rectangle (ctx, 0, 0, width, height, 9);
+             ctx.set_operator (Cairo.Operator.SOURCE);
+             ctx.stroke ();
+             ctx.restore ();
