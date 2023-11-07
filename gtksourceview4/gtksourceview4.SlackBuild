@@ -93,7 +93,7 @@ cd build
     --mandir=/usr/man \
     --prefix=/usr \
     --sysconfdir=/etc \
-    -Dglade_catalog=true \
+    -Dglade_catalog=false \
     -Dgir=true \
     -Dvapi=true \
     -Dgtk_doc=false
