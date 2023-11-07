@@ -72,6 +72,10 @@ cd $TMP
 rm -rf $SRCNAM-$VERSION
 tar xvf $CWD/$SRCNAM-$VERSION.tar.gz
 cd $SRCNAM-$VERSION
+patch -Np1 -i $CWD/1001_desktop-file-fixes.patch
+patch -Np1 -i $CWD/1002_build-against-Ayatana-AppIndicator.patch
+patch -Np1 -i $CWD/0001-Replace-invalid-UTF-8-characters-in-ACPI-events.patch
+patch -Np1 -i $CWD/1003_disable_onboard_on_gnome.patch
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
