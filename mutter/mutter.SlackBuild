@@ -22,12 +22,12 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://download.gnome.org/sources/mutter/44/mutter-44.5.tar.xz
+wget -c https://download.gnome.org/sources/mutter/44/mutter-44.6.tar.xz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=mutter
-VERSION=${VERSION:-44.5}
+VERSION=${VERSION:-44.6}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
