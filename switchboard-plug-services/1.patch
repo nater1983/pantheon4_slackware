@@ -1,0 +1,425 @@
+From 33cce381a9d6a24660a950d2aa98d35311e24249 Mon Sep 17 00:00:00 2001
+From: Dirli <litandrej85@gmail.com>
+Date: Sun, 25 Jul 2021 18:43:16 +0300
+Subject: [PATCH] Refactoring, fixing minor problems
+
+---
+ src/Widgets/FilterBox.vala     |  4 +++-
+ src/Widgets/MainView.vala      | 21 +++++++++++----------
+ src/Widgets/ServiceStatus.vala | 29 +++++++++++++++--------------
+ src/Widgets/ServicesView.vala  | 13 +++++--------
+ 4 files changed, 34 insertions(+), 33 deletions(-)
+
+diff --git a/src/Widgets/FilterBox.vala b/src/Widgets/FilterBox.vala
+index 4aed664..86634ce 100644
+--- a/src/Widgets/FilterBox.vala
++++ b/src/Widgets/FilterBox.vala
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2020 Dirli <litandrej85@gmail.com>
++ * Copyright (c) 2020-2021 Dirli <litandrej85@gmail.com>
+  *
+  * This program is free software: you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -31,7 +31,9 @@ namespace Services {
+                     margin: 12,
+                     valign: Gtk.Align.CENTER,
+                     halign: Gtk.Align.CENTER);
++        }
+ 
++        construct {
+             search_entry = new Gtk.SearchEntry ();
+             search_entry.valign = Gtk.Align.CENTER;
+             search_entry.placeholder_text = _("Search Service");
+diff --git a/src/Widgets/MainView.vala b/src/Widgets/MainView.vala
+index e469532..7d30d06 100644
+--- a/src/Widgets/MainView.vala
++++ b/src/Widgets/MainView.vala
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2020 Dirli <litandrej85@gmail.com>
++ * Copyright (c) 2020-2021 Dirli <litandrej85@gmail.com>
+  *
+  * This program is free software: you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -17,7 +17,7 @@
+  */
+ 
+ namespace Services {
+-    public class Widgets.MainView : Gtk.Grid {
++    public class Widgets.MainView : Gtk.Box {
+         private Gtk.ListStore list_store;
+         private Gtk.TreeModelFilter list_filter;
+         private Gtk.TreeSelection tree_selection;
+@@ -38,10 +38,12 @@ namespace Services {
+         private string active_service = "";
+ 
+         public MainView () {
+-            orientation = Gtk.Orientation.VERTICAL;
+-            row_spacing = 12;
+-            margin = 12;
++            Object (orientation: Gtk.Orientation.VERTICAL,
++                    spacing: 12,
++                    margin: 12);
++        }
+ 
++        construct {
+             waiting_box = new Widgets.WaitingView ();
+             waiting_box.start_spinner (true);
+ 
+@@ -130,10 +132,7 @@ namespace Services {
+             stack.add_named (waiting_box, "waiting");
+             stack.set_visible_child_name ("waiting");
+ 
+-            var frame = new Gtk.Frame (null);
+-            frame.add (stack);
+-
+-            add (frame);
++            add (stack);
+             add (bottom_box);
+ 
+             load_services ();
+@@ -315,7 +314,9 @@ namespace Services {
+ 
+                 var s_status = Utils.get_service_status (s_name);
+ 
+-                new Widgets.ServiceStatus ((Gtk.Window) get_toplevel (), s_name, s_status);
++                var service_dialog = new Widgets.ServiceStatus ((Gtk.Window) get_toplevel (), s_name, s_status);
++                service_dialog.show_all ();
++                service_dialog.run ();
+             }
+         }
+     }
+diff --git a/src/Widgets/ServiceStatus.vala b/src/Widgets/ServiceStatus.vala
+index 550b4b3..c6278d4 100644
+--- a/src/Widgets/ServiceStatus.vala
++++ b/src/Widgets/ServiceStatus.vala
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2020 Dirli <litandrej85@gmail.com>
++ * Copyright (c) 2020-2021 Dirli <litandrej85@gmail.com>
+  *
+  * This program is free software: you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -18,19 +18,22 @@
+ 
+ namespace Services {
+     public class Widgets.ServiceStatus : Gtk.Dialog {
++        public string service_info { get; construct set;}
++
+         public ServiceStatus (Gtk.Window parent, string s_name, string status) {
+-            Object (
+-                border_width: 6,
+-                deletable: false,
+-                destroy_with_parent: true,
+-                resizable: false,
+-                title: s_name,
+-                transient_for: parent,
+-                width_request: 540,
+-                window_position: Gtk.WindowPosition.CENTER_ON_PARENT
+-            );
++            Object (border_width: 6,
++                    deletable: false,
++                    destroy_with_parent: true,
++                    resizable: false,
++                    service_info: status,
++                    title: s_name,
++                    transient_for: parent,
++                    width_request: 540,
++                    window_position: Gtk.WindowPosition.CENTER_ON_PARENT);
++        }
+ 
+-            var status_label = new Gtk.Label (status);
++        construct {
++            var status_label = new Gtk.Label (service_info);
+             status_label.margin = 10;
+ 
+             var scrolled = new Gtk.ScrolledWindow (null, null);
+@@ -48,8 +51,6 @@ namespace Services {
+             ((Gtk.Button) close_button).clicked.connect (() => {
+                 destroy ();
+             });
+-
+-            show_all ();
+         }
+     }
+ }
+diff --git a/src/Widgets/ServicesView.vala b/src/Widgets/ServicesView.vala
+index dbc1fe7..8dedf50 100644
+--- a/src/Widgets/ServicesView.vala
++++ b/src/Widgets/ServicesView.vala
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2020 Dirli <litandrej85@gmail.com>
++ * Copyright (c) 2020-2021 Dirli <litandrej85@gmail.com>
+  *
+  * This program is free software: you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -35,12 +35,9 @@ namespace Services {
+         public void add_column (Gtk.TreeViewColumn column, string? test_string = null) {
+             column.sizing = Gtk.TreeViewColumnSizing.FIXED;
+ 
+-            Gtk.CellRenderer? renderer = null;
+-
+-            renderer = new Gtk.CellRendererText ();
++            var renderer = new Gtk.CellRendererText ();
+             column.set_cell_data_func (renderer, cell_data_func);
+ 
+-
+             column.pack_start (renderer, true);
+             insert_column (column, -1);
+ 
+@@ -50,10 +47,10 @@ namespace Services {
+             }
+ 
+             column.reorderable = false;
+-            column.clickable = true;
++            column.clickable = false;
++            column.sort_indicator = false;
+             column.resizable = test_string == null;
+             column.expand = test_string == null;
+-            column.sort_indicator = false;
+ 
+             var header_button = column.get_button ();
+ 
+@@ -97,7 +94,7 @@ namespace Services {
+             var tvc = layout as Gtk.TreeViewColumn;
+             GLib.return_if_fail (tvc != null);
+ 
+-            int column = tvc.sort_column_id;
++            int column = tvc.get_sort_column_id ();
+             if (column < 0) {
+                 return;
+             }
+From a16035549f71619d5a059b40005c8668c9d41f25 Mon Sep 17 00:00:00 2001
+From: Dirli <litandrej85@gmail.com>
+Date: Mon, 26 Jul 2021 02:46:20 +0300
+Subject: [PATCH] a few cosmetic changes
+
+---
+ README.md        | 17 +++++++---------
+ data/meson.build | 20 +++++++++----------
+ debian/copyright | 33 ++++++++++++++++----------------
+ debian/rules     | 11 +----------
+ meson.build      | 50 ++++++++++++++++++++++++------------------------
+ 5 files changed, 60 insertions(+), 71 deletions(-)
+
+diff --git a/README.md b/README.md
+index 200e2b2..86a003e 100644
+--- a/README.md
++++ b/README.md
+@@ -1,4 +1,5 @@
+ # Switchboard Services Plug
++Plugin for managing services
+ 
+ <p align="left">
+     <a href="https://paypal.me/Dirli85">
+@@ -6,12 +7,13 @@
+     </a>
+ </p>
+ 
++---
++
+ ![screenshot](data/screenshot.png?raw=true)
+ 
+ ## Building and Installation
+ 
+-You'll need the following dependencies:
+-
++### You'll need the following dependencies:
+ * libswitchboard-2.0-dev
+ * libgranite-dev
+ * libgtk-3-dev
+@@ -20,12 +22,7 @@ You'll need the following dependencies:
+ * meson
+ * valac
+ 
+-Run `meson` to configure the build environment and then `ninja` to build
+-
++### How to build
+     meson build --prefix=/usr
+-    cd build
+-    ninja
+-
+-To install, use `ninja install`
+-
+-    sudo ninja install
++    ninja -C build
++    sudo ninja install -C build
+diff --git a/data/meson.build b/data/meson.build
+index b515e3a..104db8d 100644
+--- a/data/meson.build
++++ b/data/meson.build
+@@ -2,20 +2,20 @@ config_data = configuration_data()
+ config_data.set('GETTEXT_PACKAGE', gettext_name)
+ 
+ install_data ('io.elementary.switchboard.services.helper',
+-    install_mode: 'r-xr--r--',
+-    install_dir: '/usr/bin'
++  install_mode: 'r-xr--r--',
++  install_dir: '/usr/bin'
+ )
+ 
+ gettext_declaration = configure_file(
+-    configuration: config_data,
+-    input: 'io.elementary.switchboard.services.policy.in.in',
+-    output: '@BASENAME@'
++  configuration: config_data,
++  input: 'io.elementary.switchboard.services.policy.in.in',
++  output: '@BASENAME@'
+ )
+ 
+ i18n.merge_file (
+-    input: gettext_declaration,
+-    output: '@BASENAME@',
+-    po_dir: join_paths (meson.source_root (), 'po'),
+-    install: true,
+-    install_dir: polkit_dep.get_pkgconfig_variable ('policydir')
++  input: gettext_declaration,
++  output: '@BASENAME@',
++  po_dir: join_paths (meson.source_root (), 'po'),
++  install: true,
++  install_dir: polkit_dep.get_pkgconfig_variable ('policydir')
+ )
+diff --git a/debian/copyright b/debian/copyright
+index c6e6fe9..3a0227c 100644
+--- a/debian/copyright
++++ b/debian/copyright
+@@ -1,23 +1,24 @@
+-Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
++Format: http://dep.debian.net/deps/dep5
+ Upstream-Name: switchboard-plug-services
+ Source: https://github.com/Dirli/switchboard-plug-services
+ 
+ Files: *
+-Copyright: Copyright (C) 2020 Dirli <litandrej85@gmail.com>
+-License: GPL-3
+- This library is free software; you can redistribute it and/or modify it
+- under the terms of the GNU General Public License as published by the
+- Free Software Foundation; either version 3 of the License, or (at your
+- option) any later version.
++Copyright: 2020-2021 dirli <litandrej85@gmail.com>
++License: GPL-3.0+
++
++License: GPL-3.0+
++ This program is free software: you can redistribute it and/or modify
++ it under the terms of the GNU General Public License as published by
++ the Free Software Foundation, either version 3 of the License, or
++ (at your option) any later version.
+  .
+- This library is distributed in the hope that it will be useful, but WITHOUT
+- ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+- FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+- for more details.
++ This package is distributed in the hope that it will be useful,
++ but WITHOUT ANY WARRANTY; without even the implied warranty of
++ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ GNU General Public License for more details.
+  .
+- You should have received a copy of the GNU General Public
+- License along with this library; if not, write to the
+- Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+- 02110-1301  USA.
++ You should have received a copy of the GNU General Public License
++ along with this program. If not, see <http://www.gnu.org/licenses/>.
+  .
+- See /usr/share/common-licenses/GPL-3 on your debian system.
++ On Debian systems, the complete text of the GNU General
++ Public License version 3 can be found in "/usr/share/common-licenses/GPL-3".
+diff --git a/debian/rules b/debian/rules
+index 98fcd1b..26ba82c 100644
+--- a/debian/rules
++++ b/debian/rules
+@@ -1,16 +1,7 @@
+ #!/usr/bin/make -f
+-# -*- makefile -*-
+-# Sample debian/rules that uses debhelper.
+-# This file was originally written by Joey Hess and Craig Small.
+-# As a special exception, when this file is copied by dh-make into a
+-# dh-make output file, you may use that output file without restriction.
+-# This special exception was added by Craig Small in version 0.37 of dh-make.
+-
+-# Uncomment this to turn on verbose mode.
+-#export DH_VERBOSE=1
+ 
+ %:
+-	dh $@
++	dh $@ --buildsystem=meson
+ 
+ override_dh_missing:
+ 	dh_missing --fail-missing
+diff --git a/meson.build b/meson.build
+index 97e3143..56b0b3e 100644
+--- a/meson.build
++++ b/meson.build
+@@ -1,7 +1,7 @@
+ project (
+-    'services',
+-    'vala', 'c',
+-    version: '1.0.1'
++  'services',
++  'vala', 'c',
++  version: '1.0.1'
+ )
+ 
+ gettext_name = meson.project_name () + '-plug'
+@@ -9,37 +9,37 @@ gnome = import ('gnome')
+ i18n = import ('i18n')
+ 
+ add_global_arguments (
+-    '-DGETTEXT_PACKAGE="@0@"'.format (gettext_name),
+-    language:'c'
++  '-DGETTEXT_PACKAGE="@0@"'.format (gettext_name),
++  language:'c'
+ )
+ 
+ switchboard_dep = dependency ('switchboard-2.0')
+ polkit_dep = dependency ('polkit-gobject-1')
+ 
+ plug_files = files (
+-    'src/Plug.vala',
+-    'src/Utils.vala',
+-    'src/Widgets/FilterBox.vala',
+-    'src/Widgets/HelpBox.vala',
+-    'src/Widgets/MainView.vala',
+-    'src/Widgets/ServiceStatus.vala',
+-    'src/Widgets/ServicesView.vala',
+-    'src/Widgets/WaitingView.vala'
++  'src/Plug.vala',
++  'src/Utils.vala',
++  'src/Widgets/FilterBox.vala',
++  'src/Widgets/HelpBox.vala',
++  'src/Widgets/MainView.vala',
++  'src/Widgets/ServiceStatus.vala',
++  'src/Widgets/ServicesView.vala',
++  'src/Widgets/WaitingView.vala'
+ )
+ 
+ shared_module (
+-    meson.project_name (),
+-    plug_files,
+-    dependencies: [
+-        dependency ('gtk+-3.0'),
+-        dependency ('gee-0.8'),
+-        dependency ('granite'),
+-        switchboard_dep,
+-        polkit_dep,
+-        meson.get_compiler ('vala').find_library ('posix')
+-    ],
+-    install: true,
+-    install_dir : join_paths (switchboard_dep.get_pkgconfig_variable ('plugsdir'), 'system')
++  meson.project_name (),
++  plug_files,
++  dependencies: [
++    dependency ('gtk+-3.0'),
++    dependency ('gee-0.8'),
++    dependency ('granite'),
++    switchboard_dep,
++    polkit_dep,
++    meson.get_compiler ('vala').find_library ('posix')
++  ],
++  install: true,
++  install_dir : join_paths (switchboard_dep.get_pkgconfig_variable ('plugsdir'), 'system')
+ )
+ 
+ subdir ('data')
