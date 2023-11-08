@@ -1,0 +1,663 @@
+From e7ac9966b7a71e8988b41543e5147ebe62794bbc Mon Sep 17 00:00:00 2001
+From: Ryo Nakano <ryonakaknock3@gmail.com>
+Date: Sat, 30 Sep 2023 02:59:49 +0900
+Subject: [PATCH] Make sure only copy wallpapers if not in ANY backgrounddirs
+ (#371)
+
+* set-wallpaper-contract: Only copy if not in ANY backgrounddirs
+
+* Avoid code copy
+
+* Ensure local bg dir exists before loop
+
+* Incorporate ensure_local_bg_exists in copy_for_library
+
+* DRY existence check, also fix for drag/import button
+
+* Fix oops
+
+* Fix missing Gtk.drag_finish
+---
+ set-wallpaper-contract/meson.build        |  1 +
+ set-wallpaper-contract/set-wallpaper.vala | 43 +----------
+ src/Views/Wallpaper.vala                  | 92 ++++-------------------
+ src/WallpaperOperation.vala               | 80 ++++++++++++++++++++
+ src/meson.build                           |  1 +
+ 5 files changed, 101 insertions(+), 116 deletions(-)
+ create mode 100644 src/WallpaperOperation.vala
+
+diff --git a/set-wallpaper-contract/meson.build b/set-wallpaper-contract/meson.build
+index 1032f091..284edde4 100644
+--- a/set-wallpaper-contract/meson.build
++++ b/set-wallpaper-contract/meson.build
+@@ -23,6 +23,7 @@ executable(
+     contract_exec_name,
+     contract_config_file,
+     'set-wallpaper.vala',
++    meson.source_root () / 'src' / 'WallpaperOperation.vala',
+     dependencies: [
+         glib_dep,
+         gio_dep,
+diff --git a/set-wallpaper-contract/set-wallpaper.vala b/set-wallpaper-contract/set-wallpaper.vala
+index 8e42fdbb..00466acf 100644
+--- a/set-wallpaper-contract/set-wallpaper.vala
++++ b/set-wallpaper-contract/set-wallpaper.vala
+@@ -102,53 +102,18 @@ namespace SetWallpaperContractor {
+         duration_label.set_markup (_("Show each photo for") + " <b>" + text + "</b>");
+     }
+ 
+-    private string get_local_bg_directory () {
+-        return Path.build_filename (Environment.get_user_data_dir (), "backgrounds") + "/";
+-    }
+-
+-    private File ensure_local_bg_exists () {
+-        var folder = File.new_for_path (get_local_bg_directory ());
+-        if (!folder.query_exists ()) {
+-            try {
+-                folder.make_directory_with_parents ();
+-            } catch (Error e) {
+-                warning ("%s\n", e.message);
+-            }
+-        }
+-
+-        return folder;
+-    }
+-
+-    private File? copy_for_library (File source) {
+-        File? dest = null;
+-
+-        try {
+-            var timestamp = new DateTime.now_local ().format ("%Y-%m-%d-%H-%M-%S");
+-            var filename = "%s-%s".printf (timestamp, source.get_basename ());
+-            var path = Path.build_filename (get_local_bg_directory (), filename);
+-            dest = File.new_for_path (path);
+-            source.copy (dest, FileCopyFlags.OVERWRITE | FileCopyFlags.ALL_METADATA);
+-        } catch (Error e) {
+-            warning ("%s\n", e.message);
+-        }
+-
+-        return dest;
+-    }
+-
+     public static int main (string[] args) {
+         Gtk.init (ref args);
+ 
+-        var folder = ensure_local_bg_exists ();
+         var files = new List<File> ();
+         for (var i = 1; i < args.length; i++) {
+             var file = File.new_for_path (args[i]);
+ 
+             if (file != null) {
+-
+-                string path = file.get_path ();
+                 File append_file = file;
+-                if (!path.has_prefix (get_local_bg_directory ())) {
+-                    var local_file = copy_for_library (file);
++
++                if (!PantheonShell.WallpaperOperation.get_is_file_in_bg_dir (file)) {
++                    var local_file = PantheonShell.WallpaperOperation.copy_for_library (file);
+                     if (local_file != null) {
+                         append_file = local_file;
+                     }
+@@ -193,7 +158,7 @@ namespace SetWallpaperContractor {
+         if (dialog.run () == Gtk.ResponseType.OK) {
+             dialog.destroy ();
+ 
+-            var path = folder.get_child (SLIDESHOW_FILENAME).get_path ();
++            var path = Path.build_filename (PantheonShell.WallpaperOperation.get_local_bg_directory (), SLIDESHOW_FILENAME);
+             update_slideshow (path, files, delay_value);
+             return 0;
+         }
+diff --git a/src/Views/Wallpaper.vala b/src/Views/Wallpaper.vala
+index 5a37c0ca..d4167576 100644
+--- a/src/Views/Wallpaper.vala
++++ b/src/Views/Wallpaper.vala
+@@ -174,8 +174,12 @@ public class PantheonShell.Wallpaper : Gtk.Grid {
+             SList<string> uris = chooser.get_uris ();
+             foreach (unowned string uri in uris) {
+                 var file = GLib.File.new_for_uri (uri);
++                if (WallpaperOperation.get_is_file_in_bg_dir (file)) {
++                    continue;
++                }
++
+                 string local_uri = uri;
+-                var dest = copy_for_library (file);
++                var dest = WallpaperOperation.copy_for_library (file);
+                 if (dest != null) {
+                     local_uri = dest.get_uri ();
+                 }
+@@ -211,18 +215,9 @@ public class PantheonShell.Wallpaper : Gtk.Grid {
+     private void update_accountsservice () {
+         var file = File.new_for_uri (current_wallpaper_path);
+         string uri = file.get_uri ();
+-        string path = file.get_path ();
+-
+-        bool path_has_prefix_bg_dir = false;
+-        foreach (unowned string directory in get_bg_directories ()) {
+-            if (path.has_prefix (directory)) {
+-                path_has_prefix_bg_dir = true;
+-                break;
+-            }
+-        }
+ 
+-        if (!path_has_prefix_bg_dir) {
+-            var local_file = copy_for_library (file);
++        if (!WallpaperOperation.get_is_file_in_bg_dir (file)) {
++            var local_file = WallpaperOperation.copy_for_library (file);
+             if (local_file != null) {
+                 uri = local_file.get_uri ();
+             }
+@@ -318,7 +313,7 @@ public class PantheonShell.Wallpaper : Gtk.Grid {
+ 
+         clean_wallpapers ();
+ 
+-        foreach (unowned string directory in get_bg_directories ()) {
++        foreach (unowned string directory in WallpaperOperation.get_bg_directories ()) {
+             load_wallpapers.begin (directory, cancellable);
+         }
+     }
+@@ -406,68 +401,6 @@ public class PantheonShell.Wallpaper : Gtk.Grid {
+         solid_color = null;
+     }
+ 
+-    private static string get_local_bg_directory () {
+-        return Path.build_filename (Environment.get_user_data_dir (), "backgrounds") + "/";
+-    }
+-
+-    private static string[] get_system_bg_directories () {
+-        string[] directories = {};
+-        foreach (unowned string data_dir in Environment.get_system_data_dirs ()) {
+-            var system_background_dir = Path.build_filename (data_dir, "backgrounds") + "/";
+-            if (FileUtils.test (system_background_dir, FileTest.EXISTS)) {
+-                debug ("Found system background directory: %s", system_background_dir);
+-                directories += system_background_dir;
+-            }
+-        }
+-
+-        return directories;
+-    }
+-
+-    private string[] get_bg_directories () {
+-        string[] background_directories = {};
+-
+-        // Add user background directory first
+-        background_directories += get_local_bg_directory ();
+-
+-        foreach (var bg_dir in get_system_bg_directories ()) {
+-            background_directories += bg_dir;
+-        }
+-
+-        if (background_directories.length == 0) {
+-            warning ("No background directories found");
+-        }
+-
+-        return background_directories;
+-    }
+-
+-    private static File? copy_for_library (File source) {
+-        File? dest = null;
+-
+-        string local_bg_directory = get_local_bg_directory ();
+-        try {
+-            File folder = File.new_for_path (local_bg_directory);
+-            folder.make_directory_with_parents ();
+-        } catch (Error e) {
+-            if (e is GLib.IOError.EXISTS) {
+-                debug ("Local background directory already exists");
+-            } else {
+-                warning (e.message);
+-            }
+-        }
+-
+-        try {
+-            var timestamp = new DateTime.now_local ().format ("%Y-%m-%d-%H-%M-%S");
+-            var filename = "%s-%s".printf (timestamp, source.get_basename ());
+-            string path = Path.build_filename (local_bg_directory, filename);
+-            dest = File.new_for_path (path);
+-            source.copy (dest, FileCopyFlags.OVERWRITE | FileCopyFlags.ALL_METADATA);
+-        } catch (Error e) {
+-            warning (e.message);
+-        }
+-
+-        return dest;
+-    }
+-
+     private void on_drag_data_received (Gtk.Widget widget, Gdk.DragContext ctx, int x, int y, Gtk.SelectionData sel, uint information, uint timestamp) {
+         if (sel.get_length () > 0) {
+             try {
+@@ -479,8 +412,13 @@ public class PantheonShell.Wallpaper : Gtk.Grid {
+                     return;
+                 }
+ 
++                if (WallpaperOperation.get_is_file_in_bg_dir (file)) {
++                    Gtk.drag_finish (ctx, true, false, timestamp);
++                    return;
++                }
++
+                 string local_uri = file.get_uri ();
+-                var dest = copy_for_library (file);
++                var dest = WallpaperOperation.copy_for_library (file);
+                 if (dest != null) {
+                     local_uri = dest.get_uri ();
+                 }
+@@ -549,7 +487,7 @@ public class PantheonShell.Wallpaper : Gtk.Grid {
+ 
+         var uri1_is_system = false;
+         var uri2_is_system = false;
+-        foreach (var bg_dir in get_system_bg_directories ()) {
++        foreach (var bg_dir in WallpaperOperation.get_system_bg_directories ()) {
+             bg_dir = "file://" + bg_dir;
+             uri1_is_system = uri1.has_prefix (bg_dir) || uri1_is_system;
+             uri2_is_system = uri2.has_prefix (bg_dir) || uri2_is_system;
+diff --git a/src/WallpaperOperation.vala b/src/WallpaperOperation.vala
+new file mode 100644
+index 00000000..a275dfca
+--- /dev/null
++++ b/src/WallpaperOperation.vala
+@@ -0,0 +1,80 @@
++/*
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ * SPDX-FileCopyrightText: 2015-2023 elementary, Inc. (https://elementary.io)
++ */
++
++namespace PantheonShell.WallpaperOperation {
++    public static string get_local_bg_directory () {
++        return Path.build_filename (Environment.get_user_data_dir (), "backgrounds") + "/";
++    }
++
++    private static string[] get_system_bg_directories () {
++        string[] directories = {};
++        foreach (unowned string data_dir in Environment.get_system_data_dirs ()) {
++            var system_background_dir = Path.build_filename (data_dir, "backgrounds") + "/";
++            if (FileUtils.test (system_background_dir, FileTest.EXISTS)) {
++                debug ("Found system background directory: %s", system_background_dir);
++                directories += system_background_dir;
++            }
++        }
++
++        return directories;
++    }
++
++    public static string[] get_bg_directories () {
++        string[] background_directories = {};
++
++        // Add user background directory first
++        background_directories += get_local_bg_directory ();
++
++        foreach (var bg_dir in get_system_bg_directories ()) {
++            background_directories += bg_dir;
++        }
++
++        if (background_directories.length == 0) {
++            warning ("No background directories found");
++        }
++
++        return background_directories;
++    }
++
++    private static File ensure_local_bg_exists () {
++        var folder = File.new_for_path (get_local_bg_directory ());
++        if (!folder.query_exists ()) {
++            try {
++                folder.make_directory_with_parents ();
++            } catch (Error e) {
++                warning (e.message);
++            }
++        }
++
++        return folder;
++    }
++
++    public static File? copy_for_library (File source) {
++        File? dest = null;
++
++        try {
++            var timestamp = new DateTime.now_local ().format ("%Y-%m-%d-%H-%M-%S");
++            var filename = "%s-%s".printf (timestamp, source.get_basename ());
++            dest = ensure_local_bg_exists ().get_child (filename);
++            source.copy (dest, FileCopyFlags.OVERWRITE | FileCopyFlags.ALL_METADATA);
++        } catch (Error e) {
++            warning (e.message);
++        }
++
++        return dest;
++    }
++
++    public static bool get_is_file_in_bg_dir (File file) {
++        string path = file.get_path ();
++
++        foreach (unowned string directory in WallpaperOperation.get_bg_directories ()) {
++            if (path.has_prefix (directory)) {
++                return true;
++            }
++        }
++
++        return false;
++    }
++}
+diff --git a/src/meson.build b/src/meson.build
+index 285bcd3a..07d9d024 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -3,6 +3,7 @@ plug_files = files(
+     'PantheonAccountsServicePlugin.vala',
+     'Plug.vala',
+     'ThumbnailGenerator.vala',
++    'WallpaperOperation.vala',
+     'Views/Appearance.vala',
+     'Views/Dock.vala',
+     'Views/Multitasking.vala',
+From 55d9295efb1e14431ff17fdbc959730385a78a91 Mon Sep 17 00:00:00 2001
+From: Ryo Nakano <ryonakaknock3@gmail.com>
+Date: Thu, 12 Oct 2023 07:40:59 +0900
+Subject: [PATCH] set-wallpaper-contract: Port to GTK 4 (#370)
+
+---
+ .github/workflows/main.yml                |  2 +-
+ README.md                                 |  2 +
+ set-wallpaper-contract/meson.build        |  7 ++-
+ set-wallpaper-contract/set-wallpaper.vala | 65 ++++++++++++-----------
+ 4 files changed, 43 insertions(+), 33 deletions(-)
+
+diff --git a/.github/workflows/main.yml b/.github/workflows/main.yml
+index 8fd960f6..477d69c1 100644
+--- a/.github/workflows/main.yml
++++ b/.github/workflows/main.yml
+@@ -23,7 +23,7 @@ jobs:
+       - name: Install Dependencies
+         run: |
+           apt update
+-          apt install -y libgnome-desktop-3-dev libgranite-dev libgtk-3-dev libplank-dev libswitchboard-2.0-dev libgexiv2-dev meson valac
++          apt install -y libgnome-desktop-3-dev libgranite-dev libgranite-7-dev libgtk-3-dev libgtk-4-dev libplank-dev libswitchboard-2.0-dev libgexiv2-dev meson valac
+       - name: Build
+         env:
+           DESTDIR: out
+diff --git a/README.md b/README.md
+index 6d37d148..61ede9f8 100644
+--- a/README.md
++++ b/README.md
+@@ -13,8 +13,10 @@ You'll need the following dependencies:
+ * libgee-0.8-dev
+ * libgexiv2-dev
+ * libgtk-3-dev (>= 3.22)
++* libgtk-4-dev
+ * libplank-dev
+ * libgranite-dev
++* libgranite-7-dev
+ * meson
+ * valac
+ 
+diff --git a/set-wallpaper-contract/meson.build b/set-wallpaper-contract/meson.build
+index 284edde4..bfef309c 100644
+--- a/set-wallpaper-contract/meson.build
++++ b/set-wallpaper-contract/meson.build
+@@ -28,8 +28,11 @@ executable(
+         glib_dep,
+         gio_dep,
+         gobject_dep,
+-        granite_dep,
+-        gtk_dep,
++#        granite_dep,
++#        gtk_dep,
++        # TODO: Re-use the variables above when the plug itself is ported to GTK 4
++        dependency('gtk4'),
++        dependency('granite-7'),
+         posix_dep,
+         meson.get_compiler('c').find_library('m')
+     ],
+diff --git a/set-wallpaper-contract/set-wallpaper.vala b/set-wallpaper-contract/set-wallpaper.vala
+index 00466acf..5e39d2c5 100644
+--- a/set-wallpaper-contract/set-wallpaper.vala
++++ b/set-wallpaper-contract/set-wallpaper.vala
+@@ -1,5 +1,5 @@
+ /*
+-* Copyright 2017-2022 elementary, Inc. (https://elementary.io)
++* Copyright 2017-2023 elementary, Inc. (https://elementary.io)
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public
+@@ -17,7 +17,7 @@
+ * Boston, MA 02110-1301 USA
+ */
+ 
+-namespace SetWallpaperContractor {
++public class SetWallpaperContractor : Gtk.Application {
+     const int DEFAULT_TRANSITION_DURATION = 1;
+     const string SLIDESHOW_FILENAME = "slideshow.xml";
+ 
+@@ -40,6 +40,13 @@ namespace SetWallpaperContractor {
+ 
+     private int delay_value = 60;
+ 
++    public SetWallpaperContractor () {
++        Object (
++            application_id: "io.elementary.contract.set-wallpaper",
++            flags: GLib.ApplicationFlags.HANDLES_OPEN
++        );
++    }
++
+     private void update_slideshow (string path, List<File> files, int duration) {
+         var wallpapers = "";
+         var len = files.length ();
+@@ -102,35 +109,24 @@ namespace SetWallpaperContractor {
+         duration_label.set_markup (_("Show each photo for") + " <b>" + text + "</b>");
+     }
+ 
+-    public static int main (string[] args) {
+-        Gtk.init (ref args);
+-
++    public override void open (File[] gfiles, string hint) {
+         var files = new List<File> ();
+-        for (var i = 1; i < args.length; i++) {
+-            var file = File.new_for_path (args[i]);
++        foreach (var gfile in gfiles) {
++            File append_file = gfile;
+ 
+-            if (file != null) {
+-                File append_file = file;
+-
+-                if (!PantheonShell.WallpaperOperation.get_is_file_in_bg_dir (file)) {
+-                    var local_file = PantheonShell.WallpaperOperation.copy_for_library (file);
+-                    if (local_file != null) {
+-                        append_file = local_file;
+-                    }
++            if (!PantheonShell.WallpaperOperation.get_is_file_in_bg_dir (gfile)) {
++                var local_file = PantheonShell.WallpaperOperation.copy_for_library (gfile);
++                if (local_file != null) {
++                    append_file = local_file;
+                 }
+-
+-                files.append (append_file);
+             }
+-        }
+ 
+-        if (files.length () < 1) {
+-            warning ("No images specified, aborting.\n");
+-            return 1;
++            files.append (append_file);
+         }
+ 
+         if (files.length () == 1) {
+             set_settings_key (files.data.get_uri ());
+-            return 0;
++            return;
+         }
+ 
+         var duration = new Gtk.Scale.with_range (Gtk.Orientation.HORIZONTAL, 0, 100, 10) {
+@@ -145,24 +141,33 @@ namespace SetWallpaperContractor {
+             "preferences-desktop-wallpaper",
+             Gtk.ButtonsType.CANCEL
+         ) {
+-            badge_icon = new ThemedIcon ("media-playback-start")
++            badge_icon = new ThemedIcon ("media-playback-start"),
++            application = this
+         };
+         dialog.add_button (_("Create Slideshow"), Gtk.ResponseType.OK);
+         dialog.set_default_response (Gtk.ResponseType.OK);
+-        dialog.custom_bin.add (duration);
+-        dialog.show_all ();
++        dialog.custom_bin.append (duration);
++        dialog.present ();
+ 
+         delay_value_changed (duration, dialog.secondary_label);
+         duration.value_changed.connect (() => delay_value_changed (duration, dialog.secondary_label));
+ 
+-        if (dialog.run () == Gtk.ResponseType.OK) {
++        dialog.response.connect ((response_id) => {
++            if (response_id == Gtk.ResponseType.OK) {
++                var path = Path.build_filename (PantheonShell.WallpaperOperation.get_local_bg_directory (), SLIDESHOW_FILENAME);
++                update_slideshow (path, files, delay_value);
++            }
++
+             dialog.destroy ();
++        });
++    }
+ 
+-            var path = Path.build_filename (PantheonShell.WallpaperOperation.get_local_bg_directory (), SLIDESHOW_FILENAME);
+-            update_slideshow (path, files, delay_value);
+-            return 0;
++    public static int main (string[] args) {
++        if (args.length == 1) {
++            warning ("No images specified, aborting.");
++            return 1;
+         }
+ 
+-        return 1;
++        return new SetWallpaperContractor ().run (args);
+     }
+ }
+From d64931ec86683ad50b7bba863683ce9c54460d5c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Danielle=20For=C3=A9?= <danielle@elementary.io>
+Date: Thu, 19 Oct 2023 15:22:14 -0700
+Subject: [PATCH] WallpaperContainer: Use gesture for secondary click
+
+---
+ src/Widgets/WallpaperContainer.vala | 29 ++++++++++++-----------------
+ 1 file changed, 12 insertions(+), 17 deletions(-)
+
+diff --git a/src/Widgets/WallpaperContainer.vala b/src/Widgets/WallpaperContainer.vala
+index ee7d6192..9a6d6376 100644
+--- a/src/Widgets/WallpaperContainer.vala
++++ b/src/Widgets/WallpaperContainer.vala
+@@ -25,7 +25,6 @@ public class PantheonShell.WallpaperContainer : Gtk.FlowBoxChild {
+     private const int THUMB_HEIGHT = 100;
+ 
+     private Gtk.Grid card_box;
+-    private Gtk.Menu context_menu;
+     private Gtk.Revealer check_revealer;
+     private Granite.AsyncImage image;
+ 
+@@ -35,6 +34,8 @@ public class PantheonShell.WallpaperContainer : Gtk.FlowBoxChild {
+     public Gdk.Pixbuf thumb { get; set; }
+     public uint64 creation_date = 0;
+ 
++    private Gtk.GestureMultiPress secondary_click_gesture;
++
+     private int scale;
+ 
+     public bool checked {
+@@ -109,13 +110,11 @@ public class PantheonShell.WallpaperContainer : Gtk.FlowBoxChild {
+         overlay.add (card_box);
+         overlay.add_overlay (check_revealer);
+ 
+-        var event_box = new Gtk.EventBox ();
+-        event_box.add (overlay);
+-
+         halign = Gtk.Align.CENTER;
+         valign = Gtk.Align.CENTER;
+         margin = 6;
+-        add (event_box);
++
++        child = overlay;
+ 
+         if (uri != null) {
+             var move_to_trash = new Gtk.MenuItem.with_label (_("Remove"));
+@@ -130,17 +129,21 @@ public class PantheonShell.WallpaperContainer : Gtk.FlowBoxChild {
+                 critical (e.message);
+             }
+ 
+-            context_menu = new Gtk.Menu ();
++            var context_menu = new Gtk.Menu ();
+             context_menu.append (move_to_trash);
+             context_menu.show_all ();
++
++            secondary_click_gesture = new Gtk.GestureMultiPress (overlay) {
++                button = Gdk.BUTTON_SECONDARY
++            };
++            secondary_click_gesture.released.connect (() => {
++                context_menu.popup_at_pointer (null);
++            });
+         }
+ 
+         activate.connect (() => {
+             checked = true;
+         });
+-
+-        event_box.button_press_event.connect (show_context_menu);
+-
+         try {
+             if (uri != null) {
+                 if (thumb_path != null && thumb_valid) {
+@@ -193,14 +196,6 @@ public class PantheonShell.WallpaperContainer : Gtk.FlowBoxChild {
+         }
+     }
+ 
+-    private bool show_context_menu (Gtk.Widget sender, Gdk.EventButton evt) {
+-        if (evt.type == Gdk.EventType.BUTTON_PRESS && evt.button == 3) {
+-            context_menu.popup_at_pointer (null);
+-            return Gdk.EVENT_STOP;
+-        }
+-        return Gdk.EVENT_PROPAGATE;
+-    }
+-
+     private async void update_thumb () {
+         if (thumb_path == null) {
+             return;
+From b8faed1e2502abf3667b99293d2e969467deae99 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Danielle=20For=C3=A9?= <danielle@elementary.io>
+Date: Thu, 19 Oct 2023 16:11:41 -0700
+Subject: [PATCH] Use GLib.Menu
+
+---
+ src/Widgets/WallpaperContainer.vala | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
+
+diff --git a/src/Widgets/WallpaperContainer.vala b/src/Widgets/WallpaperContainer.vala
+index 9a6d6376..1c333aa9 100644
+--- a/src/Widgets/WallpaperContainer.vala
++++ b/src/Widgets/WallpaperContainer.vala
+@@ -117,20 +117,29 @@ public class PantheonShell.WallpaperContainer : Gtk.FlowBoxChild {
+         child = overlay;
+ 
+         if (uri != null) {
+-            var move_to_trash = new Gtk.MenuItem.with_label (_("Remove"));
+-            move_to_trash.activate.connect (() => trash ());
++            var remove_wallpaper_action = new SimpleAction ("trash", null);
++            remove_wallpaper_action.activate.connect (() => trash ());
++
++            var action_group = new SimpleActionGroup ();
++            action_group.add_action (remove_wallpaper_action);
++
++            insert_action_group ("wallpaper", action_group);
+ 
+             var file = File.new_for_uri (uri);
+             try {
+                 var info = file.query_info ("*", FileQueryInfoFlags.NONE);
+                 creation_date = info.get_attribute_uint64 (GLib.FileAttribute.TIME_CREATED);
+-                move_to_trash.sensitive = info.get_attribute_boolean (GLib.FileAttribute.ACCESS_CAN_DELETE);
++                remove_wallpaper_action.set_enabled (info.get_attribute_boolean (GLib.FileAttribute.ACCESS_CAN_DELETE));
+             } catch (Error e) {
+                 critical (e.message);
+             }
+ 
+-            var context_menu = new Gtk.Menu ();
+-            context_menu.append (move_to_trash);
++            var menu_model = new Menu ();
++            menu_model.append (_("Remove"), "wallpaper.trash");
++
++            var context_menu = new Gtk.Menu.from_model (menu_model) {
++                attach_widget = this
++            };
+             context_menu.show_all ();
+ 
+             secondary_click_gesture = new Gtk.GestureMultiPress (overlay) {
