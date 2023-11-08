@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# Slackware build script for switchboard-plug-security-privacy 
+# Slackware build script for switchboard-plug-services
 
-# Copyright 2021 Frank Honolka <slackernetuk@gmail.com>
+# Copyright 2023 Nathaniel Russell <naterussell83@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -22,12 +22,12 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://github.com/elementary/switchboard-plug-security-privacy/archive/7.1.0/switchboard-plug-security-privacy-7.1.0.tar.gz
+wget -c https://github.com/Dirli/switchboard-plug-services/archive/1.0.1/switchboard-plug-services-1.0.1.tar.gz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
-PRGNAM=switchboard-plug-security-privacy
-VERSION=${VERSION:-7.1.0}
+PRGNAM=switchboard-plug-services
+VERSION=${VERSION:-1.0.1}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
@@ -69,7 +69,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM-$VERSION
-tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
+tar xvf $CWD/$PRGNAM-$VERSION.tar.?z*
 cd $PRGNAM-$VERSION
 chown -R root:root .
 find -L . \
