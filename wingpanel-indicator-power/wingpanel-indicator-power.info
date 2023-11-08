@@ -1,8 +1,0 @@
-PRGNAM="wingpanel-indicator-power"
-VERSION="6.2.0"
-HOMEPAGE="https://github.com/elementary/wingpanel-indicator-power"
-DOWNLOAD="https://github.com/elementary/wingpanel-indicator-power/archive/refs/tags/6.2.0.tar.gz"
-MD5SUM="a14e62b4733dfbc2b2e0cfa1e888ec55"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

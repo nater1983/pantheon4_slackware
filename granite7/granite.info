@@ -1,8 +1,0 @@
-PRGNAM="granite7"
-VERSION="7.1.0"
-HOMEPAGE="https://github.com/elementary/granite"
-DOWNLOAD="https://github.com/elementary/granite/archive/refs/tags/7.1.0.tar.gz"
-MD5SUM="17d9df486bf1c898a8ddba9d4f990aea"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

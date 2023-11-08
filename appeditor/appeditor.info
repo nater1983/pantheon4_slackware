@@ -1,8 +1,0 @@
-PRGNAM="appeditor"
-VERSION="1.1.3"
-HOMEPAGE="https://github.com/donadigo/appeditor"
-DOWNLOAD="https://github.com/donadigo/appeditor/archive/refs/tags/1.1.3.tar.gz"
-MD5SUM="b75f5e169868a2b2be782a5e5434c604"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

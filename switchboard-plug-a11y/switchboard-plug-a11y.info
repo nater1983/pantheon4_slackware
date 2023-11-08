@@ -1,8 +1,0 @@
-PRGNAM="switchboard-plug-a11y"
-VERSION="2.3.0"
-HOMEPAGE="https://github.com/elementary/switchboard-plug-a11y"
-DOWNLOAD="https://github.com/elementary/switchboard-plug-a11y/archive/refs/tags/2.3.0.tar.gz"
-MD5SUM="0dbde4d2fbc2e81582ce3e12dc2cc35a"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

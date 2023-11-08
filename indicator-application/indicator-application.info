@@ -1,8 +1,0 @@
-PRGNAM="indicator-application"
-VERSION="12.10.0"
-HOMEPAGE="https://launchpad.net/indicator-application"
-DOWNLOAD="https://launchpad.net/indicator-application/12.10/12.10.0/+download/indicator-application-12.10.0.tar.gz"
-MD5SUM="0bbd45ee2f388580285c36dabd49caaf"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

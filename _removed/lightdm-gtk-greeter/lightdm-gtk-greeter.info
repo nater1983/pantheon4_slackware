@@ -1,8 +1,0 @@
-PRGNAM="lightdm-gtk-greeter"
-VERSION="2.0.8"
-HOMEPAGE="https://github.com/Xubuntu/lightdm-gtk-greeter"
-DOWNLOAD="https://github.com/Xubuntu/lightdm-gtk-greeter/releases/download/lightdm-gtk-greeter-2.0.8/lightdm-gtk-greeter-2.0.8.tar.gz"
-MD5SUM="373c73c67367df511eb544e09a2da281"
-REQUIRES="lightdm"
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

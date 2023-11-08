@@ -1,8 +1,0 @@
-PRGNAM="switchboard-plug-display"
-VERSION="2.3.3"
-HOMEPAGE="https://github.com/elementary/switchboard-plug-display"
-DOWNLOAD="https://github.com/elementary/switchboard-plug-display/archive/refs/tags/2.3.3.tar.gz"
-MD5SUM="230f39566cbf9c3ed6d6733c50cf3c9d"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

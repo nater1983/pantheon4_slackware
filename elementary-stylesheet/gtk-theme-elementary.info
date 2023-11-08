@@ -1,8 +1,0 @@
-PRGNAM="gtk-theme-elementary"
-VERSION="7.0.1"
-HOMEPAGE="https://github.com/elementary/stylesheet"
-DOWNLOAD="https://github.com/elementary/stylesheet/archive/refs/tags/7.0.1.tar.gz"
-MD5SUM="839b7194cacd2d85f5bbe1f05857dc49"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

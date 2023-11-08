@@ -1,7 +1,0 @@
-PRGNAM="lightdm"
-VERSION="1.30.0"
-HOMEPAGE="https://github.com/canonical/lightdm"
-DOWNLOAD="https://github.com/CanonicalLtd/lightdm/releases/download/1.30.0/lightdm-1.30.0.tar.xz"
-MD5SUM="c566ea595f2b81e68684be9f8dbcbb42"
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

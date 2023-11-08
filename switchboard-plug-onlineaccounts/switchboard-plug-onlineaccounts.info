@@ -1,8 +1,0 @@
-PRGNAM="switchboard-plug-onlineaccounts"
-VERSION="6.5.1"
-HOMEPAGE="https://github.com/elementary/switchboard-plug-onlineaccounts"
-DOWNLOAD="https://github.com/elementary/switchboard-plug-onlineaccounts/archive/refs/tags/6.5.1.tar.gz"
-MD5SUM="a00e7becda857694ac2739291cdd1de9"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

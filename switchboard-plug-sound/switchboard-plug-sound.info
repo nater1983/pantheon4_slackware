@@ -1,8 +1,0 @@
-PRGNAM="switchboard-plug-sound"
-VERSION="2.3.2"
-HOMEPAGE="https://github.com/elementary/switchboard-plug-sound"
-DOWNLOAD="https://github.com/elementary/switchboard-plug-sound/archive/refs/tags/2.3.2.tar.gz"
-MD5SUM="91599c9e9f9167ed54521f041c832055"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

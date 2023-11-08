@@ -1,8 +1,0 @@
-PRGNAM="elementary-appcenter"
-VERSION="4.0.0"
-HOMEPAGE="https://github.com/elementary/appcenter"
-DOWNLOAD="https://github.com/elementary/appcenter/archive/refs/tags/4.0.0.tar.gz"
-MD5SUM="4dc15d0b2bb22cdd848284dfaaea1feb"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

@@ -1,8 +1,0 @@
-PRGNAM="pantheon-screenshot"
-VERSION="6.0.2"
-HOMEPAGE="https://github.com/elementary/screenshot"
-DOWNLOAD="https://github.com/elementary/screenshot/archive/refs/tags/6.0.2.tar.gz"
-MD5SUM="eb3b41dd98ebfede47c84bd32e6b8cae"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

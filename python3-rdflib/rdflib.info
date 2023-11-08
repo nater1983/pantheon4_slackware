@@ -1,8 +1,0 @@
-PRGNAM="rdflib"
-VERSION="5.0.0"
-HOMEPAGE="http://rdflib.net"
-DOWNLOAD="https://github.com/RDFLib/rdflib/archive/refs/tags/5.0.0.tar.gz"
-MD5SUM="aaca854daef803da19010181eb99e3e1"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

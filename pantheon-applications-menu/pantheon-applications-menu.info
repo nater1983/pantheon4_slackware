@@ -1,8 +1,0 @@
-PRGNAM="pantheon-applications-men"
-VERSION="2.11.0"
-HOMEPAGE="https://github.com/elementary/applications-menu"
-DOWNLOAD="https://github.com/elementary/applications-menu/archive/refs/tags/2.11.0.tar.gz"
-MD5SUM="efa7dac21aa6a643d10b0efcff7f7179"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

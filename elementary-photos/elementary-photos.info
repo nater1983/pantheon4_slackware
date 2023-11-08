@@ -1,8 +1,0 @@
-PRGNAM="elementary-photos"
-VERSION="2.8.0"
-HOMEPAGE="https://github.com/elementary/photos"
-DOWNLOAD="https://github.com/elementary/photos/archive/refs/tags/2.8.0.tar.gz"
-MD5SUM="065b845235b4c9bfef4aaa63e8563a22"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

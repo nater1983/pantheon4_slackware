@@ -1,8 +1,0 @@
-PRGNAM="switchboard-plug-useraccounts"
-VERSION="2.4.3"
-HOMEPAGE="https://github.com/elementary/switchboard-plug-useraccounts"
-DOWNLOAD="https://github.com/elementary/switchboard-plug-useraccounts/archive/refs/tags/2.4.3.tar.gz"
-MD5SUM="11bf5251d11d394dfc391e61f0297e52"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

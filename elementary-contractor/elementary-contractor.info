@@ -1,8 +1,0 @@
-PRGNAM="elementary-contractor"
-VERSION="0.3.5"
-HOMEPAGE="https://github.com/elementary/contractor"
-DOWNLOAD="https://github.com/elementary/contractor/archive/refs/tags/0.3.5.tar.gz"
-MD5SUM="77ae44cdd80b1919566a5d5bcde4af4a"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

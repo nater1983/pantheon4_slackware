@@ -1,8 +1,0 @@
-PRGNAM="switchboard-plug-wacom"
-VERSION="1.0.1"
-HOMEPAGE="https://github.com/elementary/switchboard-plug-wacom"
-DOWNLOAD="https://github.com/elementary/switchboard-plug-wacom/archive/refs/tags/1.0.1.tar.gz"
-MD5SUM="3948718616c72b22456f232372837481"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

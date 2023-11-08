@@ -1,8 +1,0 @@
-PRGNAM="switchboard-plug-datetime"
-VERSION="2.2.0"
-HOMEPAGE="https://github.com/elementary/switchboard-plug-datetime"
-DOWNLOAD="https://github.com/elementary/switchboard-plug-datetime/archive/refs/tags/2.2.0.tar.gz"
-MD5SUM="029d2aeb71a0b709ffe444aea3dc5808"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

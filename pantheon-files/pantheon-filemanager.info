@@ -1,8 +1,0 @@
-PRGNAM="pantheon-filemanager"
-VERSION="6.2.1"
-HOMEPAGE="https://github.com/elementary/files"
-DOWNLOAD="https://github.com/elementary/files/archive/refs/tags/6.2.1.tar.gz"
-MD5SUM="3fcd35939a6eb47668cc5bc73f4b8306"
-REQUIRES="%"
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

@@ -1,8 +1,0 @@
-PRGNAM="elementary-tasks"
-VERSION="6.3.0"
-HOMEPAGE="https://github.com/elementary/tasks"
-DOWNLOAD="https://github.com/elementary/tasks/archive/refs/tags/6.3.1.tar.gz"
-MD5SUM="aa6a48d7c29b0f8a217b3256556967cb"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

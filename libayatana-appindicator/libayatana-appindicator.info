@@ -1,8 +1,0 @@
-PRGNAM="libayatana-appindicator"
-VERSION="0.5.91"
-HOMEPAGE="https://github.com/AyatanaIndicators/libayatana-appindicator"
-DOWNLOAD="https://github.com/AyatanaIndicators/libayatana-appindicator/archive/refs/tags/0.5.91.tar.gz"
-MD5SUM="6828e6a99df1d64ea222421167406f63"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

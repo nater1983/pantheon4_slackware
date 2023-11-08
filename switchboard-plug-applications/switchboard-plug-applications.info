@@ -1,8 +1,0 @@
-PRGNAM="switchboard-plug-applications"
-VERSION="6.0.1"
-HOMEPAGE="https://github.com/elementary/switchboard-plug-applications"
-DOWNLOAD="https://github.com/elementary/switchboard-plug-applications/archive/refs/tags/6.0.1.tar.gz"
-MD5SUM="4a7384f247bd552ff94301fd960d616b"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

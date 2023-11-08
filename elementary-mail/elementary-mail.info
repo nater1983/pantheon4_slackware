@@ -1,8 +1,0 @@
-PRGNAM="elementary-mail"
-VERSION="7.0.0"
-HOMEPAGE="https://github.com/elementary/mail"
-DOWNLOAD="https://github.com/elementary/mail/archive/refs/tags/7.0.0.tar.gz"
-MD5SUM="6397154a52ec1409ebc5149f6c0f0957"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

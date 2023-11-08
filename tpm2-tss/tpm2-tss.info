@@ -1,8 +1,0 @@
-PRGNAM="tpm2-tss"
-VERSION="3.1.0"
-HOMEPAGE="https://github.com/tpm2-software/tpm2-tss"
-DOWNLOAD="https://github.com/tpm2-software/tpm2-tss/releases/download/3.1.0/tpm2-tss-3.1.0.tar.gz"
-MD5SUM="4d04cf52fff4ee061bb3f7b4f4ea03b7"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

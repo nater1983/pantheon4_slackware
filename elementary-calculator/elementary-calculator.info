@@ -1,8 +1,0 @@
-PRGNAM="elementary-calculator"
-VERSION="2.0.0"
-HOMEPAGE="https://github.com/elementary/calculator"
-DOWNLOAD="https://github.com/elementary/calculator/archive/refs/tags/2.0.0.tar.gz"
-MD5SUM="c49bab7c7397d69d54337c92cccd986a"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

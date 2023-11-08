@@ -1,8 +1,0 @@
-PRGNAM="lightdm-pantheon-greeter"
-VERSION="6.1.1"
-HOMEPAGE="https://github.com/elementary/greeter"
-DOWNLOAD="https://github.com/elementary/greeter/archive/refs/tags/6.1.1.tar.gz"
-MD5SUM="65fad571dac1e9de5b387c38541118e5"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

@@ -1,8 +1,0 @@
-PRGNAM="elementary-calendar"
-VERSION="6.1.2"
-HOMEPAGE="https://github.com/elementary/calendar"
-DOWNLOAD="https://github.com/elementary/calendar/archive/refs/tags/6.1.2.tar.gz"
-MD5SUM="b9b1ded5929f2dbed7ed5002ea5a47d3"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

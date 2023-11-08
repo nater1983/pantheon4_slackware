@@ -1,8 +1,0 @@
-PRGNAM="wingpanel-indicator-datetime"
-VERSION="2.4.1"
-HOMEPAGE="https://github.com/elementary/wingpanel-indicator-datetime"
-DOWNLOAD="https://github.com/elementary/wingpanel-indicator-datetime/archive/refs/tags/2.4.1.tar.gz"
-MD5SUM="a4a7d03e65e3e8778081213bcef821ee"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

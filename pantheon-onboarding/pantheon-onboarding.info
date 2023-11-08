@@ -1,8 +1,0 @@
-PRGNAM="pantheon-onboarding"
-VERSION="7.0.1"
-HOMEPAGE="https://github.com/elementary/onboarding"
-DOWNLOAD="https://github.com/elementary/onboarding/archive/refs/tags/7.0.1.tar.gz"
-MD5SUM="feecdf93e4a6f0cf1ca16c3507b83794"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

@@ -1,8 +1,0 @@
-PRGNAM="elementary-fonts"
-VERSION="5.1.0"
-HOMEPAGE="https://github.com/elementary/fonts"
-DOWNLOAD="https://github.com/elementary/fonts/archive/refs/tags/5.1.0.tar.gz"
-MD5SUM="542d9e19f4deeb0173bfa97e3a641430"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"

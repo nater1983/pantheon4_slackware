@@ -1,8 +1,0 @@
-PRGNAM="switchboard-plug-pantheon-shell"
-VERSION="6.3.1"
-HOMEPAGE="https://github.com/elementary/switchboard-plug-pantheon-shell"
-DOWNLOAD="https://github.com/elementary/switchboard-plug-pantheon-shell/archive/refs/tags/6.3.1.tar.gz"
-MD5SUM="d1a2e6f147f26b9b36d419d7bbd418ef"
-REQUIRES=""
-MAINTAINER="Frank Honolka"
-EMAIL="slackernetuk@gmail.com"
