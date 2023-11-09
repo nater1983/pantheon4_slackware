@@ -72,6 +72,11 @@ cd $TMP
 rm -rf $PRGNAM-$VERSION
 tar xvf $CWD/$PRGNAM-$VERSION.tar.?z*
 cd $PRGNAM-$VERSION
+patch -Np1 -i $CWD/21d15e72d1afd11a78eb152c577dfd7765935c01.patch
+patch -Np1 -i $CWD/5967798a47ba8835ae100c01a8d647d2f9a2412f.patch
+patch -Np1 -i $CWD/6ca78b3d3890786d11b5fdb934260f9082e4561a.patch
+patch -Np1 -i $CWD/7aa7904252ba28eb0fa5232bbf094eafe1d9b966.patch
+patch -Np1 -i $CWD/d83adef3a459042d2932ce26252af221620342fb.patch
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
