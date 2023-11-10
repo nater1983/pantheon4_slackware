@@ -5,12 +5,15 @@
 # make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':'.
 
-        |-----handy-ruler------------------------------------------------------|
+    |-----handy-ruler------------------------------------------------------|
 gala: Gala (The Pantheon Window Manager)
 gala:
+gala: A window & compositing manager based on libmutter and designed by
+gala: elementary for use with Pantheon. Gala is a integral part of the
+gala: Pantheon Desktop Enviroment.
 gala:
 gala:
+gala: Homepage: https://github.com/elementary/gala
 gala:
-gala: https://github.com/elementary/gala
 gala:
 gala:
