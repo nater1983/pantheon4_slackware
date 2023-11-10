@@ -8,12 +8,12 @@
                   |-----handy-ruler------------------------------------------------------|
 switcheroo-control: switcheroo-control ( Service to check the availability of dual-GPU )
 switcheroo-control:
-switcheroo-control: D-Bus service to check the availability of dual-GPU 
+switcheroo-control: For systems that have both an integrated GPU and a dedicated GPU,
+switcheroo-control: this package by default will force the integrated GPU to be used to
+switcheroo-control: save power. You can launch individual apps using the dedicated GPU
+switcheroo-control: by running them with the environment variable DRI_PRIME=1. Or you can
+switcheroo-control: right-click on the app (while it's not running) in GNOME Shell's
+switcheroo-control: Activities Overview and choose the "Launch using Dedicated Graphics
+switcheroo-control: Card" option.
 switcheroo-control:
-switcheroo-control:
-switcheroo-control:
-switcheroo-control:
-switcheroo-control: https://gitlab.freedesktop.org/hadess/switcheroo-control
-switcheroo-control:
-switcheroo-control:
-switcheroo-control:
+switcheroo-control: Homepage: https://gitlab.freedesktop.org/hadess/switcheroo-control
