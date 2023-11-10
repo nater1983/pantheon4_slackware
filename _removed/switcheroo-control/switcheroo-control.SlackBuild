@@ -23,11 +23,11 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PRGNAM=switcheroo-control
-VERSION=${VERSION:-2.6-g23eefc9}
+VERSION=${VERSION:-2.6-d99d8c3}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
-GITSRC=https://gitlab.freedesktop.org/hadess/switcheroo-control.git
-_commit=23eefc9f104747e3d7590f944aaad48fe5917a2a
+PKGTYPE=${PKGTYPE:-txz}
+_commit=d99d8c3ef9914d2f2fb5f4a2c945a4a4bff5eeeb
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -37,7 +37,11 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-CWD=$(pwd)
+if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
+  echo "$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE"
+  exit 0
+fi
+
 TMP=${TMP:-/tmp/psb}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/var/cache/psb}
@@ -62,7 +66,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM
-git clone $GITSRC
+git clone https://gitlab.freedesktop.org/hadess/switcheroo-control.git
 cd $PRGNAM
 git checkout $_commit
 chown -R root:root .
@@ -72,17 +76,24 @@ find -L . \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
   -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-  meson \
+mkdir build
+cd build
+  CFLAGS="$SLKCFLAGS" \
+  CXXFLAGS="$SLKCFLAGS" \
+  meson .. \
     --buildtype=release \
+    --infodir=/usr/info \
     --libdir=/usr/lib${LIBDIRSUFFIX} \
     --localstatedir=/var \
     --mandir=/usr/man \
     --prefix=/usr \
     --sysconfdir=/etc \
+    -Dstrip=true \
     -Dsystemdsystemunitdir=/usr/lib/systemd/system \
-    -Dhwdbdir=/lib/udev/hwdb.d build || exit 1
-  meson compile -C build
-  DESTDIR=$PKG meson install -C build
+    -Dhwdbdir=/lib/udev/hwdb.d
+  "${NINJA:=ninja}"
+  DESTDIR=$PKG $NINJA install
+cd ..
 
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
@@ -94,19 +105,13 @@ find $PKG/usr/man -type f -exec gzip -9 {} \;
 for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
 fi
 
-find $PKG -name perllocal.pod \
-  -o -name ".packlist" \
-  -o -name "*.bs" \
-  | xargs rm -f
-
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-DOCS="AUTHORS COPYING ChangeLog NEWS README.md" 
-cp -a $DOCS $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a AUTHORS COPYING ChangeLog NEWS README.md \
+    $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
 
 cd $PKG
-/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}
-
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
