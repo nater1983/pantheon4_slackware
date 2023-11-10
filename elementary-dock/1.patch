@@ -1,0 +1,47 @@
+From 69c77ffcf8eb342a77e2f21074063a57655c0781 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Danielle=20For=C3=A9?= <danielle@elementary.io>
+Date: Tue, 7 Nov 2023 13:15:35 -0800
+Subject: [PATCH] Add desktop to autostart
+
+---
+ data/dock.desktop | 17 +++++++++++++++++
+ data/meson.build  |  5 +++++
+ 2 files changed, 22 insertions(+)
+ create mode 100644 data/dock.desktop
+
+diff --git a/data/dock.desktop b/data/dock.desktop
+new file mode 100644
+index 00000000..913f893c
+--- /dev/null
++++ b/data/dock.desktop
+@@ -0,0 +1,17 @@
++[Desktop Entry]
++Version=1.0
++Type=Application
++
++Name=Dock
++Comment=Dock for Pantheon
++Categories=;System;Core;
++
++Exec=io.elementary.dock
++Terminal=false
++
++NoDisplay=true
++StartupNotify=true
++X-GNOME-AutoRestart=true
++X-GNOME-Autostart-Notify=true
++X-GNOME-Autostart-Phase=Desktop
++OnlyShowIn=Pantheon
+diff --git a/data/meson.build b/data/meson.build
+index 557866e6..35453c26 100644
+--- a/data/meson.build
++++ b/data/meson.build
+@@ -10,3 +10,8 @@ install_data(
+     install_dir: get_option('datadir') / 'glib-2.0' / 'schemas',
+     rename: meson.project_name() + '.gschema.xml'
+ )
++
++install_data(
++    'dock.desktop',
++    install_dir: get_option('sysconfdir') / 'xdg' / 'autostart'
++)
