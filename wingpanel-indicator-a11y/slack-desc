@@ -5,10 +5,15 @@
 # You must make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-     |-----handy-ruler------------------------------------------------------|
-wingpanel: wingpanel (The Pantheon Top Panel)
-wingpanel:
-wingpanel:
-wingpanel:
-wingpanel: https://github.com/elementary/wingpanel
-wingpanel:
+                        |-----handy-ruler------------------------------------------------------|
+wingpanel-indicator-a11y: wingpanel-indicator-a11y (Wingpanel Universal Access Indicator )
+wingpanel-indicator-a11y:
+wingpanel-indicator-a11y: Universal access settings for Wingpanel.
+wingpanel-indicator-a11y:
+wingpanel-indicator-a11y: Homepage: https://github.com/elementary/wingpanel-indicator-a11y
+wingpanel-indicator-a11y:
+wingpanel-indicator-a11y:
+wingpanel-indicator-a11y:
+wingpanel-indicator-a11y:
+wingpanel-indicator-a11y:
+wingpanel-indicator-a11y:
