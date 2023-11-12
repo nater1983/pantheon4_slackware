@@ -22,12 +22,12 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://download.gnome.org/sources/mutter/44/mutter-44.6.tar.xz
+wget -c https://download.gnome.org/sources/mutter/45/mutter-45.1.tar.xz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=mutter
-VERSION=${VERSION:-44.6}
+VERSION=${VERSION:-45.1}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
@@ -71,6 +71,12 @@ cd $TMP
 rm -rf $PRGNAM-$VERSION
 tar xfv $CWD/$PRGNAM-$VERSION.tar.?z*
 cd $PRGNAM-$VERSION
+patch -Np1 -i $CWD/0001-window-actor-Special-case-shaped-Java-windows.patch
+patch -Np1 -i $CWD/mutter-42.alpha-disable-tegra.patch
+patch -Np1 -i $CWD/0001-meson-Update-the-syprof-wrap-to-45.alpha-and-sysprof.patch
+patch -Np1 -i $CWD/0001-gschema-Enable-scale-monitor-framebuffer-experimenta.patch
+patch -Np1 -i $CWD/0001-Revert-x11-Use-input-region-from-frame-window-for-de.patch
+patch -Np1 -i $CWD/3329.patch
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
