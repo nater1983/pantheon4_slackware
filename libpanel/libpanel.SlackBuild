@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
-# Slackware build script for sysprof
+# Slackware build script for libpanel 
 
-# Copyright 2021 Rafael Tavares (mdrafaeltavares@gmail.com) Bahia, Brazil.
+# Copyright 2022-2023 Frank Honolka <slackernetuk@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -22,12 +22,12 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://download.gnome.org/sources/sysprof/45/sysprof-45.1.tar.xz
+wget -c https://download.gnome.org/sources/libpanel/1.4/libpanel-1.4.0.tar.xz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
-PRGNAM=sysprof
-VERSION=${VERSION:-45.1}
+PRGNAM=libpanel
+VERSION=${VERSION:-1.4.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
@@ -69,7 +69,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM-$VERSION
-tar xfv $CWD/$PRGNAM-$VERSION.tar.?z*
+tar xvf $CWD/$PRGNAM-$VERSION.tar.?z*
 cd $PRGNAM-$VERSION
 chown -R root:root .
 find -L . \
@@ -78,39 +78,57 @@ find -L . \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
   -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-mkdir -p build
+mkdir build
 cd build
-CFLAGS="$SLKCFLAGS" \
-CXXFLAGS="$SLKCFLAGS" \
-meson setup ..\
- --prefix=/usr \
- --buildtype=release \
- --libdir=lib${LIBDIRSUFFIX} \
- --sysconfdir=/etc \
- --infodir=/usr/info \
- --mandir=/usr/man \
- --localstatedir=/var \
- -Dgtk=true \
- -Dlibsysprof=true \
- -Dsysprofd=bundled \
- -Dsystemdunitdir=/usr/lib/systemd/system \
- -Dhelp=true \
- -Dtools=true \
- -Dtests=false \
- -Dexamples=false
-   "${NINJA:=ninja}"
+  CFLAGS="$SLKCFLAGS" \
+  CXXFLAGS="$SLKCFLAGS" \
+  meson setup ..\
+    --buildtype=release \
+    --infodir=/usr/info \
+    --libdir=/usr/lib${LIBDIRSUFFIX} \
+    --localstatedir=/var \
+    --mandir=/usr/man \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    -Dstrip=true \
+    -Dintrospection=enabled \
+    -Dvapi=true 
+  "${NINJA:=ninja}"
   DESTDIR=$PKG $NINJA install
 cd ..
+
+rm -f $PKG/{,usr/}lib${LIBDIRSUFFIX}/*.la
 
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
+# Compress and link manpages, if any:
+if [ -d $PKG/usr/man ]; then
+  ( cd $PKG/usr/man
+    for manpagedir in $(find . -type d -name "man*") ; do
+      ( cd $manpagedir
+        for eachpage in $( find . -type l -maxdepth 1) ; do
+          ln -s $( readlink $eachpage ).gz $eachpage.gz
+          rm $eachpage
+        done
+        gzip -9 *.*
+      )
+    done
+  )
+fi
+
+find $PKG -name perllocal.pod \
+  -o -name ".packlist" \
+  -o -name "*.bs" \
+  | xargs rm -f
+
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a NEWS README.md AUTHORS COPYING \
-  $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a AUTHORS COPYING NEWS README.md TODO.md \
+    $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
+if [ -f $CWD/slack-required ]; then cat $CWD/slack-required > $PKG/install/slack-required; fi
 cat $CWD/slack-desc > $PKG/install/slack-desc
 
 cd $PKG
