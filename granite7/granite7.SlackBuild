@@ -23,13 +23,13 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://github.com/elementary/granite/archive/7.4.0/granite-7.4.0.tar.gz
+wget -c https://github.com/elementary/granite/archive/7.5.0/granite-7.5.0.tar.gz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=granite7
 SRCNAM=granite
-VERSION=${VERSION:-7.4.0}
+VERSION=${VERSION:-7.5.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
