@@ -22,12 +22,12 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://download.gnome.org/sources/mutter/45/mutter-45.1.tar.xz
+wget -c https://download.gnome.org/sources/mutter/45/mutter-45.6.tar.xz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=mutter
-VERSION=${VERSION:-45.1}
+VERSION=${VERSION:-45.6}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
@@ -71,6 +71,7 @@ cd $TMP
 rm -rf $PRGNAM-$VERSION
 tar xfv $CWD/$PRGNAM-$VERSION.tar.?z*
 cd $PRGNAM-$VERSION
+patch -Np1 -i $CWD/45.2-fix-X-only.patch
 patch -Np1 -i $CWD/0001-window-actor-Special-case-shaped-Java-windows.patch
 patch -Np1 -i $CWD/mutter-42.alpha-disable-tegra.patch
 patch -Np1 -i $CWD/0001-meson-Update-the-syprof-wrap-to-45.alpha-and-sysprof.patch
