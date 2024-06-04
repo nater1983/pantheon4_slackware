@@ -1,4 +1,4 @@
-From dbd9b6f9701f5992c3b3257c025b9cd80d041cc8 Mon Sep 17 00:00:00 2001
+From ef8d8179fa6572dbfc23987b9b0361bdf37a0f8d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Corentin=20No=C3=ABl?= <corentin.noel@collabora.com>
 Date: Tue, 29 Aug 2023 15:20:25 +0200
 Subject: [PATCH] Add support for Mutter 45
