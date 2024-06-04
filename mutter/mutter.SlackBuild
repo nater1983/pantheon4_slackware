@@ -71,7 +71,6 @@ cd $TMP
 rm -rf $PRGNAM-$VERSION
 tar xfv $CWD/$PRGNAM-$VERSION.tar.?z*
 cd $PRGNAM-$VERSION
-patch -Np1 -i $CWD/45.2-fix-X-only.patch
 patch -Np1 -i $CWD/0001-window-actor-Special-case-shaped-Java-windows.patch
 patch -Np1 -i $CWD/mutter-42.alpha-disable-tegra.patch
 patch -Np1 -i $CWD/0001-meson-Update-the-syprof-wrap-to-45.alpha-and-sysprof.patch
