@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
-# Slackware build script for isodate
+# Slackware build script for liblouis
 
-# Copyright 2014-2017  Dimitris Zlatanidis  Orestiada, Greece
-# MODIFIED BY FRANK HONOLKA <slackernetuk@gmail.com                             #
+# Copyright 2021 Rafael Tavares (mdrafaeltavares@gmail.com) Bahia, Brazil.
+# Modified by Ioannis Anagnostakis <rizitis@gmail.com> GR (2022-2023)
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -23,12 +23,13 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://files.pythonhosted.org/packages/db/7a/c0a56c7d56c7fa723988f122fa1f1ccf8c5c4ccc48efad0d214b49e5b1af/isodate-0.6.1.tar.gz
+wget -c https://github.com/liblouis/liblouis/releases/download/v3.29.0/liblouis-3.29.0.tar.gz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
-PRGNAM=isodate
-VERSION=${VERSION:-0.6.1}
+PRGNAM=python3-liblouis
+SRCNAM=liblouis
+VERSION=${VERSION:-3.29.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
@@ -69,9 +70,9 @@ set -e
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-rm -rf $PRGNAM-$VERSION
-tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
-cd $PRGNAM-$VERSION
+rm -rf $SRCNAM-$VERSION
+tar xfv $CWD/$SRCNAM-$VERSION.tar.?z*
+cd $SRCNAM-$VERSION
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
@@ -79,14 +80,41 @@ find -L . \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
   -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-  python3 setup.py install --root=$PKG
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+ ./configure \
+ --prefix=/usr \
+ --libdir=/usr/lib${LIBDIRSUFFIX} \
+ --libexecdir=/usr/libexec \
+ --sysconfdir=/etc \
+ --localstatedir=/var \
+ --docdir=/usr/doc/$PRGNAM-$VERSION \
+ --mandir=/usr/man \
+ --enable-shared=yes \
+ --disable-static \
+ --build=$ARCH-slackware-linux \
+ --enable-ucs4
+make
+make install DESTDIR=$PKG
+
+cd python
+python3 setup.py install --root=$PKG
+cd ..
 
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
+find $PKG/usr/man -type f -exec gzip -9 {} \;
+for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
+
+find $PKG/usr/share/info -type f -exec gzip -9 {} \;
+for i in $( find $PKG/usr/share/info -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
+
+rm -f $PKG/{,usr/}lib${LIBDIRSUFFIX}/*.la
+
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a CHANGES.txt PKG-INFO README.rst TODO.txt \
-    $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a AUTHORS COPYING* ChangeLog HACKING INSTALL NEWS README TODO \
+  $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
