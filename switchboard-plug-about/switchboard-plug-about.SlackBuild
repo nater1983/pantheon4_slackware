@@ -83,7 +83,7 @@ find -L . \
 
 mkdir build
 cd build
-  CFLAGS="$SLKCFLAGS" \
+  CFLAGS="$SLKCFLAGS -fcommon -fpermissive" \
   CXXFLAGS="$SLKCFLAGS" \
   meson .. \
     --buildtype=release \
