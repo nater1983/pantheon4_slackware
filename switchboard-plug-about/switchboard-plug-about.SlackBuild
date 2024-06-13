@@ -71,7 +71,7 @@ cd $TMP
 rm -rf $PRGNAM-$VERSION
 tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
 cd $PRGNAM-$VERSION
-patch -p1 --merge $CWD/1.patch
+patch -Np1 -i $CWD/1.patch || exit 1
 sed -i "s/distributor-logo/slackware/g" src/Plug.vala || exit 1
 sed -i 's/switchboard-2.0/switchboard-3/g' src/meson.build
 sed -i 's/granite/granite-7/g' src/meson.build
