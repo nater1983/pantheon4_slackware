@@ -1,455 +1,280 @@
-From ef49ed7e718e4a81b226a26801f199e46ce9b67f Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Corentin=20No=C3=ABl?= <tintou@noel.tf>
-Date: Fri, 24 Feb 2023 11:43:41 +0100
-Subject: [PATCH] HardwareView: Reuse translations from GLib (#260)
-
-Allows to not have duplicates of the string already availables.
----
- src/Views/HardwareView.vala | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
-
-diff --git a/src/Views/HardwareView.vala b/src/Views/HardwareView.vala
-index 5f221a09..a36c3d79 100644
---- a/src/Views/HardwareView.vala
-+++ b/src/Views/HardwareView.vala
-@@ -590,27 +590,24 @@ public class About.HardwareView : Gtk.Grid {
-     private string custom_format_size (uint64 size, bool iec_unit) {
-         uint divisor = iec_unit ? 1024 : 1000;
- 
--        string[] units = {_("KB"), _("MB"), _("GB"), _("TB"), _("PB")};
-+        const string[] UNITS = {"kB", "MB", "GB", "TB", "PB", "EB"};
- 
-         int unit_index = 0;
- 
--        while ((size / divisor) > 0 && (unit_index < units.length)) {
-+        while ((size / divisor) > 0 && (unit_index < UNITS.length)) {
-             unit_index++;
-             size /= divisor;
-         }
- 
--        string unit;
-+        unowned string unit;
- 
-         if (unit_index == 0) {
--            // TRANSLATORS: Examples of use: "1 byte", "2 bytes"
--            unit = ngettext ("byte", "bytes", (ulong) size);
-+            unit = dngettext ("glib20", "byte", "bytes", (ulong) size);
-         } else {
--            unit = units[unit_index - 1];
-+            unit = dgettext ("glib20", UNITS[unit_index - 1]);
-         }
- 
--        /* TRANSLATORS: The first "%llu" is replaced with the value, the "%s" with a unit of the value.
--           The order can be changed with "%$2s %$1llu". An example: "2 bytes" */
--        return _("%llu %s").printf (size, unit);
-+        return dpgettext2 ("glib20", "format-size", "%u %s").printf ((uint) size, unit);
-     }
- }
- 
-From f36d02fb5e711cbd29522214380294960fc30f6f Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Corentin=20No=C3=ABl?= <tintou@noel.tf>
-Date: Fri, 24 Feb 2023 14:03:24 +0100
-Subject: [PATCH] HardwareView: Support GLib < 2.73 translation (#265)
-
-It is required as we _only_ have 2.72 in Jammy
----
- meson.build                 |  6 ++++++
- src/Views/HardwareView.vala | 12 ++++++++++++
- src/meson.build             |  2 +-
- 3 files changed, 19 insertions(+), 1 deletion(-)
-
-diff --git a/meson.build b/meson.build
-index 62b58cea..0479fce6 100644
---- a/meson.build
-+++ b/meson.build
-@@ -12,6 +12,8 @@ prefix = get_option('prefix')
- datadir = join_paths(prefix, get_option('datadir'))
- libdir = join_paths(prefix, get_option('libdir'))
- 
-+glib_dep = dependency('glib-2.0', version: '>=2.64.0')
-+
- add_project_arguments(
-     '-DGETTEXT_PACKAGE="@0@"'.format(gettext_name),
-     language:'c'
-@@ -26,6 +28,10 @@ if get_option('wallpaper')
-     vala_flags += ['--define', 'WALLPAPER']
- endif
- 
-+if glib_dep.version().version_compare ('>=2.73.0')
-+    vala_flags += ['--define', 'HAS_GLIB_2_73']
-+endif
-+
- add_project_arguments(vala_flags, language: 'vala')
- 
- subdir('data')
-diff --git a/src/Views/HardwareView.vala b/src/Views/HardwareView.vala
-index a36c3d79..1acfecd5 100644
---- a/src/Views/HardwareView.vala
-+++ b/src/Views/HardwareView.vala
-@@ -590,7 +590,11 @@ public class About.HardwareView : Gtk.Grid {
-     private string custom_format_size (uint64 size, bool iec_unit) {
-         uint divisor = iec_unit ? 1024 : 1000;
- 
-+#if HAS_GLIB_2_73
-         const string[] UNITS = {"kB", "MB", "GB", "TB", "PB", "EB"};
-+#else
-+        const string[] UNITS = {"%.1f kB", "%.1f MB", "%.1f GB", "%.1f TB", "%.1f PB", "%.1f EB"};
-+#endif
- 
-         int unit_index = 0;
- 
-@@ -602,12 +606,20 @@ public class About.HardwareView : Gtk.Grid {
-         unowned string unit;
- 
-         if (unit_index == 0) {
-+#if HAS_GLIB_2_73
-             unit = dngettext ("glib20", "byte", "bytes", (ulong) size);
-+#else
-+            return dngettext ("glib20", "%u byte", "%u bytes", (ulong) size).printf ((uint) size);
-+#endif
-         } else {
-             unit = dgettext ("glib20", UNITS[unit_index - 1]);
-         }
- 
-+#if HAS_GLIB_2_73
-         return dpgettext2 ("glib20", "format-size", "%u %s").printf ((uint) size, unit);
-+#else
-+        return unit.printf ((float) size);
-+#endif
-     }
- }
- 
-diff --git a/src/meson.build b/src/meson.build
-index 818af5a4..d044d0c1 100644
---- a/src/meson.build
-+++ b/src/meson.build
-@@ -29,7 +29,7 @@ shared_module(
-     css_gresource,
-     dependencies: [
-         dependency('fwupd'),
--        dependency('glib-2.0', version: '>=2.64.0'),
-+        glib_dep,
-         dependency('gio-2.0'),
-         dependency('gobject-2.0'),
-         dependency('granite'),
-From e1d8559c9d172b2f55207188f50a4333aecef2f9 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Danielle=20For=C3=A9?= <danielle@elementary.io>
-Date: Wed, 10 May 2023 03:55:26 -0700
-Subject: [PATCH] OperatingSystemView: handle missing default wallpaper (#258)
-
-* OperatingSystemView: handle missing default wallpaper
-
-* Don't even fuck with that if we don't have a symbolic logo
-
-* wrong line break
-
-* Remove built option and invalid icon name
-
----------
-
-Co-authored-by: Vishal Rao <vishalrao@gmail.com>
-Co-authored-by: Jeremy Wootten <jeremy@elementaryos.org>
-Co-authored-by: Ryan Kornheisl <ryan@skarva.tech>
----
- data/OperatingSystemView.css       |  1 +
- meson.build                        |  4 --
- meson_options.txt                  |  1 -
- src/Views/OperatingSystemView.vala | 69 ++++++++++++++++--------------
- 4 files changed, 38 insertions(+), 37 deletions(-)
- delete mode 100644 meson_options.txt
-
-diff --git a/data/OperatingSystemView.css b/data/OperatingSystemView.css
-index a9f044bf..75058b3a 100644
---- a/data/OperatingSystemView.css
-+++ b/data/OperatingSystemView.css
-@@ -11,4 +11,5 @@ avatar.image {
-     -gtk-icon-shadow:
-         0 1px 1px alpha(black, 0.3),
-         0 2px 3px alpha(@accent_color_900, 0.2);
-+    -gtk-icon-style: symbolic;
- }
-diff --git a/meson.build b/meson.build
-index 0479fce6..140f19fd 100644
---- a/meson.build
-+++ b/meson.build
-@@ -24,10 +24,6 @@ add_project_arguments(['--vapidir', vapi_dir], language: 'vala')
- 
- vala_flags = []
- 
--if get_option('wallpaper')
--    vala_flags += ['--define', 'WALLPAPER']
--endif
--
- if glib_dep.version().version_compare ('>=2.73.0')
-     vala_flags += ['--define', 'HAS_GLIB_2_73']
- endif
-diff --git a/meson_options.txt b/meson_options.txt
-deleted file mode 100644
-index 8cef0bb3..00000000
---- a/meson_options.txt
-+++ /dev/null
-@@ -1 +0,0 @@
--option('wallpaper', type : 'boolean', value : true, description : 'Overlay logo on default wallpaper')
-diff --git a/src/Views/OperatingSystemView.vala b/src/Views/OperatingSystemView.vala
-index b8594e00..17e3f2b0 100644
---- a/src/Views/OperatingSystemView.vala
-+++ b/src/Views/OperatingSystemView.vala
-@@ -39,38 +39,47 @@ public class About.OperatingSystemView : Gtk.Grid {
-             logo_icon_name = "distributor-logo";
-         }
- 
--#if WALLPAPER
--        var logo = new Hdy.Avatar (128, "", false) {
--            // In case the wallpaper can't be loaded, we don't want an icon or text
--            icon_name = "invalid-icon-name",
--            // We need this for the shadow to not get clipped by Gtk.Overlay
--            margin = 6
--        };
--        logo.set_image_load_func ((size) => {
--            try {
--                return new Gdk.Pixbuf.from_file_at_scale ("/usr/share/backgrounds/elementaryos-default", -1, size, true);
--            } catch (Error e) {
--                critical (e.message);
--            }
--        });
--        logo.get_style_context ().add_provider (style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
--#endif
--
-         var icon = new Gtk.Image () {
--            icon_name = logo_icon_name + "-symbolic",
--            // 128 minus 3px padding on each side
--            pixel_size = 128 - 6
-+            icon_name = logo_icon_name,
-         };
- 
--        unowned var icon_style_context = icon.get_style_context ();
--        icon_style_context.add_class ("logo");
--        icon_style_context.add_provider (style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
--
--#if WALLPAPER
-         var logo_overlay = new Gtk.Overlay ();
--        logo_overlay.add (logo);
--        logo_overlay.add_overlay (icon);
--#endif
-+
-+        if (Gtk.IconTheme.get_default ().has_icon (logo_icon_name + "-symbolic")) {
-+            foreach (unowned var path in Environment.get_system_data_dirs ()) {
-+                var file = File.new_for_path (
-+                    Path.build_path (Path.DIR_SEPARATOR_S, path, "backgrounds", "elementaryos-default")
-+                );
-+
-+                if (file.query_exists ()) {
-+                    var file_icon = new FileIcon (file);
-+
-+                    var logo = new Hdy.Avatar (128, "", false) {
-+                        loadable_icon = file_icon,
-+                        // We need this for the shadow to not get clipped by Gtk.Overlay
-+                        margin = 6
-+                    };
-+                    logo.get_style_context ().add_provider (style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-+
-+                    logo_overlay.add (logo);
-+                    logo_overlay.add_overlay (icon);
-+
-+                    // 128 minus 3px padding on each side
-+                    icon.pixel_size = 128 - 6;
-+
-+                    unowned var icon_style_context = icon.get_style_context ();
-+                    icon_style_context.add_class ("logo");
-+                    icon_style_context.add_provider (style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-+
-+                    break;
-+                }
-+            }
-+        }
-+
-+        if (icon.parent == null) {
-+            icon.pixel_size = 128;
-+            logo_overlay.add (icon);
-+        }
- 
-         // Intentionally not using GLib.OsInfoKey.PRETTY_NAME here because we
-         // want more granular control over text formatting
-@@ -149,11 +158,7 @@ public class About.OperatingSystemView : Gtk.Grid {
-             valign = Gtk.Align.CENTER,
-             vexpand = true
-         };
--#if WALLPAPER
-         software_grid.attach (logo_overlay, 0, 0, 1, 4);
--#else
--        software_grid.attach (icon, 0, 0, 1, 4);
--#endif
-         software_grid.attach (title, 1, 0, 3);
- 
-         software_grid.attach (kernel_version_label, 1, 2, 3);
-From 4ad86e9f8b45b3168d2e93a8eb728e575219370f Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Danielle=20For=C3=A9?= <danielle@elementary.io>
-Date: Thu, 19 Oct 2023 06:41:08 -0700
-Subject: [PATCH] =?UTF-8?q?dialog.run=20()=20=E2=86=92=20dialogresponse.co?=
- =?UTF-8?q?nnect=20()=20(#273)?=
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-* dialog.run () → dialogresponse.connect ()
-
-* Destroy before resetting
-
----------
-
-Co-authored-by: Jeremy Wootten <jeremy@elementaryos.org>
----
- src/Views/FirmwareView.vala        | 59 ++++++++++++++++++------------
- src/Views/OperatingSystemView.vala | 26 +++++--------
- 2 files changed, 45 insertions(+), 40 deletions(-)
-
 diff --git a/src/Views/FirmwareView.vala b/src/Views/FirmwareView.vala
-index 5a4dfe45..4e4c65af 100644
+index 4e4c65aff..117596a66 100644
 --- a/src/Views/FirmwareView.vala
 +++ b/src/Views/FirmwareView.vala
-@@ -249,12 +249,24 @@ public class About.FirmwareView : Granite.SimpleSettingsPage {
-                 detach_image = yield download_file (device, detach_image);
-             }
+@@ -21,10 +21,10 @@
  
--            if (show_details_dialog (device, detach_caption, detach_image) == false) {
--                stack.visible_child = deck;
--                return;
--            }
-+            var details_dialog = show_details_dialog (device, detach_caption, detach_image);
-+            details_dialog.response.connect ((response) => {
-+                details_dialog.destroy ();
-+                if (response == Gtk.ResponseType.ACCEPT) {
-+                    continue_update.begin (device, release);
-+                } else {
-+                    stack.visible_child = deck;
-+                    return;
-+                }
-+            });
-+
-+            details_dialog.present ();
-+        } else {
-+            continue_update.begin (device, release);
-         }
-+    }
+ public class About.FirmwareView : Granite.SimpleSettingsPage {
+     private Gtk.Stack stack;
+-    private Hdy.Deck deck;
++    private Adw.Leaflet deck;
+     private FirmwareReleaseView firmware_release_view;
+-    private Granite.Widgets.AlertView progress_alert_view;
+-    private Granite.Widgets.AlertView placeholder_alert_view;
++    private Granite.Placeholder progress_alert_view;
++    private Granite.Placeholder placeholder_alert_view;
+     private Gtk.ListBox update_list;
+     private uint num_updates = 0;
+     private Fwupd.Client fwupd_client;
+@@ -38,20 +38,15 @@ public class About.FirmwareView : Granite.SimpleSettingsPage {
+     }
  
-+    private async void continue_update (Fwupd.Device device, Fwupd.Release release) {
-         var path = yield download_file (device, release.get_uri ());
+     construct {
+-        progress_alert_view = new Granite.Widgets.AlertView (
+-            "",
+-            _("Do not unplug the device during the update."),
+-            "emblem-synchronized"
+-        );
+-        progress_alert_view.get_style_context ().remove_class (Gtk.STYLE_CLASS_VIEW);
++        progress_alert_view = new Granite.Placeholder ("") {
++            description = _("Do not unplug the device during the update."),
++            icon = new ThemedIcon ("emblem-synchronized")
++        };
  
-         try {
-@@ -317,12 +329,12 @@ public class About.FirmwareView : Granite.SimpleSettingsPage {
-             badge_icon = new ThemedIcon ("dialog-error"),
-             transient_for = (Gtk.Window) get_toplevel ()
+-        placeholder_alert_view = new Granite.Widgets.AlertView (
+-            _("Checking for Updates"),
+-            _("Connecting to the firmware service and searching for updates."),
+-            "sync-synchronizing"
+-        );
+-        placeholder_alert_view.show_all ();
+-        placeholder_alert_view.get_style_context ().remove_class (Gtk.STYLE_CLASS_VIEW);
++        placeholder_alert_view = new Granite.Placeholder (_("Checking for Updates")) {
++            description = _("Connecting to the firmware service and searching for updates."),
++            icon = new ThemedIcon ("sync-synchronizing")
++        };
+ 
+         update_list = new Gtk.ListBox () {
+             vexpand = true,
+@@ -61,33 +56,36 @@ public class About.FirmwareView : Granite.SimpleSettingsPage {
+         update_list.set_header_func ((Gtk.ListBoxUpdateHeaderFunc) header_rows);
+         update_list.set_placeholder (placeholder_alert_view);
+ 
+-        var update_scrolled = new Gtk.ScrolledWindow (null, null);
+-        update_scrolled.add (update_list);
++        var update_scrolled = new Gtk.ScrolledWindow () {
++            child = update_list
++        };
+ 
+         firmware_release_view = new FirmwareReleaseView ();
+ 
+-        deck = new Hdy.Deck () {
+-            can_swipe_back = true
++        deck = new Adw.Leaflet () {
++            can_navigate_back = true,
++            can_unfold = false
          };
--        message_dialog.show_all ();
--        message_dialog.run ();
--        message_dialog.destroy ();
+-        deck.add (update_scrolled);
+-        deck.add (firmware_release_view);
++        deck.append (update_scrolled);
++        deck.append (firmware_release_view);
+         deck.visible_child = update_scrolled;
+ 
+         stack = new Gtk.Stack () {
+             transition_type = Gtk.StackTransitionType.SLIDE_LEFT_RIGHT
+         };
+-        stack.add (deck);
+-        stack.add (progress_alert_view);
++        stack.add_child (deck);
++        stack.add_child (progress_alert_view);
+ 
+-        var frame = new Gtk.Frame (null);
+-        frame.add (stack);
++        var frame = new Gtk.Frame (null) {
++            child = stack
++        };
+ 
+-        content_area.add (frame);
++        content_area.attach (frame, 0, 0);
+ 
+         if (LoginManager.get_instance ().can_reboot_to_firmware_setup ()) {
+             var reboot_to_firmware_setup_button = new Gtk.Button.with_label (_("Restart to Firmware Setup…"));
+             reboot_to_firmware_setup_button.clicked.connect (reboot_to_firmware_setup_clicked);
+-            action_area.add (reboot_to_firmware_setup_button);
++            action_area.append (reboot_to_firmware_setup_button);
+         }
+ 
+         fwupd_client = new Fwupd.Client ();
+@@ -104,10 +102,8 @@ public class About.FirmwareView : Granite.SimpleSettingsPage {
+     }
+ 
+     private async void update_list_view () {
+-        foreach (unowned Gtk.Widget widget in update_list.get_children ()) {
+-            if (widget is Widgets.FirmwareUpdateRow) {
+-                update_list.remove (widget);
+-            }
++        while (update_list.get_row_at_index (0) != null) {
++            update_list.remove (update_list.get_row_at_index (0));
+         }
+ 
+         num_updates = 0;
+@@ -120,7 +116,6 @@ public class About.FirmwareView : Granite.SimpleSettingsPage {
+ 
+             placeholder_alert_view.title = _("Firmware Updates Are Not Available");
+             placeholder_alert_view.description = _("Firmware updates are not supported on this or any connected devices.");
+-            update_list.show_all ();
+         } catch (Error e) {
+             placeholder_alert_view.title = _("The Firmware Service Is Not Available");
+             placeholder_alert_view.description = _("Please make sure “fwupd” is installed and enabled.");
+@@ -149,9 +144,8 @@ public class About.FirmwareView : Granite.SimpleSettingsPage {
+                     num_updates++;
+                 }
+ 
+-                update_list.add (row);
++                update_list.append (row);
+                 update_list.invalidate_sort ();
+-                update_list.show_all ();
+ 
+                 row.update.connect ((device, release) => {
+                     update.begin (device, release);
+@@ -174,27 +168,32 @@ public class About.FirmwareView : Granite.SimpleSettingsPage {
+         add_device (device);
+ 
+         stack.visible_child = deck;
+-        update_list.show_all ();
+     }
+ 
+     private void on_device_removed (Fwupd.Client client, Fwupd.Device device) {
+         debug ("Removed device: %s", device.get_name ());
+ 
+-        foreach (unowned Gtk.Widget widget in update_list.get_children ()) {
+-            if (widget is Widgets.FirmwareUpdateRow) {
+-                var row = (Widgets.FirmwareUpdateRow) widget;
++        unowned var child = update_list.get_first_child ();
++        while (child != null) {
++            Widgets.FirmwareUpdateRow row = null;
++            if (child is Widgets.FirmwareUpdateRow) {
++                row = (Widgets.FirmwareUpdateRow) child;
++            }
 +
-+        message_dialog.response.connect (message_dialog.destroy);
-+        message_dialog.present ();
-     }
++            child = child.get_next_sibling ();
++
++            if (row != null) {
+                 if (row.device.get_id () == device.get_id ()) {
+                     if (row.is_updatable) {
+                         num_updates--;
+                     }
  
--    private bool show_details_dialog (Fwupd.Device device, string detach_caption, string? detach_image) {
-+    private Granite.MessageDialog show_details_dialog (Fwupd.Device device, string detach_caption, string? detach_image) {
-         var gicon = new ThemedIcon ("application-x-firmware");
-         var icons = device.get_icons ();
-         if (icons.data != null) {
-@@ -347,12 +359,7 @@ public class About.FirmwareView : Granite.SimpleSettingsPage {
-             message_dialog.custom_bin.add (custom_widget);
+-                    update_list.remove (widget);
+-                    update_list.invalidate_sort ();
++                    update_list.remove (row);
+                 }
+             }
          }
  
--        message_dialog.show_all ();
--        bool should_continue = message_dialog.run () == Gtk.ResponseType.ACCEPT;
--
--        message_dialog.destroy ();
--
--        return should_continue;
-+        return message_dialog;
+-        update_list.show_all ();
++        update_list.invalidate_sort ();
      }
  
-     private void show_reboot_dialog () {
-@@ -369,12 +376,14 @@ public class About.FirmwareView : Granite.SimpleSettingsPage {
-         var suggested_button = (Gtk.Button) message_dialog.add_button (_("Restart"), Gtk.ResponseType.ACCEPT);
-         suggested_button.get_style_context ().add_class (Gtk.STYLE_CLASS_SUGGESTED_ACTION);
- 
--        message_dialog.show_all ();
--        if (message_dialog.run () == Gtk.ResponseType.ACCEPT) {
--            LoginManager.get_instance ().reboot ();
--        }
-+        message_dialog.response.connect ((response) => {
-+            if (response == Gtk.ResponseType.ACCEPT) {
-+                LoginManager.get_instance ().reboot ();
-+            }
-+            message_dialog.destroy ();
-+        });
- 
--        message_dialog.destroy ();
-+        message_dialog.present ();
-     }
- 
-     private void show_shutdown_dialog () {
-@@ -391,12 +400,14 @@ public class About.FirmwareView : Granite.SimpleSettingsPage {
-         var suggested_button = (Gtk.Button) message_dialog.add_button (_("Shut Down"), Gtk.ResponseType.ACCEPT);
-         suggested_button.get_style_context ().add_class (Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
- 
--        message_dialog.show_all ();
--        if (message_dialog.run () == Gtk.ResponseType.ACCEPT) {
--            LoginManager.get_instance ().shutdown ();
--        }
-+        message_dialog.response.connect ((response) => {
-+            if (response == Gtk.ResponseType.ACCEPT) {
-+                LoginManager.get_instance ().shutdown ();
-+            }
-+            message_dialog.destroy ();
-+        });
- 
--        message_dialog.destroy ();
-+        message_dialog.present ();
-     }
- 
-     private void reboot_to_firmware_setup_clicked () {
-diff --git a/src/Views/OperatingSystemView.vala b/src/Views/OperatingSystemView.vala
-index 17e3f2b0..3718f7c0 100644
---- a/src/Views/OperatingSystemView.vala
-+++ b/src/Views/OperatingSystemView.vala
-@@ -238,10 +238,7 @@ public class About.OperatingSystemView : Gtk.Grid {
+     [CCode (instance_pos = -1)]
+@@ -213,30 +212,18 @@ public class About.FirmwareView : Granite.SimpleSettingsPage {
+     [CCode (instance_pos = -1)]
+     private void header_rows (Widgets.FirmwareUpdateRow row1, Widgets.FirmwareUpdateRow? row2) {
+         if (row2 == null && row1.is_updatable) {
+-            var header = new FirmwareHeaderRow (
++            var header = new Granite.HeaderLabel (
+                 dngettext (GETTEXT_PACKAGE, "%u Update Available", "%u Updates Available", num_updates).printf (num_updates)
+             );
+             row1.set_header (header);
+         } else if (row2 == null || row1.is_updatable != row2.is_updatable) {
+-            var header = new FirmwareHeaderRow (_("Up to Date"));
++            var header = new Granite.HeaderLabel (_("Up to Date"));
+             row1.set_header (header);
+         } else {
+             row1.set_header (null);
          }
      }
  
--     /**
--     * returns true to continue, false to cancel
--     */
--    private bool confirm_restore_action () {
-+    private void settings_restore_clicked () {
-         var dialog = new Granite.MessageDialog.with_image_from_icon_name (
-             _("System Settings Will Be Restored to The Factory Defaults"),
-             _("All system settings and data will be reset to the default values. Personal data, such as music and pictures, will be unaffected."),
-@@ -253,20 +250,17 @@ public class About.OperatingSystemView : Gtk.Grid {
-         var continue_button = dialog.add_button (_("Restore Settings"), Gtk.ResponseType.ACCEPT);
-         continue_button.get_style_context ().add_class (Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
- 
--        var result = dialog.run ();
--        dialog.destroy ();
+-    private class FirmwareHeaderRow : Gtk.Label {
+-        public FirmwareHeaderRow (string label) {
+-            Object (label: label);
+-        }
 -
--        return result == Gtk.ResponseType.ACCEPT;
+-        construct {
+-            xalign = 0;
+-            margin = 3;
+-            get_style_context ().add_class (Granite.STYLE_CLASS_H4_LABEL);
+-        }
 -    }
 -
--    private void settings_restore_clicked () {
--        if (confirm_restore_action ()) {
--            var all_schemas = get_pantheon_schemas ();
-+        dialog.response.connect ((response) => {
-+            dialog.destroy ();
-+            if (response == Gtk.ResponseType.ACCEPT) {
-+                var all_schemas = get_pantheon_schemas ();
+     private async void update (Fwupd.Device device, Fwupd.Release release) {
+         progress_alert_view.title = _("“%s” is being updated").printf (device.get_name ());
+         stack.visible_child = progress_alert_view;
+@@ -327,7 +314,7 @@ public class About.FirmwareView : Granite.SimpleSettingsPage {
+             Gtk.ButtonsType.CLOSE
+         ) {
+             badge_icon = new ThemedIcon ("dialog-error"),
+-            transient_for = (Gtk.Window) get_toplevel ()
++            transient_for = (Gtk.Window) get_root ()
+         };
  
--            foreach (var schema in all_schemas) {
--                reset_recursively (schema);
-+                foreach (var schema in all_schemas) {
-+                    reset_recursively (schema);
-+                }
-             }
--        }
-+        });
-+        dialog.present ();
-     }
+         message_dialog.response.connect (message_dialog.destroy);
+@@ -348,15 +335,15 @@ public class About.FirmwareView : Granite.SimpleSettingsPage {
+             Gtk.ButtonsType.CANCEL
+         ) {
+             badge_icon = new ThemedIcon ("dialog-information"),
+-            transient_for = (Gtk.Window) get_toplevel ()
++            transient_for = (Gtk.Window) get_root ()
+         };
  
-     private static void reset_all_keys (GLib.Settings settings) {
+         var suggested_button = (Gtk.Button) message_dialog.add_button (_("Continue"), Gtk.ResponseType.ACCEPT);
+-        suggested_button.get_style_context ().add_class (Gtk.STYLE_CLASS_SUGGESTED_ACTION);
++        suggested_button.add_css_class (Granite.STYLE_CLASS_SUGGESTED_ACTION);
+ 
+         if (detach_image != null) {
+             var custom_widget = new Gtk.Image.from_file (detach_image);
+-            message_dialog.custom_bin.add (custom_widget);
++            message_dialog.custom_bin.append (custom_widget);
+         }
+ 
+         return message_dialog;
+@@ -370,11 +357,11 @@ public class About.FirmwareView : Granite.SimpleSettingsPage {
+             Gtk.ButtonsType.CANCEL
+         ) {
+             badge_icon = new ThemedIcon ("system-reboot"),
+-            transient_for = (Gtk.Window) get_toplevel ()
++            transient_for = (Gtk.Window) get_root ()
+         };
+ 
+         var suggested_button = (Gtk.Button) message_dialog.add_button (_("Restart"), Gtk.ResponseType.ACCEPT);
+-        suggested_button.get_style_context ().add_class (Gtk.STYLE_CLASS_SUGGESTED_ACTION);
++        suggested_button.add_css_class (Granite.STYLE_CLASS_SUGGESTED_ACTION);
+ 
+         message_dialog.response.connect ((response) => {
+             if (response == Gtk.ResponseType.ACCEPT) {
+@@ -394,11 +381,11 @@ public class About.FirmwareView : Granite.SimpleSettingsPage {
+             Gtk.ButtonsType.CANCEL
+         ) {
+             badge_icon = new ThemedIcon ("system-shutdown"),
+-            transient_for = (Gtk.Window) get_toplevel ()
++            transient_for = (Gtk.Window) get_root ()
+         };
+ 
+         var suggested_button = (Gtk.Button) message_dialog.add_button (_("Shut Down"), Gtk.ResponseType.ACCEPT);
+-        suggested_button.get_style_context ().add_class (Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
++        suggested_button.add_css_class (Granite.STYLE_CLASS_DESTRUCTIVE_ACTION);
+ 
+         message_dialog.response.connect ((response) => {
+             if (response == Gtk.ResponseType.ACCEPT) {
+@@ -419,11 +406,11 @@ public class About.FirmwareView : Granite.SimpleSettingsPage {
+         ) {
+             badge_icon = new ThemedIcon ("application-x-firmware"),
+             modal = true,
+-            transient_for = (Gtk.Window) get_toplevel ()
++            transient_for = (Gtk.Window) get_root ()
+         };
+ 
+         var continue_button = dialog.add_button (_("Restart"), Gtk.ResponseType.ACCEPT);
+-        continue_button.get_style_context ().add_class (Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
++        continue_button.add_css_class (Granite.STYLE_CLASS_DESTRUCTIVE_ACTION);
+ 
+         dialog.response.connect ((result) => {
+             dialog.destroy ();
+@@ -444,7 +431,7 @@ public class About.FirmwareView : Granite.SimpleSettingsPage {
+                 ) {
+                     badge_icon = new ThemedIcon ("dialog-error"),
+                     modal = true,
+-                    transient_for = (Gtk.Window) get_toplevel ()
++                    transient_for = (Gtk.Window) get_root ()
+                 };
+                 message_dialog.show_error_details (error.message);
+                 message_dialog.present ();
