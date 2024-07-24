@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.
+# Line up the first '|' above the ':' following the base package name, and
+# the '|' on the right side marks the last column you can put a character in.
+# You must make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                |-----handy-ruler------------------------------------------------------|
+bluetooth-daemon: bluetooth-daemon (Send and receive files via bluetooth)
+bluetooth-daemon:
+bluetooth-daemon: Manages bluetooth settings and provides bluetooth transfer features.
+bluetooth-daemon: Send and receive files via bluetooth.
+bluetooth-daemon:
+bluetooth-daemon:
+bluetooth-daemon:
+bluetooth-daemon: Homepage: https://github.com/elementary/bluetooth-daemon
+bluetooth-daemon:
+bluetooth-daemon:
+bluetooth-daemon:
