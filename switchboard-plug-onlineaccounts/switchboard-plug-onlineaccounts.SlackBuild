@@ -22,12 +22,12 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://github.com/elementary/switchboard-plug-onlineaccounts/archive/6.5.3/switchboard-plug-onlineaccounts-6.5.3.tar.gz
+wget -c https://github.com/elementary/switchboard-plug-onlineaccounts/archive/8.0.0/switchboard-plug-onlineaccounts-8.0.0.tar.gz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=switchboard-plug-onlineaccounts
-VERSION=${VERSION:-6.5.3}
+VERSION=${VERSION:-8.0.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
