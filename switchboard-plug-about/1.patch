@@ -1,17 +1,17 @@
-From 24819926a736c3e2c15b8e919aaadeb19f6c54b5 Mon Sep 17 00:00:00 2001
+From 8d2b18e1257134f391926d31dbe39246a266157a Mon Sep 17 00:00:00 2001
 From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
-Date: Sun, 28 Jul 2024 11:34:41 -0500
+Date: Sun, 28 Jul 2024 11:37:55 -0500
 Subject: [PATCH] Update HardwareView.vala
 
 ---
- src/Views/HardwareView.vala | 30 +++++++++++++++++++-----------
- 1 file changed, 19 insertions(+), 11 deletions(-)
+ HardwareView.vala | 31 ++++++++++++++++++++-----------
+ 1 file changed, 20 insertions(+), 11 deletions(-)
 
-diff --git a/src/Views/HardwareView.vala b/src/Views/HardwareView.vala
-index dadc075..976d66f 100644
---- a/src/Views/HardwareView.vala
-+++ b/src/Views/HardwareView.vala
-@@ -573,20 +573,28 @@ public class About.HardwareView : Gtk.Box {
+diff --git a/HardwareView.vala b/HardwareView.vala
+index dadc075..5e46e5a 100644
+--- a/HardwareView.vala
++++ b/HardwareView.vala
+@@ -573,20 +573,29 @@ public class About.HardwareView : Gtk.Box {
          string replacement;
      }
  
@@ -35,16 +35,17 @@ index dadc075..976d66f 100644
 +                "/org/freedesktop/hostname1"
 +            );
 +        } catch (GLib.Error e) {
-+            warning("%s", e.message);
++            warning ("%s", e.message);
          }
      }
  
 +    // Read hostname from /etc/HOSTNAME
 +    try {
-+        String hostname = new String(Files.readAllBytes(Paths.get("/etc/HOSTNAME"))).trim();
-+        System.out.println("Hostname from /etc/HOSTNAME: " + hostname);
-+    } catch (IOException e) {
-+        warning("Error reading /etc/HOSTNAME: %s", e.getMessage());
++        File file = File.new_for_path("/etc/HOSTNAME");
++        string hostname = file.read().strip();
++        stdout.printf("Hostname from /etc/HOSTNAME: %s\n", hostname);
++    } catch (Error e) {
++        warning("Error reading /etc/HOSTNAME: %s", e.message);
 +    }
 +}
 +
