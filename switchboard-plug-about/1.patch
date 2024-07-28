@@ -697,3 +697,25 @@ index 3546813..0c27293 100644
      private async void get_upstream_release () {
          // Upstream distro version (for "Built on" text)
          // FIXME: Add distro specific field to /etc/os-release and use that instead
+
+From 679735ce236f4ab1a0f7e5f2a7f08f69af7258d2 Mon Sep 17 00:00:00 2001
+From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
+Date: Sun, 28 Jul 2024 11:04:39 -0500
+Subject: [PATCH] Update OperatingSystemView.vala
+
+---
+ src/Views/OperatingSystemView.vala | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/Views/OperatingSystemView.vala b/src/Views/OperatingSystemView.vala
+index 0c27293..f8db72a 100644
+--- a/src/Views/OperatingSystemView.vala
++++ b/src/Views/OperatingSystemView.vala
+@@ -21,6 +21,7 @@
+ public class About.OperatingSystemView : Gtk.Box {
+     private string support_url;
+     private File? logo_file;
++    private Adw.Avatar? logo;
+     private Gtk.Grid software_grid;
+ 
+     construct {
