@@ -1,8 +1,0 @@
-[Desktop Entry]
-Version=1.0
-Name=xdg-desktop-portal-pantheon
-Comment=Start the xdg-desktop-portal-pantheon
-Exec=/usr/bin/daemon -frB --pidfiles=~/.run --name=xdg-desktop-portal-pantheon /usr/libexec/xdg-desktop-portal-pantheon -r
-Terminal=false
-Type=Application
-X-GNOME-Autostart-Phase=Initialization
