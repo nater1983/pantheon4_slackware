@@ -1,320 +1,647 @@
-/*
-* Copyright 2020–2021 elementary, Inc. (https://elementary.io)
-*           2015 Ivo Nunes, Akshay Shekher
-*
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public
-* License as published by the Free Software Foundation; either
-* version 3 of the License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-* General Public License for more details.
-*
-* You should have received a copy of the GNU General Public
-* License along with this program; if not, write to the
-* Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-* Boston, MA 02110-1301 USA
-*/
+From 0f03a436bcd9ca96fb20dadf52b6faba2d3cf58f Mon Sep 17 00:00:00 2001
+From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
+Date: Sun, 28 Jul 2024 10:20:25 -0500
+Subject: [PATCH] Update OperatingSystemView.vala
 
-public class About.OperatingSystemView : Gtk.Box {
-    private string support_url;
+---
+ OperatingSystemView.vala | 504 +++++----------------------------------
+ 1 file changed, 59 insertions(+), 445 deletions(-)
 
-    private Gtk.Grid software_grid;
-
-    construct {
-        var style_provider = new Gtk.CssProvider ();
-        style_provider.load_from_resource ("io/elementary/settings/system/OperatingSystemView.css");
-
-        var uts_name = Posix.utsname ();
-
-        support_url = Environment.get_os_info (GLib.OsInfoKey.SUPPORT_URL);
-        if (support_url == "" || support_url == null) {
-            support_url = "https://elementary.io/support";
-        }
-
-        var logo_icon_name = Environment.get_os_info ("LOGO");
-        if (logo_icon_name == "" || logo_icon_name == null) {
-            logo_icon_name = "distributor-logo";
-        }
-
-        var icon = new Gtk.Image () {
-            icon_name = logo_icon_name,
-        };
-
-        var logo_overlay = new Gtk.Overlay ();
-
-        if (Gtk.IconTheme.get_for_display (Gdk.Display.get_default ()).has_icon (logo_icon_name + "-symbolic")) {
-            foreach (unowned var path in Environment.get_system_data_dirs ()) {
-                var file = File.new_for_path (
-                    Path.build_path (Path.DIR_SEPARATOR_S, path, "backgrounds", "elementaryos-default")
-                );
-
-                if (file.query_exists ()) {
-                    var logo = new Adw.Avatar (128, "", false) {
-                        custom_image = Gdk.Texture.from_file (file)
-                    };
-                    logo.get_style_context ().add_provider (style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-
-                    logo_overlay.child = logo;
-                    logo_overlay.add_overlay (icon);
-
-                    // 128 minus 3px padding on each side
-                    icon.pixel_size = 128 - 6;
-                    icon.add_css_class ("logo");
-                    icon.get_style_context ().add_provider (style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-
-                    break;
-                }
-            }
-        }
-
-        if (icon.parent == null) {
-            icon.pixel_size = 128;
-            logo_overlay.child = icon;
-        }
-
-        // Intentionally not using GLib.OsInfoKey.PRETTY_NAME here because we
-        // want more granular control over text formatting
-        var pretty_name = "<b>%s</b> %s".printf (
-            Environment.get_os_info (GLib.OsInfoKey.NAME),
-            Environment.get_os_info (GLib.OsInfoKey.VERSION) ?? ""
-        );
-
-        var title = new Gtk.Label (pretty_name) {
-            ellipsize = Pango.EllipsizeMode.END,
-            margin_bottom = 12,
-            selectable = true,
-            use_markup = true,
-            xalign = 0
-        };
-        title.get_style_context ().add_class (Granite.STYLE_CLASS_H2_LABEL);
-
-        var kernel_version_label = new Gtk.Label ("%s %s".printf (uts_name.sysname, uts_name.release)) {
-            selectable = true,
-            xalign = 0
-        };
-
-        var website_url = Environment.get_os_info (GLib.OsInfoKey.HOME_URL);
-        if (website_url == "" || website_url == null) {
-            website_url = "https://elementary.io";
-        }
-
-        var website_label = new Gtk.LinkButton.with_label (website_url, _("Website")) {
-            margin_top = 12
-        };
-
-
-        var help_button = new Gtk.LinkButton.with_label (support_url, _("Get Support")) {
-            halign = Gtk.Align.CENTER,
-            hexpand = true,
-            margin_top = 12
-        };
-
-        var translate_button = new Gtk.LinkButton.with_label (
-            "https://l10n.elementary.io/projects/",
-            _("Suggest Translations")
-        ) {
-            margin_top = 12
-        };
-
-        var bug_button = new Gtk.Button.with_label (_("Send Feedback"));
-
-        Gtk.Button? update_button = null;
-        var appcenter_info = new GLib.DesktopAppInfo ("io.elementary.appcenter.desktop");
-        if (appcenter_info != null) {
-            update_button = new Gtk.Button.with_label (_("Check for Updates"));
-            update_button.clicked.connect (() => {
-                appcenter_info.launch_action ("ShowUpdates", new GLib.AppLaunchContext ());
-            });
-        }
-
-        var settings_restore_button = new Gtk.Button.with_label (_("Restore Default Settings"));
-
-        var primary_button_box = new Gtk.Box (HORIZONTAL, 6) {
-            hexpand = true,
-            halign = END,
-            homogeneous = true
-        };
-        primary_button_box.append (bug_button);
-        if (update_button != null) {
-            primary_button_box.append (update_button);
-        }
-
-        var button_grid = new Gtk.Box (HORIZONTAL, 6);
-        button_grid.append (settings_restore_button);
-        button_grid.append (primary_button_box);
-
-        software_grid = new Gtk.Grid () {
-            column_spacing = 32,
-            halign = Gtk.Align.CENTER,
-            row_spacing = 6,
-            valign = Gtk.Align.CENTER,
-            vexpand = true
-        };
-        software_grid.attach (logo_overlay, 0, 0, 1, 4);
-        software_grid.attach (title, 1, 0, 3);
-
-        software_grid.attach (kernel_version_label, 1, 2, 3);
-        software_grid.attach (website_label, 1, 3);
-        software_grid.attach (help_button, 2, 3);
-        software_grid.attach (translate_button, 3, 3);
-
-        margin_top = 12;
-        margin_end = 12;
-        margin_bottom = 12;
-        margin_start = 12;
-        orientation = Gtk.Orientation.VERTICAL;
-        spacing = 12;
-        append (software_grid);
-        append (button_grid);
-
-        settings_restore_button.clicked.connect (settings_restore_clicked);
-
-        bug_button.clicked.connect (() => {
-            var appinfo = new GLib.DesktopAppInfo ("io.elementary.feedback.desktop");
-            if (appinfo != null) {
-                try {
-                    appinfo.launch (null, null);
-                } catch (Error e) {
-                    critical (e.message);
-                    launch_support_url ();
-                }
-            } else {
-                launch_support_url ();
-            }
-        });
-
-        get_upstream_release.begin ();
-    }
-
-    private async void get_upstream_release () {
-        // Upstream distro version (for "Built on" text)
-        // FIXME: Add distro specific field to /etc/os-release and use that instead
-        // Like "ELEMENTARY_UPSTREAM_DISTRO_NAME" or something
-        var file = File.new_for_path ("/usr/lib/upstream-os-release");
-        string? upstream_release = null;
-        try {
-            var dis = new DataInputStream (yield file.read_async ());
-            string line;
-            // Read lines until end of file (null) is reached
-            while ((line = yield dis.read_line_async ()) != null) {
-                if (line.has_prefix ("PRETTY_NAME")) {
-                    var distrib_component = line.split ("=", 2);
-                    if (distrib_component.length == 2) {
-                        upstream_release = (owned) distrib_component[1];
-                        if (upstream_release.has_prefix ("\"") && upstream_release.has_suffix ("\"")) {
-                            upstream_release = upstream_release.substring (1, upstream_release.length - 2);
-                        }
-
-                        break;
-                    }
-                }
-            }
-        } catch (Error e) {
-            warning ("Couldn't read upstream lsb-release file, assuming none");
-            debug ("Error was: %s", e.message);
-        }
-
-        if (upstream_release != null) {
-            var based_off = new Gtk.Label (_("Built on %s").printf (upstream_release)) {
-                selectable = true,
-                xalign = 0
-            };
-            software_grid.attach (based_off, 1, 1, 3);
-        }
-    }
-
-    private void launch_support_url () {
-        try {
-            AppInfo.launch_default_for_uri (support_url, null);
-        } catch (Error e) {
-            critical (e.message);
-        }
-    }
-
-    private void settings_restore_clicked () {
-        var dialog = new Granite.MessageDialog (
-            _("System Settings Will Be Restored to The Factory Defaults"),
-            _("All system settings and data will be reset to the default values. Personal data, such as music and pictures, will be unaffected."),
-            new ThemedIcon ("preferences-system"),
-            Gtk.ButtonsType.CANCEL
-        ) {
-            badge_icon = new ThemedIcon ("edit-clear"),
-            transient_for = (Gtk.Window) this.get_root ()
-        };
-
-        var continue_button = dialog.add_button (_("Restore Settings"), Gtk.ResponseType.ACCEPT);
-        continue_button.get_style_context ().add_class (Granite.STYLE_CLASS_DESTRUCTIVE_ACTION);
-
-        dialog.response.connect ((response) => {
-            dialog.destroy ();
-            if (response == Gtk.ResponseType.ACCEPT) {
-                var all_schemas = get_pantheon_schemas ();
-
-                foreach (var schema in all_schemas) {
-                    reset_recursively (schema);
-                }
-            }
-        });
-        dialog.present ();
-    }
-
-    private static void reset_all_keys (GLib.Settings settings) {
-        var schema = SettingsSchemaSource.get_default ().lookup (
-            settings.schema_id,
-            true
-        );
-
-        foreach (var key in schema.list_keys ()) {
-            settings.reset (key);
-        }
-    }
-
-    private static string[] get_pantheon_schemas () {
-        string[] schemas = {};
-        string[] pantheon_schemas = {};
-        string[] prefixes = {
-            "io.elementary.desktop",
-            "io.elementary.dock",
-            "io.elementary.onboarding",
-            "io.elementary.settings",
-            "io.elementary.settings-daemon",
-            "io.elementary.wingpanel",
-            "org.gnome.desktop",
-            "org.gnome.settings-daemon",
-            "org.pantheon.desktop"
-        };
-
-        var sss = SettingsSchemaSource.get_default ();
-
-        sss.list_schemas (true, out schemas, null);
-
-        foreach (var schema in schemas) {
-            foreach (var prefix in prefixes) {
-                if (schema.has_prefix (prefix)) {
-                    pantheon_schemas += schema;
-                }
-            }
-        }
-        return pantheon_schemas;
-    }
-
-    private static void reset_recursively (string schema) {
-        var settings = new GLib.Settings (schema);
-        // change into delay mode
-        // so changes take place when apply () is called
-        settings.delay ();
-
-        reset_all_keys (settings);
-
-        foreach (var child in settings.list_children ()) {
-            var child_settings = settings.get_child (child);
-
-            reset_all_keys (child_settings);
-        }
-        settings.apply ();
-        GLib.Settings.sync ();
-    }
-}
+diff --git a/OperatingSystemView.vala b/OperatingSystemView.vala
+index 00b3deb..3546813 100644
+--- a/OperatingSystemView.vala
++++ b/OperatingSystemView.vala
+@@ -19,91 +19,21 @@
+ */
+ 
+ public class About.OperatingSystemView : Gtk.Box {
+-    private static Settings update_settings = new Settings ("io.elementary.settings-daemon.system-update");
++    private string support_url;
+ 
+-    private static string _bug_url;
+-    private static string bug_url {
+-        get {
+-            if (_bug_url == null) {
+-                _bug_url = Environment.get_os_info (GLib.OsInfoKey.BUG_REPORT_URL);
+-
+-                if (_bug_url == null) {
+-                    _bug_url = "https://docs.elementary.io/contributor-guide/feedback/reporting-issues";
+-                }
+-            }
+-
+-            return _bug_url;
+-        }
+-    }
+-
+-    private static string _documentation_url;
+-    private static string documentation_url {
+-        get {
+-            if (_documentation_url == null) {
+-                _documentation_url = Environment.get_os_info (GLib.OsInfoKey.DOCUMENTATION_URL);
+-
+-                if (_documentation_url == null) {
+-                    _documentation_url = "https://elementary.io/docs/learning-the-basics";
+-                }
+-            }
+-
+-            return _documentation_url;
+-        }
+-    }
+-
+-    private static string _website_url;
+-    private static string website_url {
+-        get {
+-            if (_website_url == null) {
+-                _website_url = Environment.get_os_info (GLib.OsInfoKey.HOME_URL);
+-
+-                if (_website_url == null) {
+-                    _website_url = "https://elementary.io";
+-                }
+-            }
+-
+-            return _website_url;
+-        }
+-    }
+-
+-
+-    private static string _support_url;
+-    private static string support_url {
+-        get {
+-            if (_support_url == null) {
+-                _support_url = Environment.get_os_info (GLib.OsInfoKey.SUPPORT_URL);
+-
+-                if (_support_url == null) {
+-                    _support_url = "https://elementary.io/support";
+-                }
+-            }
+-
+-            return _support_url;
+-        }
+-    }
+-
+-    private File? logo_file;
+-    private Adw.Avatar? logo;
+-    private Gtk.StringList packages;
+-    private SystemUpdate? update_proxy = null;
+-    private SystemUpdate.CurrentState? current_state = null;
+     private Gtk.Grid software_grid;
+-    private Gtk.Image updates_image;
+-    private Gtk.Label updates_title;
+-    private Gtk.Label updates_description;
+-    private Gtk.Revealer details_button_revealer;
+-    private Gtk.Stack button_stack;
+ 
+     construct {
+-        add_css_class ("operating-system-view");
+-
+         var style_provider = new Gtk.CssProvider ();
+         style_provider.load_from_resource ("io/elementary/settings/system/OperatingSystemView.css");
+ 
+-        Gtk.StyleContext.add_provider_for_display (Gdk.Display.get_default (), style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+-
+         var uts_name = Posix.utsname ();
+ 
++        support_url = Environment.get_os_info (GLib.OsInfoKey.SUPPORT_URL);
++        if (support_url == "" || support_url == null) {
++            support_url = "https://elementary.io/support";
++        }
++
+         var logo_icon_name = Environment.get_os_info ("LOGO");
+         if (logo_icon_name == "" || logo_icon_name == null) {
+             logo_icon_name = "distributor-logo";
+@@ -113,9 +43,7 @@ public class About.OperatingSystemView : Gtk.Box {
+             icon_name = logo_icon_name,
+         };
+ 
+-        var logo_overlay = new Gtk.Overlay () {
+-            valign = START
+-        };
++        var logo_overlay = new Gtk.Overlay ();
+ 
+         if (Gtk.IconTheme.get_for_display (Gdk.Display.get_default ()).has_icon (logo_icon_name + "-symbolic")) {
+             foreach (unowned var path in Environment.get_system_data_dirs ()) {
+@@ -124,10 +52,10 @@ public class About.OperatingSystemView : Gtk.Box {
+                 );
+ 
+                 if (file.query_exists ()) {
+-                    logo_file = file;
+-                    logo = new Adw.Avatar (128, "", false) {
+-                        custom_image = Gdk.Paintable.empty (128, 128)
++                    var logo = new Adw.Avatar (128, "", false) {
++                        custom_image = Gdk.Texture.from_file (file)
+                     };
++                    logo.get_style_context ().add_provider (style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+ 
+                     logo_overlay.child = logo;
+                     logo_overlay.add_overlay (icon);
+@@ -135,6 +63,7 @@ public class About.OperatingSystemView : Gtk.Box {
+                     // 128 minus 3px padding on each side
+                     icon.pixel_size = 128 - 6;
+                     icon.add_css_class ("logo");
++                    icon.get_style_context ().add_provider (style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+ 
+                     break;
+                 }
+@@ -155,170 +84,82 @@ public class About.OperatingSystemView : Gtk.Box {
+ 
+         var title = new Gtk.Label (pretty_name) {
+             ellipsize = Pango.EllipsizeMode.END,
++            margin_bottom = 12,
+             selectable = true,
+             use_markup = true,
+             xalign = 0
+         };
+-        title.add_css_class (Granite.STYLE_CLASS_H2_LABEL);
++        title.get_style_context ().add_class (Granite.STYLE_CLASS_H2_LABEL);
+ 
+         var kernel_version_label = new Gtk.Label ("%s %s".printf (uts_name.sysname, uts_name.release)) {
+             selectable = true,
+             xalign = 0
+         };
+-        kernel_version_label.add_css_class (Granite.STYLE_CLASS_SMALL_LABEL);
+-        kernel_version_label.add_css_class (Granite.STYLE_CLASS_DIM_LABEL);
+-
+-        packages = new Gtk.StringList (null);
+ 
+-        updates_image = new Gtk.Image () {
+-            icon_size = LARGE
+-        };
+-
+-        updates_title = new Gtk.Label (null) {
+-            hexpand = true,
+-            margin_end = 6,
+-            xalign = 0
+-        };
+-
+-        updates_description = new Gtk.Label (null) {
+-            xalign = 0
+-        };
+-        updates_description.add_css_class (Granite.STYLE_CLASS_SMALL_LABEL);
+-        updates_description.add_css_class (Granite.STYLE_CLASS_DIM_LABEL);
+-
+-        var update_button = new Gtk.Button.with_label (_("Download"));
+-        update_button.add_css_class (Granite.STYLE_CLASS_SUGGESTED_ACTION);
+-
+-        var cancel_button = new Gtk.Button.with_label (_("Cancel"));
+-
+-        var refresh_button = new Gtk.Button.with_label (_("Refresh"));
+-
+-        button_stack = new Gtk.Stack () {
+-            hhomogeneous = false,
+-            transition_type = CROSSFADE,
+-            valign = CENTER
+-        };
+-        button_stack.add_named (new Gtk.Grid (), "blank");
+-        button_stack.add_named (update_button, "update");
+-        button_stack.add_named (cancel_button, "cancel");
+-        button_stack.add_named (refresh_button, "refresh");
+-
+-        var details_button = new Gtk.Button.with_label (_("Learn More…")) {
+-            halign = START,
+-            has_frame = false,
+-            margin_top = 6
+-        };
+-        details_button.add_css_class ("link");
+-        details_button.add_css_class (Granite.STYLE_CLASS_SMALL_LABEL);
++        var website_url = Environment.get_os_info (GLib.OsInfoKey.HOME_URL);
++        if (website_url == "" || website_url == null) {
++            website_url = "https://elementary.io";
++        }
+ 
+-        details_button_revealer = new Gtk.Revealer () {
+-            child = details_button
++        var website_label = new Gtk.LinkButton.with_label (website_url, _("Website")) {
++            margin_top = 12
+         };
+ 
+-        var automatic_updates_button = new Granite.SwitchModelButton (_("Automatic Updates")) {
+-            description = _("Updates will be automatically downloaded. They will be installed when this device is restarted.")
+-        };
+ 
+-        var updates_grid = new Gtk.Grid () {
+-            column_spacing = 6,
+-            margin_top = 6,
+-            margin_end = 6,
+-            margin_bottom = 6,
+-            margin_start = 6
++        var help_button = new Gtk.LinkButton.with_label (support_url, _("Get Support")) {
++            halign = Gtk.Align.CENTER,
++            hexpand = true,
++            margin_top = 12
+         };
+-        updates_grid.attach (updates_image, 0, 0, 1, 2);
+-        updates_grid.attach (updates_title, 1, 0);
+-        updates_grid.attach (updates_description, 1, 1);
+-        updates_grid.attach (button_stack, 2, 0, 1, 2);
+-        updates_grid.attach (details_button_revealer, 1, 2, 2);
+ 
+-        var updates_list = new Gtk.ListBox () {
+-            margin_bottom = 12,
+-            margin_top = 12,
+-            valign = CENTER,
+-            show_separators = true,
+-            selection_mode = NONE
++        var translate_button = new Gtk.LinkButton.with_label (
++            "https://l10n.elementary.io/projects/",
++            _("Suggest Translations")
++        ) {
++            margin_top = 12
+         };
+-        updates_list.add_css_class ("boxed-list");
+-        updates_list.add_css_class (Granite.STYLE_CLASS_RICH_LIST);
+-        updates_list.append (updates_grid);
+-        updates_list.append (automatic_updates_button);
+-
+-        updates_list.get_first_child ().focusable = false;
+-        updates_list.get_last_child ().focusable = false;
+-
+-        var thebasics_link = new LinkRow (
+-            documentation_url,
+-            _("Basics Guide"),
+-            "text-x-generic-symbolic",
+-            "green"
+-        );
+ 
+-        var support_link = new LinkRow (
+-            support_url,
+-            _("Get Help"),
+-            "help-contents-symbolic",
+-            "blue"
+-        );
+-
+-        var website_link = new LinkRow (
+-            website_url,
+-            _("Our Website"),
+-            "view-reader-symbolic",
+-            "slate"
+-        );
++        var bug_button = new Gtk.Button.with_label (_("Send Feedback"));
+ 
+-        var getinvolved_link = new LinkRow (
+-            "https://elementary.io/get-involved",
+-            _("Get Involved or Sponsor Us"),
+-            "face-heart-symbolic",
+-            "pink"
+-        );
+-
+-        var links_list = new Gtk.ListBox () {
+-            margin_bottom = 12,
+-            margin_top = 12,
+-            valign = CENTER,
+-            show_separators = true,
+-            selection_mode = NONE
+-        };
+-        links_list.add_css_class ("boxed-list");
+-        links_list.add_css_class (Granite.STYLE_CLASS_RICH_LIST);
+-        links_list.append (thebasics_link);
+-        links_list.append (support_link);
+-        links_list.append (website_link);
+-        links_list.append (getinvolved_link);
++        Gtk.Button? update_button = null;
++        var appcenter_info = new GLib.DesktopAppInfo ("io.elementary.appcenter.desktop");
++        if (appcenter_info != null) {
++            update_button = new Gtk.Button.with_label (_("Check for Updates"));
++            update_button.clicked.connect (() => {
++                appcenter_info.launch_action ("ShowUpdates", new GLib.AppLaunchContext ());
++            });
++        }
+ 
+         var settings_restore_button = new Gtk.Button.with_label (_("Restore Default Settings"));
+ 
+-        var bug_button = new Gtk.Button.with_label (_("Send Feedback")) {
++        var primary_button_box = new Gtk.Box (HORIZONTAL, 6) {
++            hexpand = true,
+             halign = END,
+-            hexpand = true
++            homogeneous = true
+         };
++        primary_button_box.append (bug_button);
++        if (update_button != null) {
++            primary_button_box.append (update_button);
++        }
+ 
+         var button_grid = new Gtk.Box (HORIZONTAL, 6);
+         button_grid.append (settings_restore_button);
+-        button_grid.append (bug_button);
++        button_grid.append (primary_button_box);
+ 
+         software_grid = new Gtk.Grid () {
+             column_spacing = 32,
++            halign = Gtk.Align.CENTER,
++            row_spacing = 6,
+             valign = Gtk.Align.CENTER,
+             vexpand = true
+         };
+         software_grid.attach (logo_overlay, 0, 0, 1, 4);
+-        software_grid.attach (title, 1, 0);
+-
+-        software_grid.attach (kernel_version_label, 1, 2);
+-        software_grid.attach (updates_list, 1, 3);
+-        software_grid.attach (links_list, 1, 4);
++        software_grid.attach (title, 1, 0, 3);
+ 
+-        var clamp = new Adw.Clamp () {
+-            child = software_grid
+-        };
+-
+-        var scrolled_window = new Gtk.ScrolledWindow () {
+-            child = clamp
+-        };
++        software_grid.attach (kernel_version_label, 1, 2, 3);
++        software_grid.attach (website_label, 1, 3);
++        software_grid.attach (help_button, 2, 3);
++        software_grid.attach (translate_button, 3, 3);
+ 
+         margin_top = 12;
+         margin_end = 12;
+@@ -326,12 +167,9 @@ public class About.OperatingSystemView : Gtk.Box {
+         margin_start = 12;
+         orientation = Gtk.Orientation.VERTICAL;
+         spacing = 12;
+-        append (scrolled_window);
++        append (software_grid);
+         append (button_grid);
+ 
+-        var system_updates_settings = new Settings ("io.elementary.settings-daemon.system-update");
+-        system_updates_settings.bind ("automatic-updates", automatic_updates_button, "active", DEFAULT);
+-
+         settings_restore_button.clicked.connect (settings_restore_clicked);
+ 
+         bug_button.clicked.connect (() => {
+@@ -341,71 +179,14 @@ public class About.OperatingSystemView : Gtk.Box {
+                     appinfo.launch (null, null);
+                 } catch (Error e) {
+                     critical (e.message);
+-                    launch_uri (bug_url);
++                    launch_support_url ();
+                 }
+             } else {
+-                launch_uri (bug_url);
++                launch_support_url ();
+             }
+         });
+ 
+-        links_list.row_activated.connect ((row) => {
+-            launch_uri (((LinkRow) row).uri);
+-        });
+-
+         get_upstream_release.begin ();
+-
+-        Bus.get_proxy.begin<SystemUpdate> (SESSION, "io.elementary.settings-daemon", "/io/elementary/settings_daemon", 0, null, (obj, res) => {
+-            try {
+-                update_proxy = Bus.get_proxy.end (res);
+-
+-                update_proxy.state_changed.connect (update_state);
+-                update_state.begin ();
+-            } catch (Error e) {
+-                critical ("Failed to get updates proxy");
+-            }
+-        });
+-
+-        update_button.clicked.connect (() => {
+-            if (update_proxy != null) {
+-                update_proxy.update.begin ((obj, res) => {
+-                    try {
+-                        update_proxy.update.end (res);
+-                    } catch (Error e) {
+-                        critical ("Failed to update: %s", e.message);
+-                    }
+-                });
+-            }
+-        });
+-
+-        cancel_button.clicked.connect (() => {
+-            if (update_proxy != null) {
+-                update_proxy.cancel.begin ((obj, res) => {
+-                    try {
+-                        update_proxy.cancel.end (res);
+-                    } catch (Error e) {
+-                        critical ("Failed to cancel update: %s", e.message);
+-                    }
+-                });
+-            }
+-        });
+-
+-        refresh_button.clicked.connect (refresh_clicked);
+-
+-        details_button.clicked.connect (details_clicked);
+-    }
+-
+-    public async void load_logo () {
+-        if (logo == null || logo_file == null) {
+-            return;
+-        }
+-
+-        try {
+-            var bytes = yield logo_file.load_bytes_async (null, null);
+-            logo.custom_image = Gdk.Texture.from_bytes (bytes);
+-            logo_file = null;
+-        } catch (Error e) {
+-            warning ("Failed to load logo file: %s", e.message);
+-        }
+     }
+ 
+     private async void get_upstream_release () {
+@@ -441,141 +222,18 @@ public class About.OperatingSystemView : Gtk.Box {
+                 selectable = true,
+                 xalign = 0
+             };
+-            based_off.add_css_class (Granite.STYLE_CLASS_SMALL_LABEL);
+-            based_off.add_css_class (Granite.STYLE_CLASS_DIM_LABEL);
+             software_grid.attach (based_off, 1, 1, 3);
+         }
+     }
+ 
+-    private async void update_state () {
+-        if (update_proxy == null) {
+-            return;
+-        }
+-
++    private void launch_support_url () {
+         try {
+-            current_state = yield update_proxy.get_current_state ();
++            AppInfo.launch_default_for_uri (support_url, null);
+         } catch (Error e) {
+-            updates_image.icon_name = "dialog-error";
+-            updates_title.label = _("System updates not available");
+-            updates_description.label = _("Couldn't connect to the backend. Try logging out to resolve the issue.");
+-            button_stack.visible_child_name = "blank";
+-
+-            critical ("Failed to get current state from Updates Backend: %s", e.message);
+-            return;
+-        }
+-
+-        details_button_revealer.reveal_child = current_state.state == AVAILABLE || current_state.state == ERROR;
+-
+-        switch (current_state.state) {
+-            case UP_TO_DATE:
+-                updates_image.icon_name = "process-completed";
+-                updates_title.label = _("Up To Date");
+-                updates_description.label = _("Last checked %s").printf (
+-                    Granite.DateTime.get_relative_datetime (
+-                        new DateTime.from_unix_utc (update_settings.get_int64 ("last-refresh-time"))
+-                    )
+-                );
+-                button_stack.visible_child_name = "refresh";
+-                break;
+-            case CHECKING:
+-                updates_image.icon_name = "emblem-synchronized";
+-                updates_title.label = _("Checking for Updates");
+-                updates_description.label = current_state.message;
+-                button_stack.visible_child_name = "blank";
+-                break;
+-            case AVAILABLE:
+-                updates_image.icon_name = "software-update-available";
+-                updates_title.label = _("Updates Available");
+-                button_stack.visible_child_name = "update";
+-
+-                try {
+-                    var details = yield update_proxy.get_update_details ();
+-                    updates_description.label = dngettext (
+-                        GETTEXT_PACKAGE,
+-                        "%i update available",
+-                        "%i updates available",
+-                        details.packages.length
+-                    ).printf (details.packages.length);
+-
+-                    if (Pk.Info.SECURITY in details.info) {
+-                        updates_image.icon_name = "software-update-urgent";
+-                    }
+-
+-                    packages.splice (0, packages.get_n_items (), details.packages);
+-                } catch (Error e) {
+-                    updates_description.label = _("Unable to determine number of updates");
+-                    warning ("Failed to get updates list from backend: %s", e.message);
+-                }
+-                break;
+-            case DOWNLOADING:
+-                updates_image.icon_name = "browser-download";
+-                updates_title.label = _("Downloading Updates");
+-                updates_description.label = current_state.message;
+-                button_stack.visible_child_name = "cancel";
+-                break;
+-            case RESTART_REQUIRED:
+-                updates_image.icon_name = "system-reboot";
+-                updates_title.label = _("Restart Required");
+-                updates_description.label = _("A restart is required to finish installing updates");
+-                button_stack.visible_child_name = "blank";
+-                break;
+-            case ERROR:
+-                updates_image.icon_name = "dialog-error";
+-                updates_title.label = _("Failed to download updates");
+-                updates_description.label = _("Manually refreshing updates may resolve the issue");
+-                button_stack.visible_child_name = "refresh";
+-                break;
++            critical (e.message);
+         }
+     }
+ 
+-    private void details_clicked () {
+-        if (current_state == null) {
+-            return;
+-        }
+-
+-        if (current_state.state == ERROR) {
+-            var message_dialog = new Granite.MessageDialog (
+-                _("Failed to download updates"),
+-                _("This may have been caused by sideloaded or manually compiled software, a third-party software source, or a package manager error. Manually refreshing updates may resolve the issue."),
+-                new ThemedIcon ("dialog-error")
+-            ) {
+-                transient_for = (Gtk.Window) get_root (),
+-                modal = true
+-            };
+-
+-            message_dialog.show_error_details (current_state.message);
+-
+-            message_dialog.response.connect (message_dialog.destroy);
+-            message_dialog.present ();
+-            return;
+-        }
+-
+-        var details_dialog = new UpdateDetailsDialog (packages) {
+-            transient_for = (Gtk.Window) get_root ()
+-        };
+-        details_dialog.present ();
+-    }
+-
+-    private async void refresh_clicked () {
+-        if (update_proxy == null) {
+-            return;
+-        }
+-
+-        try {
+-            yield update_proxy.check_for_updates (true, false);
+-        } catch (Error e) {
+-            critical ("Failed to check for updates: %s", e.message);
+-        }
+-    }
+-
+-    private void launch_uri (string uri) {
+-        var uri_launcher = new Gtk.UriLauncher (uri);
+-        uri_launcher.launch.begin (
+-            ((Gtk.Application) GLib.Application.get_default ()).active_window,
+-            null
+-        );
+-    }
+-
+     private void settings_restore_clicked () {
+         var dialog = new Granite.MessageDialog (
+             _("System Settings Will Be Restored to The Factory Defaults"),
+@@ -588,7 +246,7 @@ public class About.OperatingSystemView : Gtk.Box {
+         };
+ 
+         var continue_button = dialog.add_button (_("Restore Settings"), Gtk.ResponseType.ACCEPT);
+-        continue_button.add_css_class (Granite.STYLE_CLASS_DESTRUCTIVE_ACTION);
++        continue_button.get_style_context ().add_class (Granite.STYLE_CLASS_DESTRUCTIVE_ACTION);
+ 
+         dialog.response.connect ((response) => {
+             dialog.destroy ();
+@@ -659,48 +317,4 @@ public class About.OperatingSystemView : Gtk.Box {
+         settings.apply ();
+         GLib.Settings.sync ();
+     }
+-
+-    private class LinkRow : Gtk.ListBoxRow {
+-        public string uri { get; construct; }
+-        public string icon_name { get; construct; }
+-        public string label_string { get; construct; }
+-        public string color { get; construct; }
+-
+-        public LinkRow (string uri, string label_string, string icon_name, string color) {
+-            Object (
+-                uri: uri,
+-                label_string: label_string,
+-                icon_name: icon_name,
+-                color: color
+-            );
+-        }
+-
+-        class construct {
+-            set_accessible_role (LINK);
+-        }
+-
+-        construct {
+-
+-            var image = new Gtk.Image.from_icon_name (icon_name) {
+-                pixel_size = 16
+-            };
+-            image.add_css_class (Granite.STYLE_CLASS_ACCENT);
+-            image.add_css_class (color);
+-
+-            var left_label = new Gtk.Label (label_string) {
+-                hexpand = true,
+-                xalign = 0
+-            };
+-
+-            var link_image = new Gtk.Image.from_icon_name ("adw-external-link-symbolic");
+-
+-            var box = new Gtk.Box (HORIZONTAL, 0);
+-            box.append (image);
+-            box.append (left_label);
+-            box.append (link_image);
+-
+-            child = box;
+-            add_css_class ("link");
+-        }
+-    }
+ }
