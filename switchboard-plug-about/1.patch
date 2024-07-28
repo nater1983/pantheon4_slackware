@@ -4,13 +4,13 @@ Date: Sun, 28 Jul 2024 11:37:55 -0500
 Subject: [PATCH] Update HardwareView.vala
 
 ---
- HardwareView.vala | 31 ++++++++++++++++++++-----------
+ src/Views/HardwareView.vala | 31 ++++++++++++++++++++-----------
  1 file changed, 20 insertions(+), 11 deletions(-)
 
 diff --git a/HardwareView.vala b/HardwareView.vala
 index dadc075..5e46e5a 100644
---- a/HardwareView.vala
-+++ b/HardwareView.vala
+--- a/src/Views/HardwareView.vala
++++ b/src/Views/HardwareView.vala
 @@ -573,20 +573,29 @@ public class About.HardwareView : Gtk.Box {
          string replacement;
      }
