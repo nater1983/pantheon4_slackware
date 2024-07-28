@@ -22,12 +22,12 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://github.com/ostreedev/ostree/releases/download/v2023.8/libostree-2023.8.tar.xz
+wget -c hhttps://github.com/ostreedev/ostree/releases/download/v2024.6/libostree-2024.6.tar.xz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=libostree
-VERSION=${VERSION:-2023.8}
+VERSION=${VERSION:-2024.6}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
@@ -71,6 +71,7 @@ cd $TMP
 rm -rf $PRGNAM-$VERSION
 tar xvf $CWD/$PRGNAM-$VERSION.tar.?z*
 cd $PRGNAM-$VERSION
+patch -Np1 -i $CWD/0001-curl-Also-map-HTTP-errors-for-retries.patch
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
