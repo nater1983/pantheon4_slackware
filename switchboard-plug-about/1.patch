@@ -11,7 +11,7 @@ diff --git a/HardwareView.vala b/HardwareView.vala
 index dadc075..5e46e5a 100644
 --- a/src/Views/HardwareView.vala
 +++ b/src/Views/HardwareView.vala
-@@ -573,20 +573,34 @@ public class About.HardwareView : Gtk.Box {
+@@ -573,20 +573,39 @@ public class About.HardwareView : Gtk.Box {
          string replacement;
      }
  
@@ -43,10 +43,15 @@ index dadc075..5e46e5a 100644
 +    try {
 +        File file = File.new_for_path("/etc/HOSTNAME");
 +        string hostname;
-+        file.load_contents(out hostname);
++        uint8[] content;
++        file.load_contents(null, out content, out hostname);
++        // Convert content to string if hostname is not used
++        if (hostname == null) {
++            hostname = GLib.utf8_from_bytes(content);
++        }
 +        // Remove trailing newline character if present
-+        if (hostname.ends_with("\n")) {
-+            hostname = hostname.substr(0, hostname.length - 1);
++        if (hostname.length > 0 && hostname[hostname.length - 1] == '\n') {
++            hostname = hostname.slice(0, hostname.length - 1);
 +        }
 +        stdout.printf("Hostname from /etc/HOSTNAME: %s\n", hostname);
 +    } catch (Error e) {
