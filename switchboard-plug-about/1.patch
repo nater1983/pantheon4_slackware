@@ -6,24 +6,11 @@ Subject: [PATCH] Revert "OperatingSystemView: use urgent icon if updates contain
 This reverts commit 023f86b9e97c192d4f649ba788d660fb5e77582c.
 
 ---
- README.md                          | 1 -
  src/DBus/SystemUpdate.vala         | 1 -
  src/Views/OperatingSystemView.vala | 4 ----
  src/meson.build                    | 1 -
- 4 files changed, 0 insertions(+), 7 deletions(-)
+ 3 files changed, 0 insertions(+), 6 deletions(-)
 
-diff --git a/README.md b/README.md
-index 30c0432a..7e124621 100644
---- a/README.md
-+++ b/README.md
-@@ -16,7 +16,6 @@ You'll need the following dependencies:
- * libudisks2-dev
- * libadwaita-1-dev
- * libappstream-dev
--* libpackagekit-glib2-dev
- * meson
- * valac
- * switcheroo-control (at runtime)
 diff --git a/src/DBus/SystemUpdate.vala b/src/DBus/SystemUpdate.vala
 index 5e9a16ca..4929a5c2 100644
 --- a/src/DBus/SystemUpdate.vala
@@ -64,10 +51,3 @@ index bc8da285..5c4edf49 100644
          dependency('udisks2'),
          appstream_dep,
 """
-
-# Save the modified patch to a new file.
-patch_filename_modified = "/mnt/data/revert_patch_modified.diff"
-with open(patch_filename_modified, "w") as f:
-    f.write(revert_patch_modified)
-
-patch_filename_modified
