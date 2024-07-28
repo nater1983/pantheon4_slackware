@@ -4,13 +4,13 @@ Date: Sun, 28 Jul 2024 10:20:25 -0500
 Subject: [PATCH] Update OperatingSystemView.vala
 
 ---
- OperatingSystemView.vala | 504 +++++----------------------------------
+ src/Views/OperatingSystemView.vala | 504 +++++----------------------------------
  1 file changed, 59 insertions(+), 445 deletions(-)
 
-diff --git a/OperatingSystemView.vala b/OperatingSystemView.vala
+diff --git a/src/Views/OperatingSystemView.vala b/src/Views/OperatingSystemView.vala
 index 00b3deb..3546813 100644
---- a/OperatingSystemView.vala
-+++ b/OperatingSystemView.vala
+--- a/src/Views/OperatingSystemView.vala
++++ b/src/Views/OperatingSystemView.vala
 @@ -19,91 +19,21 @@
  */
  
@@ -652,13 +652,13 @@ Date: Sun, 28 Jul 2024 11:01:48 -0500
 Subject: [PATCH] Update OperatingSystemView.vala
 
 ---
- OperatingSystemView.vala | 17 ++++++++++++++++-
+ src/Views/OperatingSystemView.vala | 17 ++++++++++++++++-
  1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/OperatingSystemView.vala b/OperatingSystemView.vala
+diff --git a/src/Views/OperatingSystemView.vala b/src/Views/OperatingSystemView.vala
 index 3546813..0c27293 100644
---- a/OperatingSystemView.vala
-+++ b/OperatingSystemView.vala
+--- a/src/Views/OperatingSystemView.vala
++++ b/src/Views/OperatingSystemView.vala
 @@ -20,7 +20,7 @@
  
  public class About.OperatingSystemView : Gtk.Box {
