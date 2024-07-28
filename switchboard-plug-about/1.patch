@@ -645,3 +645,55 @@ index 00b3deb..3546813 100644
 -        }
 -    }
  }
+
+From 0555e6dd612373e25682129d3d0229123e2ff3d3 Mon Sep 17 00:00:00 2001
+From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
+Date: Sun, 28 Jul 2024 11:01:48 -0500
+Subject: [PATCH] Update OperatingSystemView.vala
+
+---
+ OperatingSystemView.vala | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/OperatingSystemView.vala b/OperatingSystemView.vala
+index 3546813..0c27293 100644
+--- a/OperatingSystemView.vala
++++ b/OperatingSystemView.vala
+@@ -20,7 +20,7 @@
+ 
+ public class About.OperatingSystemView : Gtk.Box {
+     private string support_url;
+-
++    private File? logo_file;
+     private Gtk.Grid software_grid;
+ 
+     construct {
+@@ -52,6 +52,7 @@ public class About.OperatingSystemView : Gtk.Box {
+                 );
+ 
+                 if (file.query_exists ()) {
++                    var logo_file = file;
+                     var logo = new Adw.Avatar (128, "", false) {
+                         custom_image = Gdk.Texture.from_file (file)
+                     };
+@@ -189,6 +190,20 @@ public class About.OperatingSystemView : Gtk.Box {
+         get_upstream_release.begin ();
+     }
+ 
++    public async void load_logo () {
++        if (logo == null || logo_file == null) {
++            return;
++        }
++
++        try {
++            var bytes = yield logo_file.load_bytes_async (null, null);
++            logo.custom_image = Gdk.Texture.from_bytes (bytes);
++            logo_file = null;
++        } catch (Error e) {
++            warning ("Failed to load logo file: %s", e.message);
++        }
++    }
++
+     private async void get_upstream_release () {
+         // Upstream distro version (for "Built on" text)
+         // FIXME: Add distro specific field to /etc/os-release and use that instead
