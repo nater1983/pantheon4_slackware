@@ -120,20 +120,6 @@ index 00b3deb..3546813 100644
  
          if (Gtk.IconTheme.get_for_display (Gdk.Display.get_default ()).has_icon (logo_icon_name + "-symbolic")) {
              foreach (unowned var path in Environment.get_system_data_dirs ()) {
-@@ -124,10 +52,10 @@ public class About.OperatingSystemView : Gtk.Box {
-                 );
- 
-                 if (file.query_exists ()) {
--                    logo_file = file;
--                    logo = new Adw.Avatar (128, "", false) {
--                        custom_image = Gdk.Paintable.empty (128, 128)
-+                    var logo = new Adw.Avatar (128, "", false) {
-+                        custom_image = Gdk.Texture.from_file (file)
-                     };
-+                    logo.get_style_context ().add_provider (style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
- 
-                     logo_overlay.child = logo;
-                     logo_overlay.add_overlay (icon);
 @@ -135,6 +63,7 @@ public class About.OperatingSystemView : Gtk.Box {
                      // 128 minus 3px padding on each side
                      icon.pixel_size = 128 - 6;
