@@ -15,405 +15,513 @@ This reverts commit 2d1d9e504b6affc6c275cbff097b5d129be56576.
  delete mode 100644 src/Widgets/UpdateDetailsDialog.vala
 
 diff --git a/po/POTFILES b/po/POTFILES
-index c48ca9870..6a97cd119 100644
+index 6a97cd119..c48ca9870 100644
 --- a/po/POTFILES
 +++ b/po/POTFILES
-@@ -4,4 +4,3 @@ src/Views/FirmwareView.vala
+@@ -4,3 +4,4 @@ src/Views/FirmwareView.vala
  src/Views/HardwareView.vala
  src/Views/OperatingSystemView.vala
  src/Widgets/FirmwareUpdateRow.vala
--src/Widgets/UpdateDetailsDialog.vala
++src/Widgets/UpdateDetailsDialog.vala
 diff --git a/src/DBus/SystemUpdate.vala b/src/DBus/SystemUpdate.vala
-deleted file mode 100644
-index 4929a5c27..000000000
---- a/src/DBus/SystemUpdate.vala
-+++ /dev/null
-@@ -1,29 +0,0 @@
--[DBus (name="io.elementary.settings_daemon.SystemUpdate")]
--public interface SystemUpdate : Object {
--    public enum State {
--        UP_TO_DATE,
--        CHECKING,
--        AVAILABLE,
--        DOWNLOADING,
--        RESTART_REQUIRED,
--        ERROR
--    }
--
--    public struct CurrentState {
--        State state;
--        string message;
--    }
--
--    public struct UpdateDetails {
--        string[] packages;
--        int size;
--    }
--
--    public signal void state_changed ();
--
--    public abstract async CurrentState get_current_state () throws DBusError, IOError;
--    public abstract async UpdateDetails get_update_details () throws DBusError, IOError;
--    public abstract async void cancel () throws DBusError, IOError;
--    public abstract async void check_for_updates (bool force, bool notify) throws DBusError, IOError;
--    public abstract async void update () throws DBusError, IOError;
--}
+new file mode 100644
+index 000000000..4929a5c27
+--- /dev/null
++++ b/src/DBus/SystemUpdate.vala
+@@ -0,0 +1,29 @@
++[DBus (name="io.elementary.settings_daemon.SystemUpdate")]
++public interface SystemUpdate : Object {
++    public enum State {
++        UP_TO_DATE,
++        CHECKING,
++        AVAILABLE,
++        DOWNLOADING,
++        RESTART_REQUIRED,
++        ERROR
++    }
++
++    public struct CurrentState {
++        State state;
++        string message;
++    }
++
++    public struct UpdateDetails {
++        string[] packages;
++        int size;
++    }
++
++    public signal void state_changed ();
++
++    public abstract async CurrentState get_current_state () throws DBusError, IOError;
++    public abstract async UpdateDetails get_update_details () throws DBusError, IOError;
++    public abstract async void cancel () throws DBusError, IOError;
++    public abstract async void check_for_updates (bool force, bool notify) throws DBusError, IOError;
++    public abstract async void update () throws DBusError, IOError;
++}
 diff --git a/src/Views/OperatingSystemView.vala b/src/Views/OperatingSystemView.vala
-index a8951c6b3..3546813e0 100644
+index 3546813e0..a8951c6b3 100644
 --- a/src/Views/OperatingSystemView.vala
 +++ b/src/Views/OperatingSystemView.vala
-@@ -19,246 +19,10 @@
+@@ -19,9 +19,18 @@
+ */
  
  public class About.OperatingSystemView : Gtk.Box {
-     private string support_url;
--    private static Settings update_settings = new Settings ("io.elementary.settings-daemon.system-update");
- 
 -    private string support_url;
--    private Gtk.StringList packages;
--    private SystemUpdate? update_proxy = null;
--    private SystemUpdate.CurrentState? current_state = null;
++    private static Settings update_settings = new Settings ("io.elementary.settings-daemon.system-update");
+ 
++    private string support_url;
++    private Gtk.StringList packages;
++    private SystemUpdate? update_proxy = null;
++    private SystemUpdate.CurrentState? current_state = null;
      private Gtk.Grid software_grid;
--    private Gtk.Image updates_image;
--    private Gtk.Label updates_title;
--    private Gtk.Label updates_description;
--    private Gtk.Revealer details_button_revealer;
--    private Gtk.Stack button_stack;
++    private Gtk.Image updates_image;
++    private Gtk.Label updates_title;
++    private Gtk.Label updates_description;
++    private Gtk.Revealer details_button_revealer;
++    private Gtk.Stack button_stack;
  
      construct {
--        var style_provider = new Gtk.CssProvider ();
-         Gtk.StyleContext.add_provider_for_display (
-             Gdk.Display.get_default (),
-             style_provider,
-             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-         );
--        style_provider.load_from_resource ("/io/elementary/about/style.css");
--
--        var logo_icon_name = "system-distributor-logo";
--        var logo_image = new Gtk.Image.from_icon_name (logo_icon_name) {
--            pixel_size = 128,
--            icon_size = Gtk.IconSize.DIALOG,
--            icon_name = logo_icon_name,
--        };
--
--        var logo_overlay = new Gtk.Overlay () {
--            valign = START
--        };
--
--        if (Gtk.IconTheme.get_for_display (Gdk.Display.get_default ()).has_icon (logo_icon_name + "-symbolic")) {
--            foreach (unowned var path in Environment.get_system_data_dirs ()) {
--                var candidate = path + "/icons/" + logo_icon_name + "/symbolic.svg";
--                if (FileUtils.access (candidate, FileUtils.FileTest.EXISTS)) {
--                    var symbolic = new Gtk.Image.from_file (candidate);
--                    symbolic.pixel_size = 128;
--                    logo_overlay.add_overlay (symbolic);
--                    break;
--                }
--            }
--        }
--
--        logo_overlay.add (logo_image);
--        logo_overlay.set_overlay_pass_through (logo_image, true);
--
--        var pretty_name = Environment.get_os_info (GLib.OsInfoKey.PRETTY_NAME);
--        if (pretty_name == null) {
--            pretty_name = "elementary OS";
--        }
--
--        var title = new Gtk.Label (pretty_name) {
--            ellipsize = Pango.EllipsizeMode.END,
--            selectable = true,
--            use_markup = true,
--            xalign = 0
--        };
--        title.add_css_class (Granite.STYLE_CLASS_TITLE_LABEL);
--
--        var kernel_version_label = new Gtk.Label (Environment.get_os_info (GLib.OsInfoKey.KERNEL_VERSION)) {
--            selectable = true,
--            xalign = 0
--        };
--        kernel_version_label.add_css_class (Granite.STYLE_CLASS_SMALL_LABEL);
--        kernel_version_label.add_css_class (Granite.STYLE_CLASS_DIM_LABEL);
--
--        var website_url = Environment.get_os_info (GLib.OsInfoKey.HOME_URL);
--        if (website_url == "" || website_url == null) {
--            website_url = "https://elementary.io";
--        }
--
--        var website_label = new Gtk.LinkButton.with_label (website_url, _("Website"));
--
--
--        var help_button = new Gtk.LinkButton.with_label (support_url, _("Get Support")) {
--            halign = Gtk.Align.CENTER,
--            hexpand = true
--        };
--
--        var translate_button = new Gtk.LinkButton.with_label (
--            "https://l10n.elementary.io/projects/",
--            _("Suggest Translations")
--        );
--
--        var bug_button = new Gtk.Button.with_label (_("Send Feedback")) {
--            halign = END,
--            hexpand = true
--        };
--
--        packages = new Gtk.StringList (null);
--
--        updates_image = new Gtk.Image () {
--            icon_size = LARGE
--        };
--
--        updates_title = new Gtk.Label (null) {
--            hexpand = true,
--            margin_end = 6,
--            xalign = 0
--        };
--
--        updates_description = new Gtk.Label (null) {
--            xalign = 0
--        };
--        updates_description.add_css_class (Granite.STYLE_CLASS_SMALL_LABEL);
--        updates_description.add_css_class (Granite.STYLE_CLASS_DIM_LABEL);
--
--        var update_button = new Gtk.Button.with_label (_("Download"));
--        update_button.add_css_class (Granite.STYLE_CLASS_SUGGESTED_ACTION);
--
--        var cancel_button = new Gtk.Button.with_label (_("Cancel"));
--
--        var refresh_button = new Gtk.Button.with_label (_("Refresh"));
--
--        button_stack = new Gtk.Stack () {
--            hhomogeneous = false,
--            transition_type = CROSSFADE,
--            valign = CENTER
--        };
--        button_stack.add_named (new Gtk.Grid (), "blank");
--        button_stack.add_named (update_button, "update");
--        button_stack.add_named (cancel_button, "cancel");
--        button_stack.add_named (refresh_button, "refresh");
--
--        var details_button = new Gtk.Button.with_label (_("Learn More…")) {
--            halign = START,
--            has_frame = false,
--            margin_top = 6
--        };
--        details_button.add_css_class ("link");
--        details_button.add_css_class (Granite.STYLE_CLASS_SMALL_LABEL);
--
--        details_button_revealer = new Gtk.Revealer () {
--            child = details_button
--        };
--
--        var updates_grid = new Gtk.Grid () {
--            column_spacing = 6,
--            margin_top = 6,
--            margin_end = 6,
--            margin_bottom = 6,
--            margin_start = 6
--        };
--        updates_grid.attach (updates_image, 0, 0, 1, 2);
--        updates_grid.attach (updates_title, 1, 0);
--        updates_grid.attach (updates_description, 1, 1);
--        updates_grid.attach (button_stack, 2, 0, 1, 2);
--        updates_grid.attach (details_button_revealer, 1, 2, 2, 1);
--
--        var software_updates_frame = new Gtk.Frame () {
--            hexpand = true,
--            child = updates_grid,
--            margin_top = 6,
--            margin_bottom = 6,
--            margin_start = 6,
--            margin_end = 6
--        };
--        software_updates_frame.add_css_class (Granite.STYLE_CLASS_PILL_BUTTON_FRAME);
--
--        software_grid = new Gtk.Grid () {
--            column_spacing = 6,
--            margin_top = 12,
+         var style_provider = new Gtk.CssProvider ();
+@@ -43,7 +52,9 @@ public class About.OperatingSystemView : Gtk.Box {
+             icon_name = logo_icon_name,
+         };
+ 
+-        var logo_overlay = new Gtk.Overlay ();
++        var logo_overlay = new Gtk.Overlay () {
++            valign = START
++        };
+ 
+         if (Gtk.IconTheme.get_for_display (Gdk.Display.get_default ()).has_icon (logo_icon_name + "-symbolic")) {
+             foreach (unowned var path in Environment.get_system_data_dirs ()) {
+@@ -84,7 +95,6 @@ public class About.OperatingSystemView : Gtk.Box {
+ 
+         var title = new Gtk.Label (pretty_name) {
+             ellipsize = Pango.EllipsizeMode.END,
 -            margin_bottom = 12,
--            margin_start = 6,
--            margin_end = 6
--        };
--        software_grid.attach (logo_overlay, 0, 0, 2, 1);
--        software_grid.attach (title, 0, 1, 2, 1);
--        software_grid.attach (kernel_version_label, 0, 2, 2, 1);
--        software_grid.attach (website_label, 0, 3, 1, 1);
--        software_grid.attach (help_button, 0, 4, 1, 1);
--        software_grid.attach (translate_button, 0, 5, 1, 1);
--        software_grid.attach (bug_button, 1, 4, 1, 1);
--        software_grid.attach (software_updates_frame, 0, 6, 2, 1);
--
--        this.add (software_grid);
--
--        try {
--            update_proxy = Bus.get_proxy_sync (BusType.SESSION, "io.elementary.settings_daemon", "/io/elementary/settings_daemon/system_update") as SystemUpdate;
--        } catch (Error e) {
--            warning ("Unable to connect to system update service: %s", e.message);
--            return;
--        }
--
--        update_proxy.notify["state"].connect (() => {
--            update_current_state ();
--        });
--
--        update_current_state ();
--    }
--
--    private async void update_current_state () {
--        try {
--            current_state = yield update_proxy!.get_current_state ();
--        } catch (Error e) {
--            warning ("Unable to retrieve current state: %s", e.message);
--            current_state = null;
--        }
--
--        if (current_state == null) {
--            return;
--        }
--
--        if (current_state.state == SystemUpdate.State.UP_TO_DATE) {
--            updates_image.icon_name = "document-save-symbolic";
--            updates_title.text = _("Software is up to date");
--            updates_description.text = null;
--            button_stack.set_visible_child_name ("blank");
--            details_button_revealer.reveal_child = false;
--        } else if (current_state.state == SystemUpdate.State.CHECKING) {
--            updates_image.icon_name = "emblem-synchronizing-symbolic";
--            updates_title.text = _("Checking for updates…");
--            updates_description.text = null;
--            button_stack.set_visible_child_name ("cancel");
--            details_button_revealer.reveal_child = false;
--        } else if (current_state.state == SystemUpdate.State.AVAILABLE) {
--            updates_image.icon_name = "software-update-urgent-symbolic";
--            updates_title.text = _("Updates available");
--            updates_description.text = current_state.message;
--            button_stack.set_visible_child_name ("update");
--            details_button_revealer.reveal_child = true;
--        } else if (current_state.state == SystemUpdate.State.DOWNLOADING) {
--            updates_image.icon_name = "emblem-synchronizing-symbolic";
--            updates_title.text = _("Downloading updates…");
--            updates_description.text = current_state.message;
--            button_stack.set_visible_child_name ("cancel");
--            details_button_revealer.reveal_child = false;
--        } else if (current_state.state == SystemUpdate.State.RESTART_REQUIRED) {
--            updates_image.icon_name = "system-restart-symbolic";
--            updates_title.text = _("Restart required to finish updates");
--            updates_description.text = current_state.message;
--            button_stack.set_visible_child_name ("blank");
--            details_button_revealer.reveal_child = true;
--        } else if (current_state.state == SystemUpdate.State.ERROR) {
--            updates_image.icon_name = "dialog-error-symbolic";
--            updates_title.text = _("Error checking for updates");
--            updates_description.text = current_state.message;
--            button_stack.set_visible_child_name ("refresh");
--            details_button_revealer.reveal_child = true;
--        }
--    }
-+        this.add (new Gtk.Label ("Operating System Information"));
-     }
--
--    private void show_details_dialog () {
--        if (update_proxy == null) {
--            return;
--        }
--
--        var dialog = new UpdateDetailsDialog (packages, update_proxy);
--        dialog.present ();
--    }
--
--    private async void refresh_updates () {
--        if (update_proxy == null) {
--            return;
--        }
--
--        button_stack.set_visible_child_name ("blank");
--        try {
--            yield update_proxy.check_for_updates (true, true);
--        } catch (Error e) {
--            warning ("Error checking for updates: %s", e.message);
--            return;
--        }
--    }
- }
-diff --git a/src/Widgets/UpdateDetailsDialog.vala b/src/Widgets/UpdateDetailsDialog.vala
-deleted file mode 100644
-index a426de84b..000000000
---- a/src/Widgets/UpdateDetailsDialog.vala
-+++ /dev/null
-@@ -1,72 +0,0 @@
--public class About.UpdateDetailsDialog : Gtk.Window {
--    public UpdateDetailsDialog (Gtk.StringList packages, SystemUpdate proxy) {
--        title = _("Update Details");
--        set_default_size (640, 480);
--        set_transient_for (null);
--        set_modal (true);
--        destroy_with_parent = true;
--
--        var box = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
--        box.margin = 12;
--
--        var packages_list = new Gtk.ListBox ();
--        packages_list.set_selection_mode (Gtk.SelectionMode.NONE);
--
--        packages.foreach ((item) => {
--            packages_list.append (new Gtk.Label (item));
--        });
--
--        box.append (packages_list);
--
--        var button_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6) {
--            hexpand = true,
--            halign = Gtk.Align.END,
+             selectable = true,
+             use_markup = true,
+             xalign = 0
+@@ -95,61 +105,109 @@ public class About.OperatingSystemView : Gtk.Box {
+             selectable = true,
+             xalign = 0
+         };
++        kernel_version_label.add_css_class (Granite.STYLE_CLASS_SMALL_LABEL);
++        kernel_version_label.add_css_class (Granite.STYLE_CLASS_DIM_LABEL);
+ 
+         var website_url = Environment.get_os_info (GLib.OsInfoKey.HOME_URL);
+         if (website_url == "" || website_url == null) {
+             website_url = "https://elementary.io";
+         }
+ 
+-        var website_label = new Gtk.LinkButton.with_label (website_url, _("Website")) {
 -            margin_top = 12
 -        };
--
--        var close_button = new Gtk.Button.with_label (_("Close"));
--        close_button.add_css_class (Granite.STYLE_CLASS_SUGGESTED_ACTION);
--        close_button.clicked.connect (() => {
--            close ();
--        });
--
--        var install_button = new Gtk.Button.with_label (_("Install"));
--        install_button.add_css_class (Granite.STYLE_CLASS_DESTRUCTIVE_ACTION);
--        install_button.clicked.connect (() => {
--            proxy.update.begin ((obj, res) => {
--                try {
--                    proxy.update.end (res);
--                } catch (Error e) {
--                    warning ("Error installing updates: %s", e.message);
--                }
++        var website_label = new Gtk.LinkButton.with_label (website_url, _("Website"));
+ 
+ 
+         var help_button = new Gtk.LinkButton.with_label (support_url, _("Get Support")) {
+             halign = Gtk.Align.CENTER,
+-            hexpand = true,
+-            margin_top = 12
++            hexpand = true
+         };
+ 
+         var translate_button = new Gtk.LinkButton.with_label (
+             "https://l10n.elementary.io/projects/",
+             _("Suggest Translations")
+-        ) {
+-            margin_top = 12
+-        };
++        );
+ 
+-        var bug_button = new Gtk.Button.with_label (_("Send Feedback"));
++        var bug_button = new Gtk.Button.with_label (_("Send Feedback")) {
++            halign = END,
++            hexpand = true
++        };
+ 
+-        Gtk.Button? update_button = null;
+-        var appcenter_info = new GLib.DesktopAppInfo ("io.elementary.appcenter.desktop");
+-        if (appcenter_info != null) {
+-            update_button = new Gtk.Button.with_label (_("Check for Updates"));
+-            update_button.clicked.connect (() => {
+-                appcenter_info.launch_action ("ShowUpdates", new GLib.AppLaunchContext ());
 -            });
--            close ();
--        });
--
--        button_box.append (close_button);
--        button_box.append (install_button);
--
--        box.append (button_box);
--
--        var scrolled_window = new Gtk.ScrolledWindow ();
--        scrolled_window.set_child (box);
--        scrolled_window.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
--        set_child (scrolled_window);
--    }
--}
+-        }
++        packages = new Gtk.StringList (null);
+ 
+-        var settings_restore_button = new Gtk.Button.with_label (_("Restore Default Settings"));
++        updates_image = new Gtk.Image () {
++            icon_size = LARGE
++        };
+ 
+-        var primary_button_box = new Gtk.Box (HORIZONTAL, 6) {
++        updates_title = new Gtk.Label (null) {
+             hexpand = true,
+-            halign = END,
+-            homogeneous = true
++            margin_end = 6,
++            xalign = 0
+         };
+-        primary_button_box.append (bug_button);
+-        if (update_button != null) {
+-            primary_button_box.append (update_button);
+-        }
++
++        updates_description = new Gtk.Label (null) {
++            xalign = 0
++        };
++        updates_description.add_css_class (Granite.STYLE_CLASS_SMALL_LABEL);
++        updates_description.add_css_class (Granite.STYLE_CLASS_DIM_LABEL);
++
++        var update_button = new Gtk.Button.with_label (_("Download"));
++        update_button.add_css_class (Granite.STYLE_CLASS_SUGGESTED_ACTION);
++
++        var cancel_button = new Gtk.Button.with_label (_("Cancel"));
++
++        var refresh_button = new Gtk.Button.with_label (_("Refresh"));
++
++        button_stack = new Gtk.Stack () {
++            hhomogeneous = false,
++            transition_type = CROSSFADE,
++            valign = CENTER
++        };
++        button_stack.add_named (new Gtk.Grid (), "blank");
++        button_stack.add_named (update_button, "update");
++        button_stack.add_named (cancel_button, "cancel");
++        button_stack.add_named (refresh_button, "refresh");
++
++        var details_button = new Gtk.Button.with_label (_("Learn More…")) {
++            halign = START,
++            has_frame = false,
++            margin_top = 6
++        };
++        details_button.add_css_class ("link");
++        details_button.add_css_class (Granite.STYLE_CLASS_SMALL_LABEL);
++
++        details_button_revealer = new Gtk.Revealer () {
++            child = details_button
++        };
++
++        var updates_grid = new Gtk.Grid () {
++            column_spacing = 6,
++            margin_top = 6,
++            margin_end = 6,
++            margin_bottom = 6,
++            margin_start = 6
++        };
++        updates_grid.attach (updates_image, 0, 0, 1, 2);
++        updates_grid.attach (updates_title, 1, 0);
++        updates_grid.attach (updates_description, 1, 1);
++        updates_grid.attach (button_stack, 2, 0, 1, 2);
++        updates_grid.attach (details_button_revealer, 1, 2, 2);
++
++        var frame = new Gtk.Frame (null) {
++            child = updates_grid,
++            margin_bottom = 12,
++            margin_top = 12,
++            valign = CENTER
++        };
++        frame.add_css_class (Granite.STYLE_CLASS_VIEW);
++
++        var settings_restore_button = new Gtk.Button.with_label (_("Restore Default Settings"));
+ 
+         var button_grid = new Gtk.Box (HORIZONTAL, 6);
+         button_grid.append (settings_restore_button);
+-        button_grid.append (primary_button_box);
++        button_grid.append (bug_button);
+ 
+         software_grid = new Gtk.Grid () {
+             column_spacing = 32,
+             halign = Gtk.Align.CENTER,
+-            row_spacing = 6,
+             valign = Gtk.Align.CENTER,
+             vexpand = true
+         };
+@@ -157,9 +215,10 @@ public class About.OperatingSystemView : Gtk.Box {
+         software_grid.attach (title, 1, 0, 3);
+ 
+         software_grid.attach (kernel_version_label, 1, 2, 3);
+-        software_grid.attach (website_label, 1, 3);
+-        software_grid.attach (help_button, 2, 3);
+-        software_grid.attach (translate_button, 3, 3);
++        software_grid.attach (frame, 1, 3, 3);
++        software_grid.attach (website_label, 1, 4);
++        software_grid.attach (help_button, 2, 4);
++        software_grid.attach (translate_button, 3, 4);
+ 
+         margin_top = 12;
+         margin_end = 12;
+@@ -187,6 +246,45 @@ public class About.OperatingSystemView : Gtk.Box {
+         });
+ 
+         get_upstream_release.begin ();
++
++        Bus.get_proxy.begin<SystemUpdate> (SESSION, "io.elementary.settings-daemon", "/io/elementary/settings_daemon", 0, null, (obj, res) => {
++            try {
++                update_proxy = Bus.get_proxy.end (res);
++
++                update_proxy.state_changed.connect (update_state);
++                update_state.begin ();
++            } catch (Error e) {
++                critical ("Failed to get updates proxy");
++            }
++        });
++
++        update_button.clicked.connect (() => {
++            if (update_proxy != null) {
++                update_proxy.update.begin ((obj, res) => {
++                    try {
++                        update_proxy.update.end (res);
++                    } catch (Error e) {
++                        critical ("Failed to update: %s", e.message);
++                    }
++                });
++            }
++        });
++
++        cancel_button.clicked.connect (() => {
++            if (update_proxy != null) {
++                update_proxy.cancel.begin ((obj, res) => {
++                    try {
++                        update_proxy.cancel.end (res);
++                    } catch (Error e) {
++                        critical ("Failed to cancel update: %s", e.message);
++                    }
++                });
++            }
++        });
++
++        refresh_button.clicked.connect (refresh_clicked);
++
++        details_button.clicked.connect (details_clicked);
+     }
+ 
+     private async void get_upstream_release () {
+@@ -222,10 +320,123 @@ public class About.OperatingSystemView : Gtk.Box {
+                 selectable = true,
+                 xalign = 0
+             };
++            based_off.add_css_class (Granite.STYLE_CLASS_SMALL_LABEL);
++            based_off.add_css_class (Granite.STYLE_CLASS_DIM_LABEL);
+             software_grid.attach (based_off, 1, 1, 3);
+         }
+     }
+ 
++    private async void update_state () {
++        if (update_proxy == null) {
++            return;
++        }
++
++        try {
++            current_state = yield update_proxy.get_current_state ();
++        } catch (Error e) {
++            critical ("Failed to get current state from Updates Backend: %s", e.message);
++            return;
++        }
++
++        details_button_revealer.reveal_child = current_state.state == AVAILABLE || current_state.state == ERROR;
++
++        switch (current_state.state) {
++            case UP_TO_DATE:
++                updates_image.icon_name = "process-completed";
++                updates_title.label = _("Up To Date");
++                updates_description.label = _("Last checked %s").printf (
++                    Granite.DateTime.get_relative_datetime (
++                        new DateTime.from_unix_utc (update_settings.get_int64 ("last-refresh-time"))
++                    )
++                );
++                button_stack.visible_child_name = "refresh";
++                break;
++            case CHECKING:
++                updates_image.icon_name = "emblem-synchronized";
++                updates_title.label = _("Checking for Updates");
++                updates_description.label = current_state.message;
++                button_stack.visible_child_name = "blank";
++                break;
++            case AVAILABLE:
++                updates_image.icon_name = "software-update-available";
++                updates_title.label = _("Updates Available");
++                button_stack.visible_child_name = "update";
++
++                try {
++                    var details = yield update_proxy.get_update_details ();
++                    updates_description.label = ngettext (
++                        "%i update available",
++                        "%i updates available",
++                        details.packages.length
++                    ).printf (details.packages.length);
++
++                    packages.splice (0, packages.get_n_items (), details.packages);
++                } catch (Error e) {
++                    updates_description.label = _("Unable to determine number of updates");
++                    warning ("Failed to get updates list from backend: %s", e.message);
++                }
++                break;
++            case DOWNLOADING:
++                updates_image.icon_name = "browser-download";
++                updates_title.label = _("Downloading Updates");
++                updates_description.label = current_state.message;
++                button_stack.visible_child_name = "cancel";
++                break;
++            case RESTART_REQUIRED:
++                updates_image.icon_name = "system-reboot";
++                updates_title.label = _("Restart Required");
++                updates_description.label = _("A restart is required to finish installing updates");
++                button_stack.visible_child_name = "blank";
++                break;
++            case ERROR:
++                updates_image.icon_name = "dialog-error";
++                updates_title.label = _("Failed to download updates");
++                updates_description.label = _("Manually refreshing updates may resolve the issue");
++                button_stack.visible_child_name = "refresh";
++                break;
++        }
++    }
++
++    private void details_clicked () {
++        if (current_state == null) {
++            return;
++        }
++
++        if (current_state.state == ERROR) {
++            var message_dialog = new Granite.MessageDialog (
++                _("Failed to download updates"),
++                _("This may have been caused by sideloaded or manually compiled software, a third-party software source, or a package manager error. Manually refreshing updates may resolve the issue."),
++                new ThemedIcon ("dialog-error")
++            ) {
++                transient_for = (Gtk.Window) get_root (),
++                modal = true
++            };
++
++            message_dialog.show_error_details (current_state.message);
++
++            message_dialog.response.connect (message_dialog.destroy);
++            message_dialog.present ();
++            return;
++        }
++
++        var details_dialog = new UpdateDetailsDialog (packages) {
++            transient_for = (Gtk.Window) get_root ()
++        };
++        details_dialog.present ();
++    }
++
++    private async void refresh_clicked () {
++        if (update_proxy == null) {
++            return;
++        }
++
++        try {
++            yield update_proxy.check_for_updates (true, false);
++        } catch (Error e) {
++            critical ("Failed to check for updates: %s", e.message);
++        }
++    }
++
+     private void launch_support_url () {
+         try {
+             AppInfo.launch_default_for_uri (support_url, null);
+diff --git a/src/Widgets/UpdateDetailsDialog.vala b/src/Widgets/UpdateDetailsDialog.vala
+new file mode 100644
+index 000000000..606185fa5
+--- /dev/null
++++ b/src/Widgets/UpdateDetailsDialog.vala
+@@ -0,0 +1,72 @@
++/*
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ * SPDX-FileCopyrightText: 2024 elementary, Inc. (https://elementary.io)
++ */
++
++public class About.UpdateDetailsDialog : Granite.Dialog {
++    public Gtk.StringList packages { get; construct; }
++
++    public UpdateDetailsDialog (Gtk.StringList packages ) {
++        Object (packages: packages);
++    }
++
++    construct {
++        title = _("What's New");
++        modal = true;
++
++        var title_label = new Gtk.Label (
++            ngettext (
++                "%u package will be upgraded",
++                "%u packages will be upgraded",
++                packages.get_n_items ()
++            ).printf (packages.get_n_items ())
++        ) {
++            halign = START
++        };
++        title_label.add_css_class (Granite.STYLE_CLASS_TITLE_LABEL);
++
++        var packages_listbox = new Gtk.ListBox () {
++            vexpand = true,
++            selection_mode = NONE
++        };
++        packages_listbox.add_css_class (Granite.STYLE_CLASS_RICH_LIST);
++        packages_listbox.bind_model (packages, (obj) => {
++            var str = ((Gtk.StringObject) obj).string;
++
++            var image = new Gtk.Image.from_icon_name ("package-x-generic") {
++                icon_size = LARGE
++            };
++
++            var label = new Gtk.Label (str);
++
++            var box = new Gtk.Box (HORIZONTAL, 6);
++            box.append (image);
++            box.append (label);
++
++            return box;
++        });
++
++        var scrolled = new Gtk.ScrolledWindow () {
++            child = packages_listbox,
++            hscrollbar_policy = NEVER,
++            max_content_height = 400,
++            propagate_natural_height = true
++        };
++
++        var frame = new Gtk.Frame (null) {
++            child = scrolled
++        };
++
++        var box = new Gtk.Box (VERTICAL, 12);
++        box.append (title_label);
++        box.append (frame);
++
++        get_content_area ().append (box);
++
++        add_button (_("Close"), Gtk.ResponseType.CLOSE);
++
++        response.connect (() => {
++            close ();
++        });
++    }
++}
 diff --git a/src/meson.build b/src/meson.build
-index 8a5377c47..e5e3c735d 100644
+index 6babf8c90..5c4edf495 100644
 --- a/src/meson.build
 +++ b/src/meson.build
-@@ -76,10 +76,6 @@ executable('about',
+@@ -1,5 +1,6 @@
+ plug_files = files(
+     'Plug.vala',
++    'DBus' / 'SystemUpdate.vala',
+     'Interfaces/FirmwareClient.vala',
+     'Interfaces/LoginManager.vala',
+     'Utils/ARMPartDecoder.vala',
+@@ -7,7 +8,8 @@ plug_files = files(
+     'Views/FirmwareView.vala',
      'Views/HardwareView.vala',
      'Views/OperatingSystemView.vala',
-     'Widgets/FirmwareUpdateRow.vala',
--    'Widgets/UpdateDetailsDialog.vala',
--    'DBus/SystemUpdate.vala',
--
--    install : true,
+-    'Widgets/FirmwareUpdateRow.vala'
++    'Widgets/FirmwareUpdateRow.vala',
++    'Widgets' / 'UpdateDetailsDialog.vala'
  )
  
- install_data(
--- 
-2.34.1
+ switchboard_dep = dependency('switchboard-3')
+
 
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Danielle=20For=C3=A9?= <danielle@elementary.io>
@@ -428,43 +536,67 @@ This reverts commit 023f86b9e97c192d4f649ba788d660fb5e77582c.
  src/meson.build                    | 1 -
  3 files changed, 0 insertions(+), 6 deletions(-)
 
+diff --git a/.github/workflows/main.yml b/.github/workflows/main.yml
+index de240b91..8bcc9b19 100644
+--- a/.github/workflows/main.yml
++++ b/.github/workflows/main.yml
+@@ -23,7 +23,7 @@ jobs:
+       - name: Install Dependencies
+         run: |
+           apt update
+-          apt install -y meson libadwaita-1-dev libfwupd-dev libgranite-7-dev libgtk-4-dev libgtop2-dev libgudev-1.0-dev libudisks2-dev libswitchboard-3-dev libappstream-dev valac
++          apt install -y meson libadwaita-1-dev libfwupd-dev libgranite-7-dev libgtk-4-dev libgtop2-dev libgudev-1.0-dev libudisks2-dev libswitchboard-3-dev libappstream-dev libpackagekit-glib2-dev valac
+       - name: Build
+         env:
+           DESTDIR: out
+diff --git a/README.md b/README.md
+index 7e124621..30c0432a 100644
+--- a/README.md
++++ b/README.md
+@@ -16,6 +16,7 @@ You'll need the following dependencies:
+ * libudisks2-dev
+ * libadwaita-1-dev
+ * libappstream-dev
++* libpackagekit-glib2-dev
+ * meson
+ * valac
+ * switcheroo-control (at runtime)
 diff --git a/src/DBus/SystemUpdate.vala b/src/DBus/SystemUpdate.vala
-index 5e9a16ca..4929a5c2 100644
+index 4929a5c2..5e9a16ca 100644
 --- a/src/DBus/SystemUpdate.vala
 +++ b/src/DBus/SystemUpdate.vala
-@@ -17,7 +17,6 @@ public interface SystemUpdate : Object {
+@@ -17,6 +17,7 @@ public interface SystemUpdate : Object {
      public struct UpdateDetails {
          string[] packages;
          int size;
--        Pk.Info[] info;
++        Pk.Info[] info;
      }
  
      public signal void state_changed ();
 diff --git a/src/Views/OperatingSystemView.vala b/src/Views/OperatingSystemView.vala
-index ebfd28eb..b94ae18b 100644
+index b94ae18b..ebfd28eb 100644
 --- a/src/Views/OperatingSystemView.vala
 +++ b/src/Views/OperatingSystemView.vala
-@@ -373,10 +373,6 @@ public class About.OperatingSystemView : Gtk.Box {
+@@ -373,6 +373,10 @@ public class About.OperatingSystemView : Gtk.Box {
                          details.packages.length
                      ).printf (details.packages.length);
  
--                    if (Pk.Info.SECURITY in details.info) {
--                        updates_image.icon_name = "software-update-urgent";
--                    }
--
++                    if (Pk.Info.SECURITY in details.info) {
++                        updates_image.icon_name = "software-update-urgent";
++                    }
++
                      packages.splice (0, packages.get_n_items (), details.packages);
                  } catch (Error e) {
                      updates_description.label = _("Unable to determine number of updates");
 diff --git a/src/meson.build b/src/meson.build
-index bc8da285..5c4edf49 100644
+index 5c4edf49..bc8da285 100644
 --- a/src/meson.build
 +++ b/src/meson.build
-@@ -38,7 +38,6 @@ shared_module(
+@@ -38,6 +38,7 @@ shared_module(
          dependency('gtk4'),
          dependency('libadwaita-1'),
          dependency('libgtop-2.0'),
--        dependency('packagekit-glib2'),
++        dependency('packagekit-glib2'),
          dependency('gudev-1.0'),
          dependency('udisks2'),
          appstream_dep,
-"""
