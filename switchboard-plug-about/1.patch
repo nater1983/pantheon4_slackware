@@ -14,31 +14,6 @@ This reverts commit 023f86b9e97c192d4f649ba788d660fb5e77582c.
  src/meson.build                    | 1 -
  5 files changed, 0 insertions(+), 8 deletions(-)
 
-diff --git a/.github/workflows/main.yml b/.github/workflows/main.yml
-index 8bcc9b19..de240b91 100644
---- a/.github/workflows/main.yml
-+++ b/.github/workflows/main.yml
-@@ -23,7 +23,6 @@ jobs:
-       - name: Install Dependencies
-         run: |
-           apt update
--          apt install -y meson libadwaita-1-dev libfwupd-dev libgranite-7-dev libgtk-4-dev libgtop2-dev libgudev-1.0-dev libudisks2-dev libswitchboard-3-dev libappstream-dev libpackagekit-glib2-dev valac
-+          apt install -y meson libadwaita-1-dev libfwupd-dev libgranite-7-dev libgtk-4-dev libgtop2-dev libgudev-1.0-dev libudisks2-dev libswitchboard-3-dev libappstream-dev valac
-       - name: Build
-         env:
-           DESTDIR: out
-diff --git a/README.md b/README.md
-index 30c0432a..7e124621 100644
---- a/README.md
-+++ b/README.md
-@@ -16,7 +16,6 @@ You'll need the following dependencies:
- * libudisks2-dev
- * libadwaita-1-dev
- * libappstream-dev
--* libpackagekit-glib2-dev
- * meson
- * valac
- * switcheroo-control (at runtime)
 diff --git a/src/DBus/SystemUpdate.vala b/src/DBus/SystemUpdate.vala
 index 5e9a16ca..4929a5c2 100644
 --- a/src/DBus/SystemUpdate.vala
