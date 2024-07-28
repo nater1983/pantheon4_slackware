@@ -1,3 +1,57 @@
+From 24819926a736c3e2c15b8e919aaadeb19f6c54b5 Mon Sep 17 00:00:00 2001
+From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
+Date: Sun, 28 Jul 2024 11:34:41 -0500
+Subject: [PATCH] Update HardwareView.vala
+
+---
+ src/Views/HardwareView.vala | 30 +++++++++++++++++++-----------
+ 1 file changed, 19 insertions(+), 11 deletions(-)
+
+diff --git a/src/Views/HardwareView.vala b/src/Views/HardwareView.vala
+index dadc075..976d66f 100644
+--- a/src/Views/HardwareView.vala
++++ b/src/Views/HardwareView.vala
+@@ -573,20 +573,28 @@ public class About.HardwareView : Gtk.Box {
+         string replacement;
+     }
+ 
+-    private void get_system_interface_instance () {
+-        if (system_interface == null) {
+-            try {
+-                system_interface = Bus.get_proxy_sync (
+-                    BusType.SYSTEM,
+-                    "org.freedesktop.hostname1",
+-                    "/org/freedesktop/hostname1"
+-                );
+-            } catch (GLib.Error e) {
+-                warning ("%s", e.message);
+-            }
++private void get_system_interface_instance() {
++    if (system_interface == null) {
++        try {
++            system_interface = Bus.get_proxy_sync(
++                BusType.SYSTEM,
++                "org.freedesktop.hostname1",
++                "/org/freedesktop/hostname1"
++            );
++        } catch (GLib.Error e) {
++            warning("%s", e.message);
+         }
+     }
+ 
++    // Read hostname from /etc/HOSTNAME
++    try {
++        String hostname = new String(Files.readAllBytes(Paths.get("/etc/HOSTNAME"))).trim();
++        System.out.println("Hostname from /etc/HOSTNAME: " + hostname);
++    } catch (IOException e) {
++        warning("Error reading /etc/HOSTNAME: %s", e.getMessage());
++    }
++}
++
+     private void request_hostname_permission () {
+         if (hostname_permission != null) {
+             return;
+
 From 31b786a141514d153cd4f66ce14bb5590d5e4675 Mon Sep 17 00:00:00 2001
 From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
 Date: Sun, 24 Dec 2023 21:33:25 -0600
