@@ -22,13 +22,13 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://github.com/elementary/files/archive/6.5.3/files-6.5.3.tar.gz
+wget -c https://github.com/elementary/files/archive/7.0.0/files-7.0.0.tar.gz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=pantheon-files
 SRCNAM=files
-VERSION=${VERSION:-6.5.3}
+VERSION=${VERSION:-7.0.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
