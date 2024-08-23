@@ -22,13 +22,13 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://github.com/elementary/applications-menu/archive/2.11.1/applications-menu-2.11.1.tar.gz
+wget -c https://github.com/elementary/applications-menu/archive/8.0.0/applications-menu-8.0.0.tar.gz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=pantheon-applications-menu
 SRCNAM=applications-menu
-VERSION=${VERSION:-2.11.1}
+VERSION=${VERSION:-8.0.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
