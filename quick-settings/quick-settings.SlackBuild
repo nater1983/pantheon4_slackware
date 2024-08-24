@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Slackware build script for elementary-quick-settings 
+# Slackware build script for quick-settings 
 
 # Copyright 2021-2024 Frank Honolka <slackernetuk@gmail.com>
 # All rights reserved.
@@ -26,8 +26,7 @@ wget -c https://github.com/elementary/quick-settings/archive/1.0.0/quick-setting
 
 cd $(dirname $0) ; CWD=$(pwd)
 
-PRGNAM=elementary-quick-settings
-SRCNAM=quick-settings
+PRGNAM=quick-settings
 VERSION=${VERSION:-1.0.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
@@ -69,9 +68,9 @@ set -e
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-rm -rf $SRCNAM-$VERSION
-tar xvf $CWD/$SRCNAM-$VERSION.tar.gz
-cd $SRCNAM-$VERSION
+rm -rf $PRGNAM-$VERSION
+tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
+cd $PRGNAM-$VERSION
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
