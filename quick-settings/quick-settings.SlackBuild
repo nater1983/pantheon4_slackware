@@ -73,6 +73,7 @@ tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
 cd $PRGNAM-$VERSION
 sed -i '/packagekit_dep/d' src/meson.build
 sed -i "/packagekit_dep = dependency('packagekit-glib2')/d" meson.build
+sed -i '182,205d' src/Widgets/EndSessionDialog.vala
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
