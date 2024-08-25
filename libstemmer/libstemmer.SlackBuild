@@ -70,9 +70,9 @@ set -e
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-rm -rf $SRCNAM
+rm -rf $SRCNAM-$VERSION
 tar xfv $CWD/$SRCNAM-$VERSION.tar.gz
-cd $SRCNAM
+cd $SRCNAM-$VERSION
 patch -Np1 -i $CWD/libstemmer_c-shared-library.patch
 chown -R root:root .
 find -L . \
