@@ -23,12 +23,12 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://download-fallback.gnome.org/sources/gnome-settings-daemon/45/gnome-settings-daemon-45.1.tar.xz
+wget -c https://download-fallback.gnome.org/sources/gnome-settings-daemon/46/gnome-settings-daemon-46.0.tar.xz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=gnome-settings-daemon
-VERSION=${VERSION:-45.1}
+VERSION=${VERSION:-46.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
