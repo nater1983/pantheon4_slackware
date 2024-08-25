@@ -72,9 +72,8 @@ cd $TMP
 rm -rf $SRCNAM-$VERSION
 tar xvf $CWD/$SRCNAM-$VERSION.tar.gz
 cd $SRCNAM-$VERSION
-use accessibility || sed -i -e "/orca/d" session/meson.build
-use accessibility || sed -i -e "/onboard/d" session/meson.build
-use gnome-keyring || sed -i -e "/gnome-keyring/d" session/meson.build
+sed -i 's/^Name=Compatibility Session/Name=Pantheon on X11/' xsessions/pantheon.desktop.in
+sed -i 's/^Name=Secure Session/Name=Pantheon on Wayland/' wayland-sessions/pantheon-wayland.desktop.in
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
@@ -93,7 +92,7 @@ cd build
     --prefix=/usr \
     --sysconfdir=/etc \
     -Dwayland=true \
-		-Dsystemd=false \
+    -Dsystemd=false \
     -Dfallback-session=gnome
   "${NINJA:=ninja}"
   DESTDIR=$PKG $NINJA install
