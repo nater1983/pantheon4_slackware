@@ -22,7 +22,7 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c pantheon-tweaks/pantheon-tweaks/archive/a324a93b1c0eaaa904f24a814a3c28f03d04a27d/pantheon-tweaks-a324a93b1c0eaaa904f24a814a3c28f03d04a27d.tar.gz
+wget -c https://github.com/pantheon-tweaks/pantheon-tweaks/archive/a324a93b1c0eaaa904f24a814a3c28f03d04a27d/pantheon-tweaks-a324a93b1c0eaaa904f24a814a3c28f03d04a27d.tar.gz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
