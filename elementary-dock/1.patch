@@ -14,7 +14,7 @@ new file mode 100644
 index 00000000..913f893c
 --- /dev/null
 +++ b/data/dock.desktop
-@@ -0,0 +1,17 @@
+@@ -0,0 +1,16 @@
 +[Desktop Entry]
 +Version=1.0
 +Type=Application
@@ -29,8 +29,7 @@ index 00000000..913f893c
 +NoDisplay=true
 +StartupNotify=true
 +X-GNOME-AutoRestart=true
-+X-GNOME-Autostart-Notify=true
-+X-GNOME-Autostart-Phase=Desktop
++X-GNOME-Autostart-Notify=false
 +OnlyShowIn=Pantheon
 diff --git a/data/meson.build b/data/meson.build
 index 557866e6..35453c26 100644
@@ -45,24 +44,3 @@ index 557866e6..35453c26 100644
 +    'dock.desktop',
 +    install_dir: get_option('sysconfdir') / 'xdg' / 'autostart'
 +)
-From 1911638a91d317fa9d5c30cd124fa4ab98b96e87 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Danielle=20For=C3=A9?= <danielle@elementary.io>
-Date: Thu, 9 Nov 2023 14:11:04 -0800
-Subject: [PATCH] Update dock.desktop
-
----
- data/dock.desktop | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/data/dock.desktop b/data/dock.desktop
-index 913f893c..0522f0d6 100644
---- a/data/dock.desktop
-+++ b/data/dock.desktop
-@@ -12,6 +12,5 @@ Terminal=false
- NoDisplay=true
- StartupNotify=true
- X-GNOME-AutoRestart=true
--X-GNOME-Autostart-Notify=true
--X-GNOME-Autostart-Phase=Desktop
-+X-GNOME-Autostart-Notify=false
- OnlyShowIn=Pantheon
