@@ -22,12 +22,12 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://download.gnome.org/sources/libdex/0.4/libdex-0.4.1.tar.xz
+wget -c https://download.gnome.org/sources/libdex/0.6/libdex-0.6.1.tar.xz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=libdex
-VERSION=${VERSION:-0.4.1}
+VERSION=${VERSION:-0.6.1}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
