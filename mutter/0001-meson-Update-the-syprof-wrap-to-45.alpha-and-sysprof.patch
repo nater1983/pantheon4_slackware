@@ -4,17 +4,18 @@ Date: Fri, 28 Jul 2023 16:23:00 +0300
 Subject: [PATCH] meson: Update the syprof wrap to 45.alpha and sysprof-6
 
 ---
- meson.build              | 28 +++++++++++++++++++++++-----
+ meson.build | 31 +++++++++++++++++++++++--------
  subprojects/libdex.wrap  |  7 +++++++
  subprojects/sysprof.wrap |  5 ++++-
  3 files changed, 34 insertions(+), 6 deletions(-)
  create mode 100644 subprojects/libdex.wrap
 
+
 diff --git a/meson.build b/meson.build
-index 80e1fc70e0..1e9e5601cb 100644
+index abef74c6a9..dcb5afa208 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -57,7 +57,7 @@ gbm_req = '>= 21.3'
+@@ -57,7 +57,7 @@ libdrm_req = '>= 2.4.95'
  libpipewire_req = '>= 0.3.33'
  
  # profiler requirements
@@ -23,7 +24,7 @@ index 80e1fc70e0..1e9e5601cb 100644
  
  gnome = import('gnome')
  pkg = import('pkgconfig')
-@@ -420,8 +420,28 @@ endif
+@@ -424,9 +424,28 @@ endif
  
  have_profiler = get_option('profiler')
  if have_profiler
@@ -48,27 +49,31 @@ index 80e1fc70e0..1e9e5601cb 100644
 +
    # libsysprof-capture support
    libsysprof_capture_dep = dependency('sysprof-capture-4',
+-    required: true,
 +    version: sysprof_req,
-     required: true,
      default_options: [
        'examples=false',
-@@ -432,14 +452,12 @@ if have_profiler
+       'gtk=false',
+@@ -436,16 +455,13 @@ if have_profiler
        'sysprofd=none',
        'help=false',
      ],
 -    fallback: ['sysprof', 'libsysprof_capture_dep'],
+-    version: sysprof_req,
    )
  
 -  if libsysprof_capture_dep.type_name() == 'pkgconfig'
 -    sysprof_dep = dependency('sysprof-6', 'sysprof-4')
-+if sysprof_dep.type_name() == 'pkgconfig'
++  if sysprof_dep.type_name() == 'pkgconfig'
      sysprof_dbus_interfaces_dir = sysprof_dep.get_variable('datadir') / 'dbus-1' / 'interfaces'
    else
 -    sysprof_dbus_interfaces_dir = mutter_srcdir / 'subprojects' / 'sysprof' / 'src'
+-  endif
 +    sysprof_dbus_interfaces_dir = mutter_srcdir / 'subprojects' / 'sysprof' / 'src' / 'sysprofd'
-   endif
++  endif
  endif
  
+ required_functions = [
 diff --git a/subprojects/libdex.wrap b/subprojects/libdex.wrap
 new file mode 100644
 index 000000000..528c3cddb
