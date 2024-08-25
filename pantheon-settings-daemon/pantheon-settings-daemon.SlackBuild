@@ -93,6 +93,7 @@ cd build
     --prefix=/usr \
     --sysconfdir=/etc \
     -Dstrip=true \
+		-Dubuntu_drivers=false \
     -Dsystemdsystemunitdir=no \
     -Dsystemduserunitdir=no
   "${NINJA:=ninja}"
