@@ -23,13 +23,13 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://dev.gentoo.org/~graaff/libstemmer_c-20140325.tgz
+wget -c https://github.com/snowballstem/snowball/archive/v2.2.0/snowball-2.2.0.tar.gz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=libstemmer
-SRCNAM=libstemmer_c
-VERSION=${VERSION:-20140325}
+SRCNAM=snowball
+VERSION=${VERSION:-2.2.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
