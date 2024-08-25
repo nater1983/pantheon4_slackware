@@ -71,6 +71,9 @@ cd $TMP
 rm -rf $PRGNAM-$VERSION
 tar xfv $CWD/$PRGNAM-$VERSION.tar.?z*
 cd $PRGNAM-$VERSION
+patch -Np1 -i $CWD/0002-sharing-fix-building-without-systemd.patch 
+patch -Np1 -i $CWD/keyboard-Use-ibus-sources-from-locale.patch
+patch -Np1 -i $CWD/keyboard-sync-input-sources-to-accountsservice.patch
 chown -R root:root .
 find -L . -prune -name 'subprojects/gvc/.gitlab-ci' \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
@@ -89,21 +92,26 @@ sed -e 's/libsystemd/libelogind/' \
 sed -e 's/(backlight->logind_proxy)/(0)/' \
     -i plugins/power/gsd-backlight.c
 
-mkdir -p build
+mkdir build
 cd build
-CFLAGS="$SLKCFLAGS" \
-CXXFLAGS="$SLKCFLAGS" \
-meson setup ..\
- --prefix=/usr \
- --buildtype=release \
- --libdir=lib${LIBDIRSUFFIX} \
- --libexecdir=/usr/libexec \
- --sysconfdir=/etc \
- --infodir=/usr/info \
- --mandir=/usr/man \
- --localstatedir=/var \
- -Ddefault_library=shared \
- -Dsystemd=false
+  CFLAGS="$SLKCFLAGS" \
+  CXXFLAGS="$SLKCFLAGS" \
+  meson setup .. \
+    --buildtype=release \
+    --infodir=/usr/info \
+    --libdir=/usr/lib${LIBDIRSUFFIX} \
+    --libexecdir=/usr/libexec \
+    --datadir=/usr/share \
+    --bindir=/usr/bin \
+    --sbindir=/usr/sbin \
+    --includedir=/usr/include \
+    --localstatedir=/var \
+    --mandir=/usr/man \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    -Ddefault_library=shared \
+    -Dsystemd=false \
+    -Dstrip=true
   "${NINJA:=ninja}"
   DESTDIR=$PKG $NINJA install
 cd ..
