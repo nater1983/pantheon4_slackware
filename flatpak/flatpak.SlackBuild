@@ -25,12 +25,12 @@
 # 20220307 bkw: Modified by SlackBuilds.org, BUILD=2:
 # - remove useless INSTALL and ABOUT-NLS from doc dir.
 
-wget -c https://github.com/flatpak/flatpak/releases/download/1.14.1/flatpak-1.14.1.tar.xz
+wget -c https://github.com/flatpak/flatpak/releases/download/1.14.10/flatpak-1.14.10.tar.xz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=flatpak
-VERSION=${VERSION:-1.14.1}
+VERSION=${VERSION:-1.14.10}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
