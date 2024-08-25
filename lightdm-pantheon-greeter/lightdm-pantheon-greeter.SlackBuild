@@ -22,13 +22,14 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://github.com/elementary/greeter/archive/7.0.0/greeter-7.0.0.tar.gz
+wget -c https://github.com/elementary/greeter/archive/f009ffae4fa03a59fba6e0f6ac9a35f8253a32f5/greeter-f009ffae4fa03a59fba6e0f6ac9a35f8253a32f5.tar.gz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=lightdm-pantheon-greeter
 SRCNAM=greeter
-VERSION=${VERSION:-7.0.0}
+VERSION=${VERSION:-20240825.f009ffa}
+_commit=f009ffae4fa03a59fba6e0f6ac9a35f8253a32f5
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
@@ -69,10 +70,9 @@ set -e
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-rm -rf $SRCNAM-$VERSION
-tar xvf $CWD/$SRCNAM-$VERSION.tar.?z*
-cd $SRCNAM-$VERSION
-patch -Np1 -i $CWD/1.patch
+rm -rf $SRCNAM-$_commit
+tar xvf $CWD/$SRCNAM-$_commit.tar.?z*
+cd $SRCNAM-$_commit
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
