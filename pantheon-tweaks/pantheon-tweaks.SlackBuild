@@ -22,12 +22,13 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://github.com/pantheon-tweaks/pantheon-tweaks/archive/2.0.2/pantheon-tweaks-2.0.2.tar.gz
+wget -c pantheon-tweaks/pantheon-tweaks/archive/a324a93b1c0eaaa904f24a814a3c28f03d04a27d/pantheon-tweaks-a324a93b1c0eaaa904f24a814a3c28f03d04a27d.tar.gz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=pantheon-tweaks
-VERSION=${VERSION:-2.0.2}
+VERSION=${VERSION:-20240825.a324a93}
+_commit=a324a93b1c0eaaa904f24a814a3c28f03d04a27d
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
@@ -68,9 +69,9 @@ set -e
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-rm -rf $PRGNAM-$VERSION
-tar xvf $CWD/$PRGNAM-$VERSION.tar.?z*
-cd $PRGNAM-$VERSION
+rm -rf $PRGNAM-$_commit
+tar xvf $CWD/$PRGNAM-$_commit.tar.?z*
+cd $PRGNAM-$_commit
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
