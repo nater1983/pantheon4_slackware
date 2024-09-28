@@ -16,10 +16,6 @@ _The Slackware Linux Project_<br><br><br>
 1. We need to add some groups and users for our Pantheon DE:
 
 ```
-groupadd -g 214 avahi
-useradd -u 214 -g 214 -c "Avahi User" -d /dev/null -s /bin/false avahi
-groupadd -g 303 colord
-useradd -d /var/lib/colord -u 303 -g colord -s /bin/false colord
 groupadd -g 363 sanlock
 useradd -u 363 -d /var/run/sanlock -s /bin/false -g sanlock sanlock
 usermod -a -G disk sanlock
