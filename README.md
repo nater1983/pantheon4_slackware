@@ -13,7 +13,7 @@ _The Slackware Linux Project_<br><br><br>
 
 <h2>Configuration</h2>
 
-1. We need to add some groups and users for our Pantheon DE:
+**1. We need to add some groups and users for our Pantheon DE:**
 
 ```
 groupadd -g 363 sanlock
@@ -25,18 +25,14 @@ groupadd -g 365 lightdm
 useradd  -c "Lightdm Daemon" -d /var/lib/lightdm -u 365 -g lightdm -s /bin/false lightdm
 ```
 
-**5. We also need to mark our new created /etc/rc.d/rc.local_shutdown file as executable**
-
-`chmod +x /etc/rc.d/rc.local_shutdown`
-
-**6. Edit your /etc/inittab to go 4 runlevel**
+**2. Edit your /etc/inittab to go 4 runlevel**
 
 from:
 `id:3:initdefault:`
 to
 `id:4:initdefault:`
 
-**7. Add lightdm and make sure lightdm is the first one to run in the /etc/rc.d/rc.4**
+**3. Add lightdm and make sure lightdm is the first one to run in the /etc/rc.d/rc.4**
 
 ```
 # to use lightdm  by default:
@@ -44,7 +40,7 @@ if [ -x /usr/bin/lightdm ]; then
   exec /usr/bin/lightdm
 fi
 ```
-**8. Edit your /etc/lightdm/lightdm.conf file to use Pantheon greeter by default.**
+**4. Edit your /etc/lightdm/lightdm.conf file to use Pantheon greeter by default.**
 
 In the `[Seat:*]` section uncomment and change<br>
 <br>`#greeter-session=example-gtk-gnome`<br>to<br>`greeter-session=io.elementary.greeter`<br><br>
