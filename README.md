@@ -32,7 +32,7 @@ from:
 to
 `id:4:initdefault:`
 
-**3. Add lightdm and make sure lightdm is the first one to run in the /etc/rc.d/rc.4**
+**3. Add lightdm and make sure lightdm is the first one to run in the /etc/rc.d/rc.4.local**
 
 ```
 # to use lightdm  by default:
