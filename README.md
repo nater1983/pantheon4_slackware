@@ -29,32 +29,6 @@ groupadd -g 365 lightdm
 useradd  -c "Lightdm Daemon" -d /var/lib/lightdm -u 365 -g lightdm -s /bin/false lightdm
 ```
 
-**2. Avahi need to be run at boot, so edit your /etc/rc.d/rc.local adding these lines:**
-
-```
-# Start avahidaemon
-if [ -x /etc/rc.d/rc.avahidaemon ]; then
- /etc/rc.d/rc.avahidaemon start
-fi
-# Start avahidnsconfd
-if [ -x /etc/rc.d/rc.avahidnsconfd ]; then
-  /etc/rc.d/rc.avahidnsconfd start
-fi
-```
-
-**4. Also stop Avahi at shutdown, so edit your /etc/rc.d/rc.local_shutdown adding these lines:**
-
-```
-# Stop avahidnsconfd
-if [ -x /etc/rc.d/rc.avahidnsconfd ]; then
-  /etc/rc.d/rc.avahidnsconfd stop
-fi
-# Stop avahidaemon
-if [ -x /etc/rc.d/rc.avahidaemon ]; then
-  /etc/rc.d/rc.avahidaemon stop
-fi
-```
-
 **5. We also need to mark our new created /etc/rc.d/rc.local_shutdown file as executable**
 
 `chmod +x /etc/rc.d/rc.local_shutdown`
