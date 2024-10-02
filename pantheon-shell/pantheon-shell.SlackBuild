@@ -72,7 +72,7 @@ cd $TMP
 rm -rf $SRCNAM-$VERSION
 tar xvf $CWD/$SRCNAM-$VERSION.tar.gz
 cd $SRCNAM-$VERSION
-sed -i 's/^Name=Compatibility Session/Name=Pantheon on X11/' xsessions/pantheon.desktop.in
+sed -i 's/^Name=Classic Session/Name=Pantheon on X11/' xsessions/pantheon.desktop.in
 sed -i 's/^Name=Secure Session/Name=Pantheon on Wayland/' wayland-sessions/pantheon-wayland.desktop.in
 chown -R root:root .
 find -L . \
