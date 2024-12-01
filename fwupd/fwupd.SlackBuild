@@ -84,23 +84,40 @@ mkdir build
 cd build
   CFLAGS="$SLKCFLAGS" \
   CXXFLAGS="$SLKCFLAGS" \
-  meson setup ..\
+  meson setup .. \
+    --buildtype=release \
+    --infodir=/usr/info \
+    --libdir=/usr/lib${LIBDIRSUFFIX} \
+    --libexecdir=/usr/libexec \
+    --datadir=/usr/share \
+    --bindir=/usr/bin \
+    --sbindir=/usr/sbin \
+    --includedir=/usr/include \
+    --localstatedir=/var \
+    --mandir=/usr/man \
     --prefix=/usr \
     --sysconfdir=/etc \
-    --localstatedir=/var \
-    --libexecdir=/usr/libexec \
-    --buildtype=release \
-    --mandir=/usr/man \
-    -Dstrip=true \
+    -Dtests=false \
+    -Dumockdev_tests=disabled \
+    -Dvendor_ids_dir=/usr/share/hwdata/ \
+    -Db_lto=true \
     -Dbuild=all \
-    -Defi_binary=false \
-    -Dlzma=true \
-    -Dplugin_flashrom=false \
-    -Dplugin_modem_manager=true \
-    -Dplugin_tpm=false \
-    -Dsupported_build=true \
-    -Dsystemd=false \
-    -Dgcab:docs=false
+    -Dconsolekit=disabled \
+    -Delogind=enabled \
+    -Dfirmware-packager=true \
+    -Dgcab:docs=false \
+    -Dhsi=enabled \
+    -Dlvfs=true \
+    -Dman=true \
+    -Dpassim=disabled \
+    -Defi_binary=true \
+    -Dplugin_amdgpu=enabled \
+    -Dplugin_redfish=disabled \
+    -Dplugin_flashrom=disabled \
+    -Dplugin_uefi_capsule=$uefi_capsule \
+    -Dsupported_build=enabled \
+    -Dsystemd=disabled \
+    -Dstrip=true
   "${NINJA:=ninja}"
   DESTDIR=$PKG $NINJA install
 cd ..
