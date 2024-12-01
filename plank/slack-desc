@@ -16,4 +16,4 @@ plank: dock programs with more advanced features.
 plank:
 plank: Home page: https://launchpad.net/plank
 plank:
-plank:
+plank: "Please only install either elementary-dock or plank, but not both."
