@@ -80,7 +80,7 @@ find -L . \
 
 mkdir -p build
 cd build
-
+export LDFLAGS="-L/usr/lib64/icu -licuuc -licui18n"
 cmake .. \
  -DCMAKE_C_FLAGS:STRING="$SLKCFLAGS" \
  -DCMAKE_CXX_FLAGS:STRING="$SLKCFLAGS" \
