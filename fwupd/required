@@ -1,10 +1,6 @@
-gcab
-libgusb
 libxmlb
-confuse
-libftdi1
-protobuf3
-protobuf-c
-tpm2-tss
+gcab
 libsmbios
-fwupd
+protobuf-c
+python3-pefile
+libjcat
