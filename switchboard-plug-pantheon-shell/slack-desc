@@ -6,14 +6,14 @@
 # customary to leave one space after the ':' except on otherwise blank lines.
 
                                |-----handy-ruler--------------------------------------------------------------------------|
-switchboard-plug-pantheon-shell: switchboard-plug-pantheon-shell ( Switchboard Desktop Plug)
+switchboard-plug-pantheon-shell: switchboard-plug-pantheon-shell (Plug to configure various aspects of the Pantheon DE)
 switchboard-plug-pantheon-shell:
+switchboard-plug-pantheon-shell: The desktop plug is a section in Switchboard, the elementary System Settings app, where
+switchboard-plug-pantheon-shell: users can configure the wallpaper, dock, and hotcorners. In the future the desktop plug
+switchboard-plug-pantheon-shell: might also handle other desktop settings such as the panel, app launcher, and
+switchboard-plug-pantheon-shell: window manager.
 switchboard-plug-pantheon-shell:
 switchboard-plug-pantheon-shell:
 switchboard-plug-pantheon-shell: Homepage: https://github.com/elementary/switchboard-plug-pantheon-shell
-switchboard-plug-pantheon-shell:
-switchboard-plug-pantheon-shell:
-switchboard-plug-pantheon-shell:
-switchboard-plug-pantheon-shell:
 switchboard-plug-pantheon-shell:
 switchboard-plug-pantheon-shell:
