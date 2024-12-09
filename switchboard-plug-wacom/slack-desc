@@ -5,10 +5,15 @@
 # You must make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-     |-----handy-ruler------------------------------------------------------|
-switchboard-plug-wacom: switchboard-plug-wacom ( Switchboard Wacom Plug )
+                      |-----handy-ruler------------------------------------------------------|
+switchboard-plug-wacom: switchboard-plug-wacom (Manage drawing tablets and Wacom devices)
 switchboard-plug-wacom:
-switchboard-plug-wacom:
+switchboard-plug-wacom: Manage drawing tablets and Wacom devices via the Switchboard plugin.
 switchboard-plug-wacom:
 switchboard-plug-wacom: https://github.com/elementary/switchboard-plug-wacom
+switchboard-plug-wacom:
+switchboard-plug-wacom:
+switchboard-plug-wacom:
+switchboard-plug-wacom:
+switchboard-plug-wacom:
 switchboard-plug-wacom:
