@@ -6,12 +6,12 @@
 # customary to leave one space after the ':' except on otherwise blank lines.
 
                         |-----handy-ruler------------------------------------------------------|
-pantheon-settings-daemon: pantheon-settings-daemon ( Default settings for Pantheon )
+pantheon-settings-daemon: pantheon-settings-daemon (A daemon for the Pantheon Desktop)
 pantheon-settings-daemon:
-pantheon-settings-daemon:
+pantheon-settings-daemon: Provides system settings management for the Pantheon Desktop, 
+pantheon-settings-daemon: including power management, input devices, and display configuration.
 pantheon-settings-daemon:
 pantheon-settings-daemon: https://github.com/elementary/settings-daemon.git
-pantheon-settings-daemon:
 pantheon-settings-daemon:
 pantheon-settings-daemon:
 pantheon-settings-daemon:
