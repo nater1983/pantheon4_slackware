@@ -1,0 +1,13 @@
+diff --git a/src/Application.vala b/src/Application.vala
+index 31322ee..75599d0 100644
+--- a/src/Application.vala
++++ b/src/Application.vala
+@@ -137,7 +137,7 @@ public sealed class SettingsDaemon.Application : Gtk.Application {
+             var devices = client.get_devices ();
+ 
+             foreach (unowned var device in devices) {
+-                if (!device.has_flag (Fwupd.DEVICE_FLAG_UPDATABLE)) {
++                if (!device.has_flag (Fwupd.DeviceFlags.UPDATABLE)) {
+                     continue;
+                 }
+ 
