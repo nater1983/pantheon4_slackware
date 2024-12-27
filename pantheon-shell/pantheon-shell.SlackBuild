@@ -92,7 +92,7 @@ cd build
     --localstatedir=/var \
     --prefix=/usr \
     --sysconfdir=/etc \
-    -Dwayland=true \
+    -Dwayland=false \
     -Dsystemd=false \
     -Dfallback-session=gnome
   "${NINJA:=ninja}"
