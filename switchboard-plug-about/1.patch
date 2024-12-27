@@ -32,17 +32,20 @@ diff '--color=auto' -Naur switchboard-plug-about-8.0.0_orig/src/DBus/SystemUpdat
      }
  
      public signal void state_changed ();
-diff '--color=auto' -Naur switchboard-plug-about-8.0.0_orig/src/meson.build switchboard-plug-about-8.0.0/src/meson.build
---- switchboard-plug-about-8.0.0_orig/src/meson.build	2024-07-27 16:42:59.159910518 +0200
-+++ switchboard-plug-about-8.0.0/src/meson.build	2024-07-27 16:43:43.599912549 +0200
-@@ -41,7 +41,6 @@
-         dependency('gtk4'),
+     
+diff --git a/src/meson.build b/src/meson.build
+index 57bd2a4a..5a2b2daa 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -42,7 +42,6 @@ shared_module(
          dependency('libadwaita-1'),
          dependency('libgtop-2.0'),
+         dependency('libsoup-3.0'),
 -        dependency('packagekit-glib2'),
          dependency('gudev-1.0'),
          dependency('udisks2'),
          dependency('polkit-gobject-1'),
+
 diff '--color=auto' -Naur switchboard-plug-about-8.0.0_orig/src/Views/OperatingSystemView.vala switchboard-plug-about-8.0.0/src/Views/OperatingSystemView.vala
 --- switchboard-plug-about-8.0.0_orig/src/Views/OperatingSystemView.vala	2024-07-27 16:42:59.159910518 +0200
 +++ switchboard-plug-about-8.0.0/src/Views/OperatingSystemView.vala	2024-07-27 16:45:15.576583422 +0200
