@@ -1,0 +1,32 @@
+From 67456df83b5c06ffb157f9c6dada517af2fd8a9f Mon Sep 17 00:00:00 2001
+From: calamityjoe87 <117382410+calamityjoe87@users.noreply.github.com>
+Date: Wed, 22 Feb 2023 13:10:32 -0600
+Subject: [PATCH] Cleanup
+
+a little cleanup from last commit
+---
+ src/logic/folderarrangement/FolderArrangement.vala | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/logic/folderarrangement/FolderArrangement.vala b/src/logic/folderarrangement/FolderArrangement.vala
+index c43e897..f546e37 100644
+--- a/src/logic/folderarrangement/FolderArrangement.vala
++++ b/src/logic/folderarrangement/FolderArrangement.vala
+@@ -233,7 +233,7 @@ private class DesktopFolder.Organize.Thread {
+                     } else {
+                             // use reverse logic to set create new items from right to left
+                             if (cursor_x > cursor_x + margin) {
+-                                 if (cursor_x + DesktopFolder.ICON_DEFAULT_WIDTH + margin > width) {
++                                if (cursor_x + DesktopFolder.ICON_DEFAULT_WIDTH + margin > width) {
+                                     cursor_y = cursor_y + DesktopFolder.ICON_DEFAULT_WIDTH + padding;
+                                     cursor_x = margin;
+                                 }
+@@ -241,7 +241,7 @@ private class DesktopFolder.Organize.Thread {
+                                     cursor_x = margin - reverse_cursor;
+                                     margin = cursor_x;
+                                     cursor_y = 0;
+-                                }
++                            }
+                     }
+                 }
+             }

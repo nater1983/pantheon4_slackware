@@ -1,0 +1,59 @@
+From 2869ac6057670710b0b1e0976a85a27e197cef26 Mon Sep 17 00:00:00 2001
+From: calamityjoe87 <117382410+calamityjoe87@users.noreply.github.com>
+Date: Fri, 24 Feb 2023 12:55:44 -0600
+Subject: [PATCH] Fix (finally) horizontal layout bug
+
+Fix the bug when icons are forced right but we have a horizontal layout.
+---
+ .../folderarrangement/FolderArrangement.vala  | 25 +++++++++----------
+ 1 file changed, 12 insertions(+), 13 deletions(-)
+
+diff --git a/src/logic/folderarrangement/FolderArrangement.vala b/src/logic/folderarrangement/FolderArrangement.vala
+index f546e37..9cb82a5 100644
+--- a/src/logic/folderarrangement/FolderArrangement.vala
++++ b/src/logic/folderarrangement/FolderArrangement.vala
+@@ -186,6 +186,7 @@ private class DesktopFolder.Organize.Thread {
+             int cursor_x = margin;
+             int cursor_y = 0;
+             int reverse_cursor = 100;
++            int left_bounds = 200;
+             int padding  = parent_window.get_manager ().get_settings ().arrangement_padding;
+             Gee.HashMap <string, ItemSettings> managed_items = parent_window.get_manager ().get_settings ().get_items_parsed ();
+             Gee.List <Organize.ItemMove>       item_moves    = new Gee.ArrayList <Organize.ItemMove>();
+@@ -223,25 +224,23 @@ private class DesktopFolder.Organize.Thread {
+                         cursor_y = 0;
+                     }
+                 } else {
+-                    cursor_x = cursor_x + DesktopFolder.ICON_DEFAULT_WIDTH + padding;
+                     if (!checkright) {
++                        cursor_x = cursor_x + DesktopFolder.ICON_DEFAULT_WIDTH + padding;
+                         if (cursor_x + DesktopFolder.ICON_DEFAULT_WIDTH + margin > width) {
+-                            // we need to move to the next rows
++                            // we need to move to the next row
+                             cursor_x = margin;
+                             cursor_y = cursor_y + DesktopFolder.ICON_DEFAULT_WIDTH + padding;
+                         }
+                     } else {
+-                            // use reverse logic to set create new items from right to left
+-                            if (cursor_x > cursor_x + margin) {
+-                                if (cursor_x + DesktopFolder.ICON_DEFAULT_WIDTH + margin > width) {
+-                                    cursor_y = cursor_y + DesktopFolder.ICON_DEFAULT_WIDTH + padding;
+-                                    cursor_x = margin;
+-                                }
+-                            } else {
+-                                    cursor_x = margin - reverse_cursor;
+-                                    margin = cursor_x;
+-                                    cursor_y = 0;
+-                            }
++                        // reverse logic when moving right to left. create bounds to stop cursor_x from moving off screen.
++                        if (cursor_x + DesktopFolder.ICON_DEFAULT_WIDTH + padding < left_bounds) {
++                            cursor_x = width - reverse_cursor;
++                            cursor_y = cursor_y + DesktopFolder.ICON_DEFAULT_WIDTH + padding;
++                        } else {
++                            // set margin then move cursor_x left
++                            margin = cursor_x;
++                            cursor_x = cursor_x - reverse_cursor;
++                        }
+                     }
+                 }
+             }

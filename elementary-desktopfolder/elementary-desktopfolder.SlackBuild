@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# Slackware build script for switchboard-plug-notifications 
+# Slackware build script for elementary-desktopfolder
 
-# Copyright 2021-2025 Frank Honolka <slackernetuk@gmail.com>
+# Copyright 2023 Nathaniel Russell <naterussell83@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -22,12 +22,14 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://github.com/elementary/switchboard-plug-notifications/archive/8.0.0/switchboard-plug-notifications-8.0.0.tar.gz
+wget -c https://github.com/calamityjoe87/desktopfolder/archive/v1.1.4-1/desktopfolder-1.1.4-1.tar.gz 
 
 cd $(dirname $0) ; CWD=$(pwd)
 
-PRGNAM=switchboard-plug-notifications
-VERSION=${VERSION:-8.0.0}
+PRGNAM=elementary-desktopfolder
+SRCNAM=desktopfolder
+VERSION=${VERSION:-1.1.4}
+SRCVER=1.1.4-1
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
@@ -56,7 +58,7 @@ elif [ "$ARCH" = "i686" ]; then
   SLKCFLAGS="-O2 -march=i686 -mtune=i686"
   LIBDIRSUFFIX=""
 elif [ "$ARCH" = "x86_64" ]; then
-  SLKCFLAGS="-O2 -march=x86-64 -mtune=generic -fPIC"
+  SLKCFLAGS="-O2 -fPIC"
   LIBDIRSUFFIX="64"
 else
   SLKCFLAGS="-O2"
@@ -68,9 +70,13 @@ set -e
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-rm -rf $PRGNAM-$VERSION
-tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
-cd $PRGNAM-$VERSION
+rm -rf $SRCNAM-$SRCVER
+tar xvf $CWD/$SRCNAM-$SRCVER.tar.?z*
+cd $SRCNAM-$SRCVER
+patch -Np1 -i $CWD/use-gtksourceview-4.patch
+patch -Np1 -i $CWD/7b80b1b64c1d367adc8e8207d73bf966d110f93b.patch
+patch -Np1 -i $CWD/67456df83b5c06ffb157f9c6dada517af2fd8a9f.patch
+patch -Np1 -i $CWD/2869ac6057670710b0b1e0976a85a27e197cef26.patch
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
@@ -104,7 +110,7 @@ for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; r
 fi
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a COPYING  README.md \
+cp -a CODE_OF_CONDUCT.md LICENSE README.md ISSUE_TEMPLATE.md CONTRIBUTING.md AUTHORS.md \
     $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 

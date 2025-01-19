@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.
+# Line up the first '|' above the ':' following the base package name, and
+# the '|' on the right side marks the last column you can put a character in.
+# You must make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                        |-----handy-ruler----------------------------------------------------------|
+elementary-desktopfolder: elementary-desktopfolder ( Desktopfolder for the Pantheon DE )
+elementary-desktopfolder:
+elementary-desktopfolder: Bring your Desktop Back to Life 
+elementary-desktopfolder: Organize your desktop with panels that hold your things.
+elementary-desktopfolder: * Access files, folders and apps from your desktop
+elementary-desktopfolder: * Drop files, folders, links and .desktop launchers inside panels
+elementary-desktopfolder: * Resize, position and color panels
+elementary-desktopfolder: * Display photos and keep notes on your desktop
+elementary-desktopfolder: * Reveal the desktop with ⌘-D
+elementary-desktopfolder:
+elementary-desktopfolder: Homepage: https://github.com/calamityjoe87/desktopfolder
