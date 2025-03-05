@@ -24,15 +24,14 @@ index a5767f0c..4e4a7a9f 100644
 diff '--color=auto' -Naur switchboard-plug-about-8.0.0_orig/src/DBus/SystemUpdate.vala switchboard-plug-about-8.0.0/src/DBus/SystemUpdate.vala
 --- switchboard-plug-about-8.0.0_orig/src/DBus/SystemUpdate.vala	2024-07-27 16:42:59.159910518 +0200
 +++ switchboard-plug-about-8.0.0/src/DBus/SystemUpdate.vala	2024-07-27 16:44:12.906580557 +0200
-@@ -17,7 +17,6 @@
+@@ -19,7 +19,6 @@
      public struct UpdateDetails {
          string[] packages;
-         int size;
+         uint64 size;
 -        Pk.Info[] info;
      }
  
      public signal void state_changed ();
-     
 diff --git a/src/meson.build b/src/meson.build
 index 57bd2a4a..5a2b2daa 100644
 --- a/src/meson.build
