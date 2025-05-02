@@ -22,13 +22,13 @@
 #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-wget -c https://github.com/elementary/appcenter/archive/7.4.0/appcenter-7.4.0.tar.gz
+wget -c https://github.com/elementary/appcenter/archive/8.2.0/appcenter-8.2.0.tar.gz
 
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=elementary-appcenter
 SRCNAM=appcenter
-VERSION=${VERSION:-7.4.0}
+VERSION=${VERSION:-8.2.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_psb}
 PKGTYPE=${PKGTYPE:-txz}
