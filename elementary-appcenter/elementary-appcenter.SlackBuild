@@ -92,8 +92,6 @@ cd build
     --sysconfdir=/etc \
     -Dstrip=true \
     -Dhide_upstream_distro_apps=true \
-    -Dubuntu_drivers_backend=false \
-    -Dpackagekit_backend=false \
     -Dpayments=false 
   "${NINJA:=ninja}"
   DESTDIR=$PKG $NINJA install
