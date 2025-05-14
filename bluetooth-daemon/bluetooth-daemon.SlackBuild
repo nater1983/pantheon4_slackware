@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Slackware build script for elementary-code 
+# Slackware build script for bluetooth-daemon
 
 # Copyright 2021-2025 Frank Honolka <slackernetuk@gmail.com>
 # All rights reserved.
