@@ -3,7 +3,7 @@ NOCONFIGURE=1 ./autogen.sh
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
 ./configure \
-    "${GNOME_MAKE_ARGS[@]}" \
+    "${PANTHEON_MAKE_ARGS[@]}" \
     --enable-udev=yes \
    --enable-maintainer-flags=no \
    --enable-debug=yes \
