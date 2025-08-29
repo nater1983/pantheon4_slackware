@@ -22,6 +22,7 @@ CXXFLAGS="$SLKCFLAGS -std=gnu17" \
     --enable-kms-egl-platform \
     --enable-examples-install=no \
     --with-x \
+    --enable-installed-tests=no \
     --disable-glibtest
 make
 make install DESTDIR=$PKG
