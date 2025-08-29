@@ -3,26 +3,39 @@ CXXFLAGS="$SLKCFLAGS -std=gnu17" \
 ./configure \
     "${PANTHEON_MAKE_ARGS[@]}" \
     --docdir=/usr/doc/$PKGNAME-$MODULAR_PACKAGE_VERSION \
-    --enable-glib \
-    --enable-gdk-pixbuf \
-    --enable-cogl-pango \
-    --enable-cogl-gst \
-    --enable-cogl-path \
-    --enable-gles1 \
-    --enable-gles2 \
-    --enable-gl \
-    --enable-cogl-gles2 \
-    --enable-glx \
-    --enable-sdl2 \
-    --enable-gtk-doc=no \
-    --enable-introspection=yes \
-    --enable-xlib-egl-platform \
-    --enable-wayland-egl-server \
-    --enable-wayland-egl-platform \
-    --enable-kms-egl-platform \
-    --enable-examples-install=no \
-    --with-x \
     --enable-installed-tests=no \
+    --enable-emscripten=no \
+    --enable-standalone=no \
+    --enable-debug=no \
+    --enable-unit-tests=no \
+    --enable-cairo=yes\
+    --enable-profile=no \
+    --enable-maintainer-flags=no \
+    --enable-deprecated=yes \
+    --enable-glib=yes \
+    --enable-cogl-pango=yes \
+    --enable-cogl-gst=yes \
+    --enable-cogl-path=yes \
+    --enable-gdk-pixbuf=yes \
+    --enable-quartz-image=no \
+    --enable-examples-install=no \
+    --enable-gles1=yes \
+    --enable-gles2=yes \
+    --enable-gl=yes \
+    --enable-cogl-gles2=yes \
+    --enable-glx=yes \
+    --enable-wgl=auto \
+    --enable-sdl=no \
+    --enable-sdl2=no \
+    --enable-null-egl-platform=no \
+    --enable-gdl-egl-platform=no \
+    --enable-wayland-egl-platform=yes \
+    --enable-kms-egl-platform=yes \
+    --enable-wayland-egl-server=yes \
+    --enable-android-egl-platform=no \
+    --enable-mir-egl-platform=no \
+    --enable-xlib-egl-platform=yes \
+    --enable-introspection=yes \
     --disable-glibtest
 make
 make install DESTDIR=$PKG
