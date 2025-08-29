@@ -1,0 +1,268 @@
+From fbaa3be62063ea0a4cf733d610abc00ed6a510ae Mon Sep 17 00:00:00 2001
+From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
+Date: Wed, 25 Oct 2023 03:51:02 +0000
+Subject: [PATCH 1/3] Update meson.build
+
+Add subdir('xdg-portal')
+Install a portals.conf file for the pantheon session
+---
+ meson.build | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/meson.build b/meson.build
+index 2d09a4f..551d0de 100644
+--- a/meson.build
++++ b/meson.build
+@@ -46,3 +46,4 @@ conf_data.set_quoted('VERSION', meson.project_version())
+ subdir('data')
+ subdir('po')
+ subdir('src')
++subdir('xdg-portal')
+
+From 5d666395addfd1d9b44b15e1d484c94b15d6ae49 Mon Sep 17 00:00:00 2001
+From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
+Date: Wed, 25 Oct 2023 03:53:05 +0000
+Subject: [PATCH 2/3] Create pantheon-portals.conf
+
+---
+ xdg-portal/pantheon-portals.conf | 5 +++++
+ 1 file changed, 5 insertions(+)
+ create mode 100644 xdg-portal/pantheon-portals.conf
+
+diff --git a/xdg-portal/pantheon-portals.conf b/xdg-portal/pantheon-portals.conf
+new file mode 100644
+--- /dev/null
++++ b/xdg-portal/pantheon-portals.conf
+@@ -0,0 +1,5 @@
++[preferred]
++default=pantheon;gtk;
++org.freedesktop.impl.portal.FileChooser=io.elementary.files;
++org.freedesktop.impl.portal.Secret=gnome-keyring;
++org.freedesktop.impl.portal.Settings=io.elementary.settings-daemon;gtk;*;
+
+From 7bdc55e66fa4d2c08360cfcefaf8fb02011c66e8 Mon Sep 17 00:00:00 2001
+From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
+Date: Wed, 25 Oct 2023 03:53:34 +0000
+Subject: [PATCH 3/3] Create meson.build
+
+---
+ xdg-portal/meson.build | 4 ++++
+ 1 file changed, 4 insertions(+)
+ create mode 100644 xdg-portal/meson.build
+
+diff --git a/xdg-portal/meson.build b/xdg-portal/meson.build
+new file mode 100644
+index 0000000..bf6cdb8
+--- /dev/null
++++ b/xdg-portal/meson.build
+@@ -0,0 +1,4 @@
++install_data(
++  'pantheon-portals.conf',
++  install_dir: join_paths(get_option('datadir'), 'xdg-desktop-portal'),
++)
+
+From bf276f72f04480aae2f7dbe5466f783dfa8eac29 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Danielle=20For=C3=A9?= <danielle@elementary.io>
+Date: Mon, 26 Feb 2024 14:47:19 -0800
+Subject: [PATCH] Create wallpaper portal (#98)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+* Create basic wallpaper portal
+
+* Wallpaper Copy from contract, fix bugs
+
+* Update Portal.vala
+
+* Single hashtable lookup
+
+* Apply suggestions from code review
+
+Co-authored-by: Corentin Noël <tintou@noel.tf>
+
+* unowned vars
+
+* Add FIXME
+
+* Much cleaner type check
+
+---------
+
+Co-authored-by: Corentin Noël <tintou@noel.tf>
+---
+ data/pantheon.portal              |   2 +-
+ src/Wallpaper/Portal.vala         | 126 ++++++++++++++++++++++++++++++
+ src/XdgDesktopPortalPantheon.vala |   3 +
+ src/meson.build                   |   1 +
+ 4 files changed, 131 insertions(+), 1 deletion(-)
+ create mode 100644 src/Wallpaper/Portal.vala
+
+diff --git a/data/pantheon.portal b/data/pantheon.portal
+index 64dffdf3..10642131 100644
+--- a/data/pantheon.portal
++++ b/data/pantheon.portal
+@@ -1,4 +1,4 @@
+ [portal]
+ DBusName=org.freedesktop.impl.portal.desktop.pantheon
+-Interfaces=org.freedesktop.impl.portal.Access;org.freedesktop.impl.portal.AppChooser;org.freedesktop.impl.portal.Background;
++Interfaces=org.freedesktop.impl.portal.Access;org.freedesktop.impl.portal.AppChooser;org.freedesktop.impl.portal.Background;org.freedesktop.impl.portal.Wallpaper
+ UseIn=pantheon
+diff --git a/src/Wallpaper/Portal.vala b/src/Wallpaper/Portal.vala
+new file mode 100644
+index 00000000..3248f93b
+--- /dev/null
++++ b/src/Wallpaper/Portal.vala
+@@ -0,0 +1,126 @@
++/*
++ * SPDX-FileCopyrigthText: 2024 elementary, Inc. (https://elementary.io)
++ * SPDX-License-Identifier: LGPL-2.1-or-later
++ */
++
++[DBus (name = "org.freedesktop.impl.portal.Wallpaper")]
++public class Wallpaper.Portal : Object {
++    private DBusConnection connection;
++
++    public Portal (DBusConnection connection) {
++        this.connection = connection;
++    }
++
++    [DBus (name = "SetWallpaperURI")]
++    public async uint set_wallpaper_uri (
++        ObjectPath handle,
++        string app_id,
++        string parent_window,
++        string uri,
++        HashTable<string, Variant> options
++    ) throws DBusError, IOError {
++        unowned string set_on = "both"; // Possible values are background, lockscreen or both.
++        unowned bool show_preview = false; // FIXME: implement preview dialog
++
++        unowned var _set_on = options.get ("set-on");
++        if (_set_on.is_of_type (GLib.VariantType.STRING)) {
++            set_on = _set_on.get_string ();
++        }
++
++        unowned var _show_preview = options.get ("show-preview");
++        if (_show_preview.is_of_type (GLib.VariantType.BOOLEAN)) {
++            show_preview = _show_preview.get_boolean ();
++        }
++
++        // Currently only support Both
++        if (set_on == "background" || set_on == "lockscreen") {
++            return 1;
++        }
++
++        var file = File.new_for_uri (uri);
++        if (!get_is_file_in_bg_dir (file)) {
++            file = copy_for_library (file);
++        }
++
++        if (file != null) {
++            var settings = new Settings ("org.gnome.desktop.background");
++            settings.set_string ("picture-uri", file.get_uri ());
++        }
++
++        return 0;
++    }
++
++    private static bool get_is_file_in_bg_dir (File file) {
++        string path = file.get_path ();
++
++        foreach (unowned string directory in get_bg_directories ()) {
++            if (path.has_prefix (directory)) {
++                return true;
++            }
++        }
++
++        return false;
++    }
++
++    private static File? copy_for_library (File source) {
++        File? dest = null;
++
++        try {
++            var timestamp = new DateTime.now_local ().format ("%Y-%m-%d-%H-%M-%S");
++            var filename = "%s-%s".printf (timestamp, source.get_basename ());
++            dest = ensure_local_bg_exists ().get_child (filename);
++            source.copy (dest, FileCopyFlags.OVERWRITE | FileCopyFlags.ALL_METADATA);
++        } catch (Error e) {
++            warning (e.message);
++        }
++
++        return dest;
++    }
++
++    private static string[] get_bg_directories () {
++        string[] background_directories = {};
++
++        // Add user background directory first
++        background_directories += get_local_bg_directory ();
++
++        foreach (var bg_dir in get_system_bg_directories ()) {
++            background_directories += bg_dir;
++        }
++
++        if (background_directories.length == 0) {
++            warning ("No background directories found");
++        }
++
++        return background_directories;
++    }
++
++    private static File ensure_local_bg_exists () {
++        var folder = File.new_for_path (get_local_bg_directory ());
++        if (!folder.query_exists ()) {
++            try {
++                folder.make_directory_with_parents ();
++            } catch (Error e) {
++                warning (e.message);
++            }
++        }
++
++        return folder;
++    }
++
++    private static string get_local_bg_directory () {
++        return Path.build_filename (Environment.get_user_data_dir (), "backgrounds") + "/";
++    }
++
++    private static string[] get_system_bg_directories () {
++        string[] directories = {};
++        foreach (unowned string data_dir in Environment.get_system_data_dirs ()) {
++            var system_background_dir = Path.build_filename (data_dir, "backgrounds") + "/";
++            if (FileUtils.test (system_background_dir, FileTest.EXISTS)) {
++                debug ("Found system background directory: %s", system_background_dir);
++                directories += system_background_dir;
++            }
++        }
++
++        return directories;
++    }
++}
+diff --git a/src/XdgDesktopPortalPantheon.vala b/src/XdgDesktopPortalPantheon.vala
+index 56faed74..8e3cecc5 100644
+--- a/src/XdgDesktopPortalPantheon.vala
++++ b/src/XdgDesktopPortalPantheon.vala
+@@ -40,6 +40,9 @@ private void on_bus_acquired (DBusConnection connection, string name) {
+ 
+         connection.register_object ("/org/freedesktop/portal/desktop", new Background.Portal (connection));
+         debug ("Background Portal registered!");
++
++        connection.register_object ("/org/freedesktop/portal/desktop", new Wallpaper.Portal (connection));
++        debug ("Wallpaper Portal registered!");
+     } catch (Error e) {
+         critical ("Unable to register the object: %s", e.message);
+     }
+diff --git a/src/meson.build b/src/meson.build
+index 4b88f74f..64c35a42 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -8,6 +8,7 @@ executable(
+     'AppChooser/Portal.vala',
+     'Background/NotificationRequest.vala',
+     'Background/Portal.vala',
++    'Wallpaper/Portal.vala',
+     configure_file(input: 'Config.vala.in', output: '@BASENAME@', configuration: conf_data),
+     'ExternalWindow.vala',
+     'XdgDesktopPortalPantheon.vala',

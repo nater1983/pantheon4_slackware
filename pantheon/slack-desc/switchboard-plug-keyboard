@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.
+# Line up the first '|' above the ':' following the base package name, and
+# the '|' on the right side marks the last column you can put a character in.
+# You must make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                         |-----handy-ruler------------------------------------------------------|
+switchboard-plug-keyboard: switchboard-plug-keyboard (Switchboard Keyboard Plug)
+switchboard-plug-keyboard:
+switchboard-plug-keyboard: Adjust keyboard settings from Switchboard. This plug can be used to
+switchboard-plug-keyboard: change several keyboard settings, for example the delay and speed of
+switchboard-plug-keyboard: the key repetition, or the cursor blinking speed. You can change your
+switchboard-plug-keyboard: keyboard layout, and use multiple layouts at the same time. Keyboard
+switchboard-plug-keyboard: shortcuts are also part of this plug.
+switchboard-plug-keyboard:
+switchboard-plug-keyboard: Homepage: https://github.com/elementary/switchboard-plug-keyboard
+switchboard-plug-keyboard:
+switchboard-plug-keyboard:

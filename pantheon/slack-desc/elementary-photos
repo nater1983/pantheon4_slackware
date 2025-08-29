@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.
+# Line up the first '|' above the ':' following the base package name, and
+# the '|' on the right side marks the last column you can put a character in.
+# You must make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                 |-----handy-ruler------------------------------------------------------------|
+elementary-photos: elementary-photos ( is a photo viewer for the Pantheron DE )
+elementary-photos:
+elementary-photos: elementary-photos is a digital photo organizer based on Shotwell and
+elementary-photos: designed for the Elementary OS environment. It allows you to import
+elementary-photos: photos from disk or camera, organize them in various ways, view them
+elementary-photos: in full-window or fullscreen mode, and export them to share with others.
+elementary-photos:
+elementary-photos:
+elementary-photos: Homepage: https://github.com/elementary/photos/
+elementary-photos:
+elementary-photos:

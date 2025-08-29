@@ -1,0 +1,688 @@
+From 6b44f9fb7c0ca9a2bb79a6ce4f3bc061d6402d71 Mon Sep 17 00:00:00 2001
+From: Gustavo Marques <pushstarttocontinue@outlook.com>
+Date: Tue, 1 Aug 2023 13:32:57 -0300
+Subject: [PATCH] port SettingsDaemon.Application to Gtk.Application (#81)
+
+---
+ src/AccountsService.vala                     |   7 +-
+ src/Application.vala                         | 289 ++++++++-----------
+ src/Backends/PrefersColorSchemeSettings.vala |   4 +-
+ src/SessionManager.vala                      |  86 ------
+ src/meson.build                              |   1 -
+ 5 files changed, 124 insertions(+), 263 deletions(-)
+ delete mode 100644 src/SessionManager.vala
+
+diff --git a/src/AccountsService.vala b/src/AccountsService.vala
+index d75392b..f7405b3 100644
+--- a/src/AccountsService.vala
++++ b/src/AccountsService.vala
+@@ -78,7 +78,7 @@ public interface SettingsDaemon.AccountsService : Object {
+ }
+ 
+ [DBus (name = "io.elementary.pantheon.AccountsService")]
+-public interface PantheonShell.Pantheon.AccountsService : Object {
++public interface Pantheon.AccountsService : Object {
+     public abstract int prefers_color_scheme { get; set; }
+ }
+ 
+@@ -86,8 +86,3 @@ public interface PantheonShell.Pantheon.AccountsService : Object {
+ public interface DisplayManager.AccountsService : Object {
+     public abstract string background_file { owned get; set; }
+ }
+-
+-[DBus (name = "org.freedesktop.Accounts")]
+-public interface SettingsDaemon.FDO.Accounts : Object {
+-    public abstract string find_user_by_name (string username) throws GLib.Error;
+-}
+diff --git a/src/Application.vala b/src/Application.vala
+index b733624..0985516 100644
+--- a/src/Application.vala
++++ b/src/Application.vala
+@@ -1,119 +1,44 @@
+ /*
+-* Copyright 2020 elementary, Inc. (https://elementary.io)
+-*
+-* This program is free software; you can redistribute it and/or
+-* modify it under the terms of the GNU General Public
+-* License as published by the Free Software Foundation; either
+-* version 3 of the License, or (at your option) any later version.
+-*
+-* This program is distributed in the hope that it will be useful,
+-* but WITHOUT ANY WARRANTY; without even the implied warranty of
+-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-* General Public License for more details.
+-*
+-* You should have received a copy of the GNU General Public
+-* License along with this program; if not, write to the
+-* Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+-* Boston, MA 02110-1301 USA
+-*
+-*/
+-
+-public class SettingsDaemon.Application : GLib.Application {
+-    public const OptionEntry[] OPTIONS = {
+-        { "version", 'v', 0, OptionArg.NONE, out show_version, "Display the version", null},
+-        { null }
+-    };
+-
+-    public static bool show_version;
+-
+-    private Application () {}
+-
+-    private SessionClient? session_client;
+-
+-    private AccountsService? accounts_service;
+-
+-    private PantheonShell.Pantheon.AccountsService pantheon_accounts_service;
+-
+-    private DisplayManager.AccountsService display_manager_accounts_service;
++ * Copyright 2020-2023 elementary, Inc. (https://elementary.io)
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ */
+ 
+-    private Backends.KeyboardSettings keyboard_settings;
++public sealed class SettingsDaemon.Application : Gtk.Application {
++    private AccountsService accounts_service;
++    private Pantheon.AccountsService pantheon_service;
++    private DisplayManager.AccountsService display_manager_service;
+ 
++    private Backends.KeyboardSettings keyboard_settings;
+     private Backends.MouseSettings mouse_settings;
+ 
+     private Backends.InterfaceSettings interface_settings;
+-
+     private Backends.NightLightSettings night_light_settings;
+-
+     private Backends.PrefersColorSchemeSettings prefers_color_scheme_settings;
+ 
+     private Backends.Housekeeping housekeeping;
+ 
+-    construct {
+-        application_id = Build.PROJECT_NAME;
++    private const string FDO_ACCOUNTS_NAME = "org.freedesktop.Accounts";
++    private const string FDO_ACCOUNTS_PATH = "/org/freedesktop/Accounts";
+ 
+-        add_main_option_entries (OPTIONS);
+-
+-        housekeeping = new Backends.Housekeeping ();
+-
+-        var check_firmware_updates_action = new SimpleAction ("check-firmware-updates", null);
+-        check_firmware_updates_action.activate.connect (() => {
+-            var fwupd_client = new Fwupd.Client ();
+-            var num_updates = 0;
+-            try {
+-                var devices = fwupd_client.get_devices ();
+-                for (int i = 0; i < devices.length; i++) {
+-                    var device = devices[i];
+-                    if (device.has_flag (Fwupd.DEVICE_FLAG_UPDATABLE)) {
+-                        Fwupd.Release? release = null;
+-                        try {
+-                            var upgrades = fwupd_client.get_upgrades (device.get_id ());
+-
+-                            if (upgrades != null) {
+-                                release = upgrades[0];
+-                            }
+-                        } catch (Error e) {
+-                            warning (e.message);
+-                        }
+-
+-                        if (release != null && device.get_version () != release.get_version ()) {
+-                            num_updates++;
+-                        }
+-                    }
+-                }
+-            } catch (Error e) {
+-                warning (e.message);
+-            }
+-
+-            if (num_updates != 0U) {
+-                string title = ngettext ("Firmware Update Available", "Firmware Updates Available", num_updates);
+-                string body = ngettext ("%u update is available for your hardware", "%u updates are available for your hardware", num_updates).printf (num_updates);
+-
+-                var notification = new Notification (title);
+-                notification.set_body (body);
+-                notification.set_icon (new ThemedIcon ("application-x-firmware"));
+-                notification.set_default_action ("app.show-firmware-updates");
+-
+-                send_notification ("io.elementary.settings-daemon.firmware.updates", notification);
+-            } else {
+-                withdraw_notification ("io.elementary.settings-daemon.firmware.updates");
+-            }
+-        });
++    public Application () {
++        Object (
++            application_id: Build.PROJECT_NAME,
++            flags: GLib.ApplicationFlags.IS_SERVICE | GLib.ApplicationFlags.ALLOW_REPLACEMENT,
++            register_session: true
++        );
++    }
+ 
+-        var show_firmware_updates_action = new SimpleAction ("show-firmware-updates", null);
+-        show_firmware_updates_action.activate.connect (() => {
+-            try {
+-                Gtk.show_uri_on_window (null, "settings://about/firmware", Gdk.CURRENT_TIME);
+-            } catch (Error e) {
+-                critical (e.message);
+-            }
+-        });
++    construct {
++        GLib.Intl.setlocale (ALL, "");
++        GLib.Intl.bindtextdomain (Build.GETTEXT_PACKAGE, Build.LOCALEDIR);
++        GLib.Intl.bind_textdomain_codeset (Build.GETTEXT_PACKAGE, "UTF-8");
++        GLib.Intl.textdomain (Build.GETTEXT_PACKAGE);
+ 
+-        add_action (check_firmware_updates_action);
+-        add_action (show_firmware_updates_action);
++        add_main_option ("version", 'v', NONE, NONE, "Display the version", null);
+     }
+ 
+-    public override int handle_local_options (VariantDict options) {
+-        if (show_version) {
++    protected override int handle_local_options (VariantDict options) {
++        if ("version" in options) {
+             stdout.printf ("%s\n", Build.VERSION);
+             return 0;
+         }
+@@ -121,101 +46,129 @@ public class SettingsDaemon.Application : GLib.Application {
+         return -1;
+     }
+ 
+-    public override void activate () {
+-        register_with_session_manager.begin ();
+-        setup_accountsservice.begin ();
++    protected override void startup () {
++        query_end.connect (() => release ());
++        base.startup ();
+ 
+-        hold ();
+-    }
++        housekeeping = new Backends.Housekeeping ();
+ 
+-    private async bool register_with_session_manager () {
+-        session_client = yield register_with_session (Build.PROJECT_NAME);
++        var check_firmware_updates_action = new GLib.SimpleAction ("check-firmware-updates", null);
++        check_firmware_updates_action.activate.connect (check_firmware_updates);
++        add_action (check_firmware_updates_action);
+ 
+-        session_client.query_end_session.connect (() => end_session (false));
+-        session_client.end_session.connect (() => end_session (false));
+-        session_client.stop.connect (() => end_session (true));
++        var show_firmware_updates_action = new GLib.SimpleAction ("show-firmware-updates", null);
++        show_firmware_updates_action.activate.connect (show_firmware_updates);
++        add_action (show_firmware_updates_action);
+ 
+-        return true;
++        setup_accounts_services.begin ();
++        hold ();
+     }
+ 
+-    private async void setup_accountsservice () {
+-        try {
+-            var act_service = yield GLib.Bus.get_proxy<FDO.Accounts> (GLib.BusType.SYSTEM,
+-                                                                      "org.freedesktop.Accounts",
+-                                                                      "/org/freedesktop/Accounts");
+-            var user_path = act_service.find_user_by_name (GLib.Environment.get_user_name ());
+-
+-            accounts_service = yield GLib.Bus.get_proxy (GLib.BusType.SYSTEM,
+-                                                         "org.freedesktop.Accounts",
+-                                                         user_path,
+-                                                         GLib.DBusProxyFlags.GET_INVALIDATED_PROPERTIES);
+-        } catch (Error e) {
+-            warning ("Could not connect to AccountsService. Settings will not be synced to the greeter");
+-        }
++    private async void setup_accounts_services () {
++        unowned GLib.DBusConnection connection;
++        string path;
+ 
+-        if (accounts_service != null) {
++        try {
++            connection = yield GLib.Bus.get (SYSTEM);
++
++            var reply = yield connection.call (
++                FDO_ACCOUNTS_NAME, FDO_ACCOUNTS_PATH,
++                FDO_ACCOUNTS_NAME, "FindUserByName",
++                new GLib.Variant.tuple ({ new GLib.Variant.string (GLib.Environment.get_user_name ()) }),
++                new VariantType ("(o)"),
++                NONE,
++                -1
++            );
++            reply.get_child (0, "o", out path);
++
++            accounts_service = yield connection.get_proxy (FDO_ACCOUNTS_NAME, path, GET_INVALIDATED_PROPERTIES);
+             keyboard_settings = new Backends.KeyboardSettings (accounts_service);
+             mouse_settings = new Backends.MouseSettings (accounts_service);
+             night_light_settings = new Backends.NightLightSettings (accounts_service);
++        } catch {
++            warning ("Could not connect to AccountsService. Settings will not be synced");
++            return;
+         }
+ 
+         try {
+-            var act_service = yield GLib.Bus.get_proxy<FDO.Accounts> (GLib.BusType.SYSTEM,
+-                                                                      "org.freedesktop.Accounts",
+-                                                                      "/org/freedesktop/Accounts");
+-            var user_path = act_service.find_user_by_name (GLib.Environment.get_user_name ());
+-
+-            display_manager_accounts_service = yield GLib.Bus.get_proxy (GLib.BusType.SYSTEM,
+-                                                                         "org.freedesktop.Accounts",
+-                                                                         user_path,
+-                                                                         GLib.DBusProxyFlags.GET_INVALIDATED_PROPERTIES);
+-        } catch (Error e) {
+-            warning ("Unable to get AccountsService proxy, background file might be incorrect");
++            display_manager_service = yield connection.get_proxy (FDO_ACCOUNTS_NAME, path, GET_INVALIDATED_PROPERTIES);
++            interface_settings = new Backends.InterfaceSettings (accounts_service, display_manager_service);
++        } catch {
++            warning ("Unable to get LightDM's AccountsService proxy, background file might be incorrect");
+         }
+ 
+-        if (accounts_service != null && display_manager_accounts_service != null) {
+-            interface_settings = new Backends.InterfaceSettings (accounts_service, display_manager_accounts_service);
++        try {
++            pantheon_service = yield connection.get_proxy (FDO_ACCOUNTS_NAME, path, GET_INVALIDATED_PROPERTIES);
++            prefers_color_scheme_settings = new Backends.PrefersColorSchemeSettings (pantheon_service);
++        } catch {
++            warning ("Unable to get pantheon's AccountsService proxy, color scheme preference may be incorrect");
+         }
++    }
++
++    private void check_firmware_updates () {
++        var client = new Fwupd.Client ();
++        var updates = 0;
+ 
+         try {
+-            var act_service = yield GLib.Bus.get_proxy<FDO.Accounts> (GLib.BusType.SYSTEM,
+-                                                                      "org.freedesktop.Accounts",
+-                                                                      "/org/freedesktop/Accounts");
+-            var user_path = act_service.find_user_by_name (GLib.Environment.get_user_name ());
+-
+-            pantheon_accounts_service = yield GLib.Bus.get_proxy (GLib.BusType.SYSTEM,
+-                                                                  "org.freedesktop.Accounts",
+-                                                                  user_path,
+-                                                                  GLib.DBusProxyFlags.GET_INVALIDATED_PROPERTIES);
++            var devices = client.get_devices ();
++
++            foreach (unowned var device in devices) {
++                if (!device.has_flag (Fwupd.DEVICE_FLAG_UPDATABLE)) {
++                    continue;
++                }
++
++                Fwupd.Release? release = null;
++
++                try {
++                    var upgrades = client.get_upgrades (device.get_id ());
++                    if (upgrades != null) {
++                        release = upgrades[0];
++                    }
++                } catch (Error e) {
++                    warning (e.message);
++                    continue;
++                }
++
++                if (release != null && device.get_version () != release.get_version ()) {
++                    updates++;
++                }
++            }
+         } catch (Error e) {
+-            warning ("Unable to get AccountsService proxy, color scheme preference may be incorrect");
++            warning (e.message);
+         }
+ 
+-        if (pantheon_accounts_service != null) {
+-            prefers_color_scheme_settings = new Backends.PrefersColorSchemeSettings (pantheon_accounts_service);
++        if (updates != 0) {
++            var title = ngettext ("Firmware Update Available", "Firmware Updates Available", updates);
++            var body = ngettext (
++                "%u update is available for your hardware",
++                "%u updates are available for your hardware",
++                updates
++            );
++
++            var notification = new Notification (title);
++            notification.set_body (body.printf (updates));
++            notification.set_icon (new ThemedIcon ("application-x-firmware"));
++            notification.set_default_action ("app.show-firmware-updates");
++
++            send_notification ("firmware.updates", notification);
++        } else {
++            withdraw_notification ("firmware.updates");
+         }
+     }
+ 
+-    void end_session (bool quit) {
+-        if (quit) {
+-            release ();
+-            return;
+-        }
++    private void show_firmware_updates () {
++        var context = Gdk.Display.get_default ().get_app_launch_context ();
+ 
+-        try {
+-            session_client.end_session_response (true, "");
+-        } catch (Error e) {
+-            warning ("Unable to respond to session manager: %s", e.message);
+-        }
++        GLib.AppInfo.launch_default_for_uri_async.begin ("settings://about/firmware", context, null, (obj, res) => {
++            try {
++                GLib.AppInfo.launch_default_for_uri_async.end (res);
++            } catch (GLib.Error e) {
++                critical (e.message);
++            }
++        });
+     }
+ 
+     public static int main (string[] args) {
+-        GLib.Intl.setlocale (LocaleCategory.ALL, "");
+-        GLib.Intl.bindtextdomain (Build.GETTEXT_PACKAGE, Build.LOCALEDIR);
+-        GLib.Intl.bind_textdomain_codeset (Build.GETTEXT_PACKAGE, "UTF-8");
+-        GLib.Intl.textdomain (Build.GETTEXT_PACKAGE);
+-
+-        var application = new Application ();
+-        return application.run (args);
++        return new SettingsDaemon.Application ().run (args);
+     }
+ }
+diff --git a/src/Backends/PrefersColorSchemeSettings.vala b/src/Backends/PrefersColorSchemeSettings.vala
+index 8bcef1e..14872c9 100644
+--- a/src/Backends/PrefersColorSchemeSettings.vala
++++ b/src/Backends/PrefersColorSchemeSettings.vala
+@@ -20,7 +20,7 @@
+ */
+ 
+ public class SettingsDaemon.Backends.PrefersColorSchemeSettings : Object {
+-    public unowned PantheonShell.Pantheon.AccountsService accounts_service { get; construct; }
++    public unowned Pantheon.AccountsService accounts_service { get; construct; }
+ 
+     private Settings color_settings;
+     private double sunrise = -1.0;
+@@ -28,7 +28,7 @@ public class SettingsDaemon.Backends.PrefersColorSchemeSettings : Object {
+ 
+     private uint time_id = 0;
+ 
+-    public PrefersColorSchemeSettings (PantheonShell.Pantheon.AccountsService accounts_service) {
++    public PrefersColorSchemeSettings (Pantheon.AccountsService accounts_service) {
+         Object (accounts_service: accounts_service);
+     }
+ 
+diff --git a/src/SessionManager.vala b/src/SessionManager.vala
+deleted file mode 100644
+index 07ba443..0000000
+--- a/src/SessionManager.vala
++++ /dev/null
+@@ -1,86 +0,0 @@
+-/*
+-* Copyright 2020 elementary, Inc. (https://elementary.io)
+-*
+-* This program is free software; you can redistribute it and/or
+-* modify it under the terms of the GNU General Public
+-* License as published by the Free Software Foundation; either
+-* version 3 of the License, or (at your option) any later version.
+-*
+-* This program is distributed in the hope that it will be useful,
+-* but WITHOUT ANY WARRANTY; without even the implied warranty of
+-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-* General Public License for more details.
+-*
+-* You should have received a copy of the GNU General Public
+-* License along with this program; if not, write to the
+-* Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+-* Boston, MA 02110-1301 USA
+-*
+-*/
+-
+-namespace SettingsDaemon {
+-    [DBus (name = "org.gnome.SessionManager")]
+-    public interface SessionManager : Object {
+-        public abstract async ObjectPath register_client (
+-            string app_id,
+-            string client_start_id
+-        ) throws DBusError, IOError;
+-    }
+-
+-    [DBus (name = "org.gnome.SessionManager.ClientPrivate")]
+-    public interface SessionClient : Object {
+-        public abstract void end_session_response (bool is_ok, string reason) throws DBusError, IOError;
+-
+-        public signal void stop () ;
+-        public signal void query_end_session (uint flags);
+-        public signal void end_session (uint flags);
+-        public signal void cancel_end_session ();
+-    }
+-
+-    public static async SessionClient? register_with_session (string app_id) {
+-        ObjectPath? path = null;
+-        string? msg = null;
+-        string? start_id = null;
+-
+-        SessionManager? session = null;
+-        SessionClient? session_client = null;
+-
+-        start_id = Environment.get_variable ("DESKTOP_AUTOSTART_ID");
+-        if (start_id != null) {
+-            Environment.unset_variable ("DESKTOP_AUTOSTART_ID");
+-        } else {
+-            start_id = "";
+-            warning (
+-                "DESKTOP_AUTOSTART_ID not set, session registration may be broken (not running via session?)"
+-            );
+-        }
+-
+-        try {
+-            session = yield Bus.get_proxy (
+-                BusType.SESSION,
+-                "org.gnome.SessionManager",
+-                "/org/gnome/SessionManager"
+-            );
+-        } catch (Error e) {
+-            warning ("Unable to connect to session manager: %s", e.message);
+-            return null;
+-        }
+-
+-        try {
+-            path = yield session.register_client (app_id, start_id);
+-        } catch (Error e) {
+-            msg = e.message;
+-            warning ("Error registering with session manager: %s", e.message);
+-            return null;
+-        }
+-
+-        try {
+-            session_client = yield Bus.get_proxy (BusType.SESSION, "org.gnome.SessionManager", path);
+-        } catch (Error e) {
+-            warning ("Unable to get private sessions client proxy: %s", e.message);
+-            return null;
+-        }
+-
+-        return session_client;
+-    }
+-}
+diff --git a/src/meson.build b/src/meson.build
+index 79ec8fb..9c05e9a 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -1,7 +1,6 @@
+ sources = files(
+     'AccountsService.vala',
+     'Application.vala',
+-    'SessionManager.vala',
+     'Backends/Housekeeping.vala',
+     'Backends/InterfaceSettings.vala',
+     'Backends/KeyboardSettings.vala',
+From 5da94e20db11f0b1dc67b0e34ec0cc43f0f39f95 Mon Sep 17 00:00:00 2001
+From: Gustavo Marques <pushstarttocontinue@outlook.com>
+Date: Sat, 8 Jul 2023 20:57:05 -0300
+Subject: [PATCH] Housekeep: use dgettext() to get screenshot directory name
+
+we don't want to override the value of GETTEXT_PACKAGE, since that
+would make other translations to stop working.
+
+Signed-off-by: Gustavo Marques <pushstarttocontinue@outlook.com>
+---
+ meson.build                    | 9 +--------
+ src/Backends/Housekeeping.vala | 2 +-
+ 2 files changed, 2 insertions(+), 9 deletions(-)
+
+diff --git a/meson.build b/meson.build
+index fb1b953..8b3a5ed 100644
+--- a/meson.build
++++ b/meson.build
+@@ -17,13 +17,6 @@ add_project_arguments(
+     language:'c'
+ )
+ 
+-# Relying on Gala translations for screenshots directory name:
+-gettext_package = 'gala'
+-add_global_arguments(
+-    '-DGETTEXT_PACKAGE="@0@"'.format(gettext_package),
+-    language:'c'
+-)
+-
+ cc = meson.get_compiler('c')
+ m_dep = cc.find_library('m', required : false)
+ libgeoclue_dep = dependency ('libgeoclue-2.0')
+@@ -35,7 +28,7 @@ sysconfdir = get_option('sysconfdir')
+ conf_data = configuration_data()
+ conf_data.set('PROJECT_NAME', meson.project_name())
+ conf_data.set('VERSION', meson.project_version())
+-conf_data.set('GETTEXT_PACKAGE', gettext_package)
++conf_data.set('GETTEXT_PACKAGE', gettext_name)
+ conf_data.set('LOCALEDIR', prefix / get_option('localedir'))
+ 
+ config_file = configure_file(
+diff --git a/src/Backends/Housekeeping.vala b/src/Backends/Housekeeping.vala
+index 39e1223..5a1688a 100644
+--- a/src/Backends/Housekeeping.vala
++++ b/src/Backends/Housekeeping.vala
+@@ -167,7 +167,7 @@ public class SettingsDaemon.Backends.Housekeeping : Object {
+ 
+             if (clean_screenshots) {
+                 var pictures_dir = Environment.get_user_special_dir (UserDirectory.PICTURES);
+-                var screenshots_dir = Path.build_filename (pictures_dir, _("Screenshots"));
++                var screenshots_dir = Path.build_filename (pictures_dir, dgettext ("gala", "Screenshots"));
+                 lines += template.printf (screenshots_dir, clean_after_days);
+             }
+ 
+From c314d3c5e3f9a327435ea3c836b1320fe54b2930 Mon Sep 17 00:00:00 2001
+From: Gustavo Marques <pushstarttocontinue@outlook.com>
+Date: Sun, 30 Jul 2023 17:59:24 -0300
+Subject: [PATCH] meson: use right gettext domain
+
+we where using 'extra' as gettext domain for our translation, but expecting
+'io.elementary.settings-daemon' in source code. this update our meson rule
+to use the right name
+
+Signed-off-by: Gustavo Marques <pushstarttocontinue@outlook.com>
+---
+ ....pot => io.elementary.settings-daemon.pot} | 40 +++++++++----------
+ po/meson.build                                |  6 +--
+ 2 files changed, 21 insertions(+), 25 deletions(-)
+ rename po/{extra.pot => io.elementary.settings-daemon.pot} (70%)
+
+diff --git a/po/extra.pot b/po/io.elementary.settings-daemon.pot
+similarity index 70%
+rename from po/extra.pot
+rename to po/io.elementary.settings-daemon.pot
+index 3d55cdc..3cdf52d 100644
+--- a/po/extra.pot
++++ b/po/io.elementary.settings-daemon.pot
+@@ -1,14 +1,14 @@
+ # SOME DESCRIPTIVE TITLE.
+ # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+-# This file is distributed under the same license as the extra package.
++# This file is distributed under the same license as the io.elementary.settings-daemon package.
+ # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+ #
+ #, fuzzy
+ msgid ""
+ msgstr ""
+-"Project-Id-Version: extra\n"
++"Project-Id-Version: io.elementary.settings-daemon\n"
+ "Report-Msgid-Bugs-To: \n"
+-"POT-Creation-Date: 2023-07-21 09:28+0100\n"
++"POT-Creation-Date: 2023-07-30 17:49-0300\n"
+ "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+ "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+ "Language-Team: LANGUAGE <LL@li.org>\n"
+@@ -36,55 +36,55 @@ msgstr ""
+ msgid "elementary, Inc."
+ msgstr ""
+ 
+-#: data/settings-daemon.metainfo.xml.in:35
+-#: data/settings-daemon.metainfo.xml.in:54
+-#: data/settings-daemon.metainfo.xml.in:69
++#: data/settings-daemon.metainfo.xml.in:41
++#: data/settings-daemon.metainfo.xml.in:60
++#: data/settings-daemon.metainfo.xml.in:75
+ msgid "New features:"
+ msgstr ""
+ 
+-#: data/settings-daemon.metainfo.xml.in:37
++#: data/settings-daemon.metainfo.xml.in:43
+ msgid "Provide accent colors on the settings portal"
+ msgstr ""
+ 
+-#: data/settings-daemon.metainfo.xml.in:38
++#: data/settings-daemon.metainfo.xml.in:44
+ msgid ""
+ "Sync font, mouse, keyboard, nightlight, and some accessibility settings to "
+ "the Login &amp; Lock screen"
+ msgstr ""
+ 
+-#: data/settings-daemon.metainfo.xml.in:40
+-#: data/settings-daemon.metainfo.xml.in:60
+-#: data/settings-daemon.metainfo.xml.in:73
++#: data/settings-daemon.metainfo.xml.in:46
++#: data/settings-daemon.metainfo.xml.in:66
++#: data/settings-daemon.metainfo.xml.in:79
+ msgid "Improvements:"
+ msgstr ""
+ 
+-#: data/settings-daemon.metainfo.xml.in:42
+-#: data/settings-daemon.metainfo.xml.in:62
+-#: data/settings-daemon.metainfo.xml.in:76
++#: data/settings-daemon.metainfo.xml.in:48
++#: data/settings-daemon.metainfo.xml.in:68
++#: data/settings-daemon.metainfo.xml.in:82
+ msgid "Updated translations"
+ msgstr ""
+ 
+-#: data/settings-daemon.metainfo.xml.in:56
++#: data/settings-daemon.metainfo.xml.in:62
+ msgid "Add First day of the week setting"
+ msgstr ""
+ 
+-#: data/settings-daemon.metainfo.xml.in:57
++#: data/settings-daemon.metainfo.xml.in:63
+ msgid "Add left-handed mouse click setting"
+ msgstr ""
+ 
+-#: data/settings-daemon.metainfo.xml.in:58
++#: data/settings-daemon.metainfo.xml.in:64
+ msgid "Don't Housekeep Downloads if it's also Home"
+ msgstr ""
+ 
+-#: data/settings-daemon.metainfo.xml.in:71
++#: data/settings-daemon.metainfo.xml.in:77
+ msgid "Provide the Settings portal"
+ msgstr ""
+ 
+-#: data/settings-daemon.metainfo.xml.in:75
++#: data/settings-daemon.metainfo.xml.in:81
+ msgid "Remove unused dark style gsettings schema"
+ msgstr ""
+ 
+-#: data/settings-daemon.metainfo.xml.in:83
++#: data/settings-daemon.metainfo.xml.in:89
+ msgid "Initial release"
+ msgstr ""
+ 
+diff --git a/po/meson.build b/po/meson.build
+index c5bd751..e9b77d7 100644
+--- a/po/meson.build
++++ b/po/meson.build
+@@ -1,5 +1 @@
+-i18n.gettext('extra',
+-    args: '--directory=' + meson.project_source_root(),
+-    preset: 'glib',
+-    install: false
+-)
++i18n.gettext(meson.project_name(), preset: 'glib')

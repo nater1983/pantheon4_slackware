@@ -1,0 +1,191 @@
+From 2d18b68de6a309b713409b454a98bb8a7b8c7185 Mon Sep 17 00:00:00 2001
+From: Mvbonin <mvbonin@Standard-PC-Q35-ICH9-2009-9360777b.localdomain>
+Date: Tue, 21 Feb 2023 14:39:01 +0000
+Subject: [PATCH] fixed warnings and disabled scroll event
+
+---
+ src/Indicator.vala             |  6 +++-
+ src/IndicatorButton.vala       |  6 ++--
+ src/NamarupaMetaIndicator.vala |  6 ++--
+ src/Settings.vala              | 56 ++++++++++++++++++++++++++--------
+ 4 files changed, 55 insertions(+), 19 deletions(-)
+
+diff --git a/src/Indicator.vala b/src/Indicator.vala
+index ea6295f..3c28570 100644
+--- a/src/Indicator.vala
++++ b/src/Indicator.vala
+@@ -157,8 +157,12 @@ public class AyatanaCompatibility.Indicator : Wingpanel.Indicator {
+     }
+ 
+     public bool on_scroll (Gdk.EventScroll event) {
++
+         //print("SCROLLED");
+-        parent_object.entry_scrolled (entry, 1, (IndicatorAyatana.ScrollDirection)event.direction);
++
++        //This is commented out for now, because it caused indicators to crash. 
++        //Maybe the vapi has to be updated? Could be an issue with gir1.2-appindicator3-0.1
++        //parent_object.entry_scrolled (entry, 1, (IndicatorAyatana.ScrollDirection)event.direction);
+ 
+         return Gdk.EVENT_PROPAGATE;
+     }
+diff --git a/src/IndicatorButton.vala b/src/IndicatorButton.vala
+index dbb72bc..94c4dca 100644
+--- a/src/IndicatorButton.vala
++++ b/src/IndicatorButton.vala
+@@ -24,7 +24,7 @@
+     private Gtk.Widget the_label;
+     private Gtk.Widget the_image;
+     private Gtk.Box box;
+-    private string name;
++    private string name_h;
+ 
+     construct {
+         box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
+@@ -34,7 +34,7 @@
+ 
+     public void set_widget (WidgetSlot slot, Gtk.Widget widget, string name_hint) {
+         Gtk.Widget old_widget = null;
+-        this.name = name_hint;
++        this.name_h = name_hint;
+         if (slot == WidgetSlot.LABEL) {
+             old_widget = the_label;
+         } else if (slot == WidgetSlot.IMAGE) {
+@@ -62,7 +62,7 @@
+     }
+ 
+     public string name_hint (){
+-        return this.name;
++        return this.name_h;
+     }
+ }
+ 
+diff --git a/src/NamarupaMetaIndicator.vala b/src/NamarupaMetaIndicator.vala
+index 9827472..8496eae 100644
+--- a/src/NamarupaMetaIndicator.vala
++++ b/src/NamarupaMetaIndicator.vala
+@@ -159,7 +159,7 @@
+     }
+ 
+ 
+-    private string[] get_restrictions_from_file (File file) {
++   /* private string[] get_restrictions_from_file (File file) {
+         var restrictions = new string[] {};
+ 
+         if (file.query_exists ()) {
+@@ -178,12 +178,12 @@
+         }
+ 
+         return restrictions;
+-    }
++    }*/ 
+ 
+     // TODO: Plug for Namarupa.  
+     private void show_settings () {
+ 		/* temporary used for informations */
+-		string msg = cpt.to_string () + " item(s)\n";
++		//string msg = cpt.to_string () + " item(s)\n";
+ 		/*var msgdial = new Gtk.MessageDialog (null,
+ 		                                     Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                                                    Gtk.MessageType.INFO,
+diff --git a/src/Settings.vala b/src/Settings.vala
+index 7655641..b80024c 100644
+--- a/src/Settings.vala
++++ b/src/Settings.vala
+@@ -66,11 +66,20 @@
+         settings_IndicatorNamesFile = File.new_for_commandline_arg(settingsDir + "indicatorNames.json");
+         
+         if (!settings_Dir.query_exists ()){
+-            settings_Dir.make_directory_with_parents();
++            try{
++                settings_Dir.make_directory_with_parents();
++            }catch (GLib.Error e){
++                print("Error: %s\n" , e.message);
++            }
++            
+         }
+ 
+         if (!settings_Images_Dir.query_exists ()){
+-            settings_Images_Dir.make_directory_with_parents();
++            try{
++                settings_Images_Dir.make_directory_with_parents();
++            }catch (GLib.Error e){
++                print("Error: %s\n" , e.message);
++            }
+         }
+ 
+         if(!settings_File.query_exists ()){
+@@ -90,12 +99,15 @@
+             read_Indicator_Names (settings_IndicatorNamesFile);
+         }
+ 
+-        monitor = settings_File.monitor ( //to track directory use .monitor_directory
+-            GLib.FileMonitorFlags.NONE
+-        );
+-        monitor.changed.connect(settings_File_changed);
+-        print("Monitoring: " + settings_File.get_path() + "\n");
+-
++        try{
++                monitor = settings_File.monitor ( //to track directory use .monitor_directory
++                GLib.FileMonitorFlags.NONE
++            );
++            monitor.changed.connect(settings_File_changed);
++            print("Monitoring: " + settings_File.get_path() + "\n");
++        }catch(GLib.Error e){
++            print("Error setting up monitor: %s\n", e.message);
++        }
+         defaultIndicatorsPlace = Place.MAIN;
+         showEmptyNamarupaIndicator = true;
+         
+@@ -125,12 +137,22 @@
+             //print("image of " + name + "contains gicon.\n");
+             Gtk.IconTheme icon_theme = Gtk.IconTheme.get_default ();
+             Gtk.IconInfo info = icon_theme.lookup_by_gicon(image.gicon, 16, Gtk.IconLookupFlags.USE_BUILTIN);
+-            pixbuf = info.load_icon ();
++            try {
++                pixbuf = info.load_icon ();
++            } catch (Error e) {
++                warning (e.message);
++            }
++            
+         }
+         GLib.File save_file = File.new_for_commandline_arg(settings_Images_Dir.get_path () + "/" + name.replace("/", "..") + ".png");
+         if(pixbuf != null && !save_file.query_exists ()){
+             print("Exporting pixbuf of " + name + " to file.\n");
+-            pixbuf.save (save_file.get_path (), "png");
++            try {
++                pixbuf.save (save_file.get_path (), "png");
++            } catch (Error e) {
++                warning (e.message);
++            }
++            
+         } else {
+             print("No pixbuf for " + name + " or file exists already.\n");
+         }
+@@ -238,7 +260,12 @@
+         string jsonString = read_file (file);
+ 
+         Json.Parser parser = new Json.Parser ();
+-        parser.load_from_data (jsonString, -1);
++        try{
++            parser.load_from_data (jsonString, -1);
++        }catch(GLib.Error e){
++            print("Error: %s\n", e.message);
++        }
++        
+         Json.Node root = parser.get_root ();
+ 
+         Json.Array indicator_list = root.get_object ().get_array_member ("allIndicators");
+@@ -253,7 +280,12 @@
+ 
+     private void get_Settings_from_Json_string (string jsonString) {
+         Json.Parser parser = new Json.Parser ();
+-        parser.load_from_data (jsonString, -1);
++        try{
++            parser.load_from_data (jsonString, -1);
++        }catch(GLib.Error e){
++            print("Error: %s\n", e.message);
++        }
++        
+         Json.Node root = parser.get_root ();
+ 
+         Json.Array nama_indicator_list = root.get_object ().get_array_member ("namarupaIndicators");

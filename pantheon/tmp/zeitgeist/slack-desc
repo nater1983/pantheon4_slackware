@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.
+# Line up the first '|' above the ':' following the base package name, and
+# the '|' on the right side marks the last column you can put a character in.
+# You must make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+zeitgeist: zeitgeist (Service logging user activities and events)
+zeitgeist:
+zeitgeist: Zeitgeist is a service which logs the users's activities and events
+zeitgeist: (files opened, websites visites, conversations held with other
+zeitgeist: people, etc.) and makes relevant information available to other
+zeitgeist: applications. It is able to establish relationships between items
+zeitgeist: based on similarity and usage patterns.
+zeitgeist:
+zeitgeist:
+zeitgeist: Homepage: https://launchpad.net/zeitgeist
+zeitgeist:

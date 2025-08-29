@@ -1,0 +1,18 @@
+mkdir build
+cd build
+  CFLAGS="$SLKCFLAGS" \
+  CXXFLAGS="$SLKCFLAGS" \
+  meson setup ..\
+    "${PANTHEON_BUILD_ARGS[@]}" \
+    $PANTHEON_OPT_ARGS \
+    -Dgtk=true \
+    -Dlibsysprof=true \
+    -Dsysprofd=bundled \
+    -Dsystemdunitdir=/usr/lib/systemd/system \
+    -Dhelp=true \
+    -Dtools=true \
+    -Dtests=false \
+    -Dexamples=false
+  "${NINJA:=ninja}"
+  DESTDIR=$PKG $NINJA install
+cd ..

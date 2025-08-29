@@ -1,0 +1,13 @@
+mkdir -p build
+cd build
+  CFLAGS="$SLKCFLAGS" \
+  CXXFLAGS="$SLKCFLAGS" \
+  meson setup ..\
+    "${PANTHEON_BUILD_ARGS[@]}" \
+    $PANTHEON_OPT_ARGS \
+    -Dvapi=true \
+    -Dpython3=false \
+    -Dgtk_doc=false
+  "${NINJA:=ninja}"
+  DESTDIR=$PKG $NINJA install
+cd ..

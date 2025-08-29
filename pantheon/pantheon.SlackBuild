@@ -1,0 +1,583 @@
+#!/bin/sh
+# Copyright 2011, 2012, 2017, 2018, 2020  Patrick J. Volkerding, Sebeka, MN, USA
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+#  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+#  EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Adapted by Nathaniel Russell <naterussell83@gmail.com> for modular Pantheon build.
+# Pantheon.SlackBuild Script
+
+# Set up general build options
+CLEANUP=${CLEANUP:-"yes"}       # Clean up after build
+UPGRADE=${UPGRADE:-"no"}        # Upgrade package after successful build
+PRECHECK=${PRECHECK:-"no"}      # Perform a pre-check of sources
+CHECKOUT=${CHECKOUT:-"no"}      # Don't let the script checkout missing sources by default
+GRACETME=${GRACETME:-"10"}      # Grace time before build starts
+SKIPBUILT=${SKIPBUILT:-"no"}    # Skip already built packages
+EXITFAIL=${EXITFAIL:-"yes"}     # Exit on build failure
+
+# Function to get base name of the package (remove .tar extensions)
+pkgbase() {
+  PKGEXT=$(echo $1 | rev | cut -f 1 -d . | rev)
+  case $PKGEXT in
+    'gz' ) PKGRETURN=$(basename $1 .tar.gz) ;;
+    'bz2' ) PKGRETURN=$(basename $1 .tar.bz2) ;;
+    'xz' ) PKGRETURN=$(basename $1 .tar.xz) ;;
+    'deb' ) PKGRETURN=$(basename $1 .deb) ;;
+    *) PKGRETURN=$(basename $1) ;;
+  esac
+  echo $PKGRETURN
+}
+
+# Set initial directory variables
+cd "$(dirname "$0")" ; CWD=$(pwd)
+
+TMP=${TMP:-/home}
+SLACK_PANTHEON_BUILD_DIR=${PANTHEON_BUILD_DIR:-$TMP/build}
+mkdir -p "$SLACK_PANTHEON_BUILD_DIR"
+
+extract_archive() {
+  # Find the archive first:
+  local src_archive
+  src_archive=$(find "$CWD/src" -name "${1}" | tail -1)
+
+  if [[ "$src_archive" == *.deb ]]; then
+    local tempdir
+    tempdir=$(mktemp -d)
+    ( cd "$tempdir" && ar x "$src_archive" )
+    local data_archive
+    data_archive=$(find "$tempdir" -name 'data.tar.*' | head -n 1)
+
+    mkdir -p "$(pkgbase "$1")"
+    tar -C "$tempdir" -xf "$data_archive" || return 1
+
+    # Move everything from tempdir into pkgbase dir
+    find "$tempdir" -mindepth 1 -maxdepth 1 -exec mv -t "$(pkgbase "$1")" -- {} +
+
+    rm -rf "$tempdir"
+    return 0
+  fi
+
+  # Regular tar-based logic
+  if [ "$(tar -tf "$src_archive" | grep -o '^[^/]\+' | sort -u | wc -l)" -eq 1 ]; then
+    tar -xf "$src_archive" || return 1
+    local topdir
+    topdir="$(tar -tf "$src_archive" | grep -o '^[^/]\+' | sort -u)"
+    if [ "${topdir}" != "$(pkgbase "$1")" ]; then
+      mv "${topdir}" "$(pkgbase "$1")"
+    fi
+  else
+    mkdir -p "$(pkgbase "$1")"
+    tar -C "$(pkgbase "$1")" -xf "$src_archive" || return 1
+  fi
+}
+
+fix_perms() {
+  local target_dir=$1
+  [ -z "$target_dir" ] && target_dir="."
+
+  chown -R root:root "$target_dir"
+  find "$target_dir" \
+   \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 -o -perm 511 \) \
+   -exec chmod 755 {} \+ -o \
+   \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
+   -exec chmod 644 {} \+
+}
+
+strip_binaries() {
+  local target_dir=$1
+  [ -z "$target_dir" ] && target_dir="."
+
+  find "$target_dir" | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+  find "$target_dir" | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+  find "$target_dir" | xargs file | grep "current ar archive" | grep ELF | cut -f 1 -d : | xargs strip -g 2> /dev/null
+
+  # Keep rpath removal snippet here if needed later.
+}
+
+process_man_pages() {
+  if [ -d "usr/share/man" ]; then
+    mkdir -p usr/man
+    cp -av usr/share/man/* usr/man/
+    rm -fr usr/share/man
+
+    find usr/man -type f -name "*.gz" | while read -r gzfile; do
+      uncompressed="${gzfile%.gz}"
+      [ -f "$uncompressed" ] && rm -v "$gzfile"
+    done
+  fi
+
+  if [ -d "usr/man" ]; then
+    ( cd usr/man
+      for manpagedir in $(find . -type d -name "man*"); do
+        ( cd "$manpagedir"
+          for eachpage in $(find . -type l -maxdepth 1); do
+            ln -s "$(readlink "$eachpage").gz" "$eachpage.gz"
+            rm "$eachpage"
+          done
+          gzip -9 *.*
+        )
+      done
+    )
+  fi
+}
+
+process_info_pages() {
+  if [ -d "usr/share/info" ]; then
+    mkdir -p usr/info
+    mv usr/share/info/* usr/info/
+    rmdir usr/share/info
+  fi
+
+  if [ -d "usr/info" ]; then
+    ( cd usr/info
+      rm -f dir
+      gzip -9 *
+    )
+  fi
+}
+
+no_usr_share_doc() {
+  if [ -d "usr/share/doc" ]; then
+    mkdir -p "usr/doc/${DOCNAME}-${PACKAGE_VERSION}"
+    mv usr/share/doc/* "usr/doc/${DOCNAME}-${PACKAGE_VERSION}"
+    rmdir usr/share/doc
+  fi
+}
+
+no_usr_doc_prgnam() {
+  if [ -d "usr/doc/${DOCNAME}" ]; then
+    mv "usr/doc/${DOCNAME}/"* "usr/doc/${DOCNAME}-${PACKAGE_VERSION}"
+    rmdir "usr/doc/${DOCNAME}"
+  fi
+}
+
+no_usr_dups() {
+  if [ -d "usr/doc/${DOCNAME}-${PACKAGE_VERSION}/${DOCNAME}-${PACKAGE_VERSION}" ]; then
+    rm -fr "usr/doc/${DOCNAME}-${PACKAGE_VERSION}/${DOCNAME}-${PACKAGE_VERSION}"
+  fi
+}
+
+no_systemd() {
+  for path in usr/lib/systemd usr/lib64/systemd; do
+    [ -d "$path" ] && rm -rf "$path"
+  done
+}
+
+precheck() {
+  RETVAL=0
+
+  # Verify sources have corresponding module entries
+  for SRCFILE in $(find "$CWD/src" -type f \( -name "*.tar.?z*" -o -name "*.deb" \) | grep -vE ".asc$|.sig$"); do
+    PKGSRC=$(echo "$SRCFILE" | rev | cut -f2- -d- | cut -f1,2 -d/ | rev)
+    PKGBASE=$(basename "$(grep -lw "$PKGSRC" "$CWD"/pkgsrc/* 2>/dev/null)" 2>/dev/null)
+
+    if [ -z "$PKGBASE" ]; then
+      PKGBASE=$(echo "$(basename "$SRCFILE")" | rev | cut -f2- -d- | rev)
+    fi
+
+    PKGTGT=$(grep -w "${PKGBASE}$" modules/* 2>/dev/null)
+    if [ -n "$(echo "$PKGTGT" | cut -d: -f2- | grep "^ *#")" ]; then
+      echo "Source file '$(basename "$SRCFILE")' is commented out: ($PKGTGT) !"
+    elif grep -v "^ *#" "$CWD/package-blacklist" | grep -wq "${PKGBASE}$" ; then
+      echo "Source file '$(basename "$SRCFILE")' is on the package-blacklist ($PKGBASE) !"
+    elif ! cat modules/* 2>/dev/null | grep -v "^ *#" | grep -wq "${PKGBASE}$" ; then
+      echo "Source file '$(basename "$SRCFILE")' is not mentioned in 'modules' ($PKGBASE) !"
+      RETVAL=1
+    fi
+  done
+
+  PKGDUP=$(cat "$CWD"/modules/* 2>/dev/null | grep -v "^ *#" | grep -v "^$" | sort | uniq -d)
+  if [ -n "$PKGDUP" ]; then
+    echo "Multiply-defined package names: '$(echo "$PKGDUP")'"
+    RETVAL=1
+  fi
+  unset PKGDUP
+
+  for MODPKG in $(cat "$CWD"/modules/* 2>/dev/null | grep -v "^ *#"); do
+    if [ -f "$CWD/pkgsrc/$MODPKG" ]; then
+      MODBASE=$(basename "$(cat "$CWD/pkgsrc/$MODPKG")")
+      MODLOC=$(dirname "$(cat "$CWD/pkgsrc/$MODPKG")")/
+    else
+      MODBASE=$MODPKG
+      MODLOC=""
+    fi
+
+    MODSRC=$(find "$CWD/src/$MODLOC" -name "$MODBASE-*.tar.*" | grep -vE ".asc$|.sig$" | grep -E "$MODBASE-[^-]+.tar.*$|$MODBASE-[0-9].+.tar.*$")
+    if [ -z "$MODSRC" ]; then
+      echo "Module '$MODPKG' does not have a matching source tarball ($MODLOC$MODBASE)!"
+      if [ "$CHECKOUT" = "yes" ] || [ "$CHECKOUT" = "YES" ]; then
+        THEDATE=$(date +%Y%m%d)
+        echo "Checking out ${MODLOC}:${MODBASE} at date ${THEDATE}."
+        "$CWD/pantheon_checkout.sh" -c -d "${THEDATE}" -o "$CWD/src" "${MODLOC}:${MODBASE}"
+        RETVAL=$?
+        if [ $RETVAL -ne 0 ]; then
+          echo "Error while checking out '$MODPKG' ($MODLOC/$MODBASE) !"
+          mv "$CWD/src/$MODLOC/${MODBASE}-${THEDATE}git.tar.xz" "$CWD/src/$MODLOC/${MODBASE}-${THEDATE}git.tar.xz.failed" 2>/dev/null
+        fi
+      else
+        RETVAL=1
+      fi
+    fi
+
+    if [ -z "$(find "$CWD/slack-desc" -name "${MODPKG}")" ]; then
+      echo "Module '$MODPKG' does not have a slack-desc file !"
+      RETVAL=1
+    fi
+  done
+
+  if [ $RETVAL -eq 0 ]; then
+    echo "Check complete, build starts in ${GRACETME} seconds.."
+    sleep "${GRACETME}"
+  else
+    echo "Precheck failed with error code '$RETVAL'."
+    exit 1
+  fi
+}
+
+# Function to build a Pantheon module or subpackage
+build_mod_pkg() {
+  pantheon_module=$1
+  pantheon_pkg=$2
+
+  cd "$CWD/modules"
+
+  if [ -n "$pantheon_module" ]; then
+    if [ ! -f "$pantheon_module" ]; then
+      echo "** '${pantheon_module}' is not an existing module."
+      return
+    fi
+  fi
+
+  PKG=${SLACK_PANTHEON_BUILD_DIR}/${pantheon_module}/package-${pantheon_module}
+  rm -rf "$PKG"
+  mkdir -p "$PKG"
+
+  (
+    for PKGNAME in $(grep -v "^$" "$pantheon_module" | grep -v "^ *#") ; do
+      if grep -wq "^${PKGNAME}$" "${CWD}/package-blacklist" ; then
+        [ -z "$PRINT_PACKAGE_NAME" ] && echo "** '${PKGNAME}' is on the package blacklist."
+        continue
+      fi
+
+      if [ -f "$CWD/pkgsrc/$PKGNAME" ]; then
+        PKGSRC=$(basename "$(cat "$CWD/pkgsrc/$PKGNAME")")
+        PKGLOC=$(dirname "$(cat "$CWD/pkgsrc/$PKGNAME")")
+      else
+        PKGSRC=$PKGNAME
+        PKGLOC=""
+      fi
+
+      pantheon_src=$(
+        find "$CWD/src/$PKGLOC" -type f \( -name "$PKGSRC-*.tar.?z*" -o -name "$PKGSRC-*.deb" \) \
+          | grep -vE ".asc$|.sig$" \
+          | grep -E "$PKGSRC-[^-]+.(tar.*|deb)$|$PKGSRC-[0-9].+.(tar.*|deb)$" \
+          | head -n1 | xargs -r basename
+      )
+
+      if [ -z "$pantheon_src" ]; then
+        [ -z "$PRINT_PACKAGE_NAME" ] && echo "** Did not find '$PKGSRC' in src"
+        continue
+      fi
+
+      PKGARCH=$ARCH
+      if grep -wq "^${PKGNAME}$" "${CWD}/noarch" ; then
+        PKGARCH=noarch
+      fi
+
+      cd "${SLACK_PANTHEON_BUILD_DIR}/${pantheon_module}"
+
+      if [ -n "$pantheon_pkg" ] && [ "$pantheon_pkg" != "$PKGNAME" ]; then
+        continue
+      fi
+
+      [ -z "$PRINT_PACKAGE_NAME" ] && echo && echo "Building from source ${pantheon_src}" && echo
+
+      PKG=${SLACK_PANTHEON_BUILD_DIR}/${pantheon_module}/package-$PKGNAME
+      rm -rf "$PKG"
+      mkdir -p "$PKG"
+
+      MODULAR_PACKAGE_VERSION=$(echo "$pantheon_src" | rev | cut -f 3- -d . | cut -f 1 -d - | rev)
+
+      if [ -n "$PRINT_PACKAGE_NAME" ]; then
+        if [ -r "$CWD/makepkg/${PKGNAME}" ]; then
+          MODBUILD=$(cat "$CWD/makepkg/${PKGNAME}")
+        else
+          MODBUILD=$BUILD
+        fi
+        echo "${PKGNAME}-${MODULAR_PACKAGE_VERSION}-${PKGARCH}-${MODBUILD}${TAG}.txz"
+        continue
+      fi
+
+      if [ "$SKIPBUILT" = "yes" ]; then
+        if [ -r "$CWD/makepkg/${PKGNAME}" ]; then
+          MODBUILD=$(cat "$CWD/makepkg/${PKGNAME}")
+        else
+          MODBUILD=$BUILD
+        fi
+        TESTPKGNAME="${PKGNAME}-${MODULAR_PACKAGE_VERSION}-${PKGARCH}-${MODBUILD}${TAG}.txz"
+        if [ -r "${SLACK_PANTHEON_BUILD_DIR}/${pantheon_module}/$TESTPKGNAME" -o -r "${SLACK_PANTHEON_BUILD_DIR}/$TESTPKGNAME" ]; then
+          echo "** Skipping already built package $TESTPKGNAME."
+          continue
+        fi
+      fi
+
+      rm -rf "$(pkgbase "$pantheon_src")"
+      extract_archive "$pantheon_src" || exit 1
+      cd "$(pkgbase "$pantheon_src")" || exit 1
+
+      fix_perms
+
+      # Patches
+      if [ -r "$CWD/patch/${PKGNAME}.patch" ]; then
+        . "$CWD/patch/${PKGNAME}.patch" || exit 1
+      fi
+
+      # Pre-install hook
+      if [ -r "$CWD/pre-install/${PKGNAME}.pre-install" ]; then
+        . "$CWD/pre-install/${PKGNAME}.pre-install"
+      fi
+
+      # Configure/build/install
+      if ! grep -wq "^${PKGNAME}$" "${CWD}/nomake" ; then
+        if [ -r "$CWD/meson/${PKGNAME}" ]; then
+          . "$CWD/meson/${PKGNAME}"
+        elif [ -r "$CWD/meson/${pantheon_module}" ]; then
+          . "$CWD/meson/${pantheon_module}"
+        else
+          . "$CWD/meson/meson"
+        fi
+
+        if [ -r "$CWD/make/${PKGNAME}" ]; then
+          . "$CWD/make/${PKGNAME}"
+        elif [ -r "$CWD/make/${pantheon_module}" ]; then
+          . "$CWD/make/${pantheon_module}"
+        else
+          . "$CWD/make/make"
+        fi
+      fi
+
+      cd "${SLACK_PANTHEON_BUILD_DIR}/${pantheon_module}/$(pkgbase "$pantheon_src")"
+
+      # Source PRGNAM/PKGVERSION if supplied
+      if [ -r "$CWD/makepkg/${PKGNAME}" ]; then
+        . "$CWD/makepkg/${PKGNAME}"
+      fi
+
+      DOCNAME="${PRGNAM:-$PKGNAME}"
+      PACKAGE_VERSION="${PKGVERSION:-$MODULAR_PACKAGE_VERSION}"
+
+      mkdir -p "$PKG/usr/doc/${DOCNAME}-${PACKAGE_VERSION}"
+
+      if [ -r "$CWD/docs/${DOCNAME}" ]; then
+        cp -a $(cat "$CWD/docs/${DOCNAME}") \
+          "$PKG/usr/doc/${DOCNAME}-${PACKAGE_VERSION}"
+      else
+        cp -a \
+          AUTHORS* CONTRIBUTING* COPYING* HACKING* \
+          INSTALL* LICENSE* MAINTAINERS README* NEWS* TODO* CHANGES* *.rst NOTICE \
+          "$PKG/usr/doc/${DOCNAME}-${PACKAGE_VERSION}" 2>/dev/null
+
+        if [ -r ChangeLog ]; then
+          DOCSDIR="$PKG/usr/doc/${DOCNAME}-${PACKAGE_VERSION}"
+          head -n 1000 ChangeLog > "$DOCSDIR/ChangeLog"
+          touch -r ChangeLog "$DOCSDIR/ChangeLog"
+        fi
+
+        # Prefer DOCNAME slack-required, fallback to PKGNAME
+        if [ -f "$CWD/slack-required/${DOCNAME}" ]; then
+          cat "$CWD/slack-required/${DOCNAME}" > "$PKG/usr/doc/${DOCNAME}-${PACKAGE_VERSION}/slack-required"
+        elif [ -f "$CWD/slack-required/${PKGNAME}" ]; then
+          cat "$CWD/slack-required/${PKGNAME}" > "$PKG/usr/doc/${DOCNAME}-${PACKAGE_VERSION}/slack-required"
+        fi
+      fi
+
+      # Remove zero-length junk
+      find "$PKG/usr/doc/${DOCNAME}-${PACKAGE_VERSION}" -type f -size 0 -exec rm --verbose "{}" \+
+      rmdir --verbose "$PKG/usr/doc/${DOCNAME}-${PACKAGE_VERSION}" 2>/dev/null
+
+      # Remove .la
+      rm -f $PKG/{,usr/}lib${LIBDIRSUFFIX}/*.la
+
+      # Strip binaries unless opted out
+      if [ ! -r "$CWD/nostrip/${PKGNAME}" ]; then
+        strip_binaries "$PKG"
+      fi
+
+      # Post-install hook
+      if [ -r "$CWD/post-install/${PKGNAME}.post-install" ]; then
+        . "$CWD/post-install/${PKGNAME}.post-install"
+      fi
+
+      # doinst.sh snippet (optional)
+      if [ -r "$CWD/doinst.sh/${PKGNAME}" ]; then
+        mkdir -p "$PKG/install"
+        cat "$CWD/doinst.sh/${PKGNAME}" > "$PKG/install/doinst.sh"
+      fi
+
+      # Final package assembly
+      if [ -d "${SLACK_PANTHEON_BUILD_DIR}/${pantheon_module}/package-${PKGNAME}" ]; then
+        cd "$PKG"
+        process_man_pages
+        process_info_pages
+        no_usr_share_doc
+        no_usr_doc_prgnam
+        no_usr_dups
+        no_systemd
+
+        mkdir -p "$PKG/install"
+        if [ -r "$CWD/slack-desc/${PKGNAME}" ]; then
+          cat "$CWD/slack-desc/${PKGNAME}" > "$PKG/install/slack-desc"
+          # install-time *-required/suggests/conflicts: prefer PKGNAME, else DOCNAME
+          if [ -f "$CWD/slack-required/${PKGNAME}" ]; then
+            cat "$CWD/slack-required/${PKGNAME}" > "$PKG/install/slack-required"
+          elif [ -f "$CWD/slack-required/${DOCNAME}" ]; then
+            cat "$CWD/slack-required/${DOCNAME}" > "$PKG/install/slack-required"
+          fi
+          if [ -f "$CWD/slack-suggests/${PKGNAME}" ]; then
+            cat "$CWD/slack-suggests/${PKGNAME}" > "$PKG/install/slack-suggests"
+          fi
+          if [ -f "$CWD/slack-conflicts/${PKGNAME}" ]; then
+            cat "$CWD/slack-conflicts/${PKGNAME}" > "$PKG/install/slack-conflicts"
+          fi
+        else
+          touch "$PKG/install/slack-desc-missing" \
+                "$PKG/install/slack-required" \
+                "$PKG/install/slack-suggests" \
+                "$PKG/install/slack-conflicts"
+        fi
+
+        if [ -r "$CWD/build/${PKGNAME}" ]; then
+          MODBUILD=$(cat "$CWD/build/${PKGNAME}")
+        else
+          MODBUILD=$BUILD
+        fi
+
+        if [ -r "$CWD/makepkg/${PKGNAME}" ]; then
+          . "$CWD/makepkg/${PKGNAME}"
+          PACKAGE_NAME="${PRGNAM:-$PKGNAME}"
+          PACKAGE_VERSION="${PKGVERSION:-$MODULAR_PACKAGE_VERSION}"
+          BUILDSTR="${MODBUILD}${TAG}"
+          echo "Using custom package name: $PACKAGE_NAME, version: $PACKAGE_VERSION with build: $BUILDSTR"
+          /sbin/makepkg --remove-tmp-rpaths -l y -c n \
+            "${SLACK_PANTHEON_BUILD_DIR}/${pantheon_module}/${PACKAGE_NAME}-$(echo "$PACKAGE_VERSION" | tr - _)-${PKGARCH}-${BUILDSTR}.txz"
+        else
+          /sbin/makepkg --remove-tmp-rpaths -l y -c n \
+            "${SLACK_PANTHEON_BUILD_DIR}/${pantheon_module}/${PKGNAME}-$(echo "$MODULAR_PACKAGE_VERSION" | tr - _)-${PKGARCH}-${MODBUILD}${TAG}.txz"
+        fi
+
+        # Optional: install/upgrade the freshly built package
+        if [ "$UPGRADE" = "yes" ] || [ "$UPGRADE" = "YES" ]; then
+          if [ -r "$CWD/makepkg/${PKGNAME}" ]; then
+            . "$CWD/makepkg/${PKGNAME}"
+            upgradepkg --install-new --reinstall \
+              "${SLACK_PANTHEON_BUILD_DIR}/${pantheon_module}/${PRGNAM:-$PACKAGE_NAME}-${PKGVERSION:-$PACKAGE_VERSION}-${PKGARCH}-${MODBUILD}${TAG}.txz"
+            /usr/bin/update-mime-database /usr/share/mime >/dev/null 2>&1 &
+          else
+            upgradepkg --install-new --reinstall \
+              "${SLACK_PANTHEON_BUILD_DIR}/${pantheon_module}/${PKGNAME}-${MODULAR_PACKAGE_VERSION}-${PKGARCH}-${MODBUILD}${TAG}.txz"
+            /usr/bin/update-mime-database /usr/share/mime >/dev/null 2>&1 &
+          fi
+        fi
+      fi
+    done
+  )
+}
+
+# Process the module queue
+deterministic_build() {
+  RET=0
+  for ENTRY in $1 ; do
+    MODULE=$(echo "$ENTRY": | cut -f1 -d:)
+    PKGS=$(echo "$ENTRY": | cut -f2 -d:)
+
+    if [ -z "$PKGS" ]; then
+      [ -z "$PRINT_PACKAGE_NAME" ] && echo "** SlackBuild building '$MODULE'"
+      build_mod_pkg "$MODULE"
+      let RET=$RET+$?
+    else
+      if [ "${PKGS: -1}" = "," ]; then
+        START_PKG=$(echo "$PKGS" | rev | cut -d, -f2 | rev)
+        MOD_LIST=$(grep -v "^ *#" "modules/$MODULE" | grep -v "^$" | tr '\n' ',')
+        PKGS="${PKGS}${MOD_LIST/#?*,${START_PKG},/}"
+        [ -z "$PRINT_PACKAGE_NAME" ] && echo "** SlackBuild expanding '$ENTRY' to '$MODULE:$PKGS'"
+      fi
+      for PKG in $(echo "$PKGS" | tr ',' ' ') ; do
+        [ -z "$PRINT_PACKAGE_NAME" ] && echo "** SlackBuild building '$MODULE:$PKG'"
+        build_mod_pkg "$MODULE" "$PKG"
+        let RET=$RET+$?
+      done
+    fi
+  done
+  return $RET
+}
+
+# MAIN PART #
+
+# Import build configuration if present
+[ -r ./pantheon.options ] && . ./pantheon.options
+
+# If you have Pantheon session env to export, you can source it here (optional):
+# [ -d post-install/pantheonenv ] && . ./post-install/pantheonenv/profile.d/pantheon.sh
+
+# Define Pantheon module sets (adjust your modules/* files accordingly)
+# Typical core examples you might use in modules/pantheon:
+#  granite
+#  gala
+#  wingpanel
+#  slingshot
+#  switchboard
+#  elementary-icon-theme
+#  pantheon-session
+#  ...
+PANTHEONMODS=" \
+  blacklist \
+  gnome \
+  pantheon \
+  "
+
+# Allow individual module selection
+if [ -z "$1" ]; then
+  MODQUEUE=$PANTHEONMODS
+else
+  MODQUEUE="$*"
+fi
+
+# Optional precheck
+if [ "$PRECHECK" = "yes" -o "$PRECHECK" = "YES" ]; then
+  precheck
+fi
+
+# Start builds
+for module in $MODQUEUE ; do
+  [ -z "$PRINT_PACKAGE_NAME" ] && echo "SlackBuild processing module '$module'"
+  deterministic_build "$module"
+  if [ $? = 0 ]; then
+    if [ "$CLEANUP" = "yes" -o "$CLEANUP" = "YES" ]; then
+      find "${SLACK_PANTHEON_BUILD_DIR}/$(echo "$module" | cut -f1 -d:)" -type d -mindepth 1 -maxdepth 1 | xargs rm -rf
+    fi
+  else
+    [ -z "$PRINT_PACKAGE_NAME" ] && echo "${module} failed to build."
+    if [ "$EXITFAIL" = "yes" ]; then
+      exit 1
+    fi
+  fi
+  cd - > /dev/null
+done
+
+exit 0

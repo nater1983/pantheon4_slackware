@@ -1,0 +1,18 @@
+diff --git a/profile.d/qt-qpa-platformtheme.sh b/profile.d/qt-qpa-platformtheme.sh
+index 10c4f34..621dcb2 100644
+--- a/profile.d/qt-qpa-platformtheme.sh
++++ b/profile.d/qt-qpa-platformtheme.sh
+@@ -1 +1,3 @@
+-export QT_QPA_PLATFORMTHEME=gtk3
++if [[ "$XDG_CURRENT_DESKTOP" = Pantheon ]]; then
++    export QT_QPA_PLATFORMTHEME=gtk3
++fi
+diff --git a/profile.d/qt-style-override.sh b/profile.d/qt-style-override.sh
+index 01c8d7c..e608c0a 100644
+--- a/profile.d/qt-style-override.sh
++++ b/profile.d/qt-style-override.sh
+@@ -1 +1,3 @@
+-export QT_STYLE_OVERRIDE=adwaita
++if [[ "$XDG_CURRENT_DESKTOP" = Pantheon ]]; then
++    export QT_STYLE_OVERRIDE=adwaita
++fi

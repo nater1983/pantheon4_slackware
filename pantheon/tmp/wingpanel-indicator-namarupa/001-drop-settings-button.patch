@@ -1,0 +1,22 @@
+ src/Indicator.vala | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/Indicator.vala b/src/Indicator.vala
+index 90cff31..bbb7cf1 100755
+--- a/src/Indicator.vala
++++ b/src/Indicator.vala
+@@ -115,12 +115,12 @@ public class AyatanaCompatibility.MetaIndicator : Wingpanel.Indicator {
+ 
+             switch_stack (false); /* label */
+ 
+-            var settings_btn = new Gtk.ModelButton ();
++            /*var settings_btn = new Gtk.ModelButton ();
+             settings_btn.text = _("Settings…");
+             settings_btn.clicked.connect (show_settings);
+ 
+             main_box.add (new Gtk.Separator (Gtk.Orientation.HORIZONTAL));
+-            main_box.add (settings_btn);
++            main_box.add (settings_btn);*/
+         
+ 
+         return main_box;

@@ -1,0 +1,288 @@
+From 4ce87b36b0eae92e8c2bca0aeb6126cb945c5ba5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=C3=89tienne=20Deparis?= <etienne@depar.is>
+Date: Mon, 24 Jul 2023 20:15:02 +0200
+Subject: [PATCH 1/3] Avoid a compilation warning about missing state handling
+ for WIFI Menu Item
+
+---
+ src/Widgets/WifiMenuItem.vala | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/Widgets/WifiMenuItem.vala b/src/Widgets/WifiMenuItem.vala
+index 74f26192..573c2843 100644
+--- a/src/Widgets/WifiMenuItem.vala
++++ b/src/Widgets/WifiMenuItem.vala
+@@ -166,6 +166,8 @@ public class Network.WifiMenuItem : Gtk.ListBoxRow {
+                     critical ("An access point is being connected but not active.");
+                 }
+                 break;
++            default:
++                break;
+         }
+     }
+ 
+
+From f579e8fb087f612874470d91664bf21799e68c43 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=C3=89tienne=20Deparis?= <etienne@depar.is>
+Date: Mon, 24 Jul 2023 20:15:12 +0200
+Subject: [PATCH 2/3] Avoid a noisy log message in journalctl about missing
+ icon
+
+Error message is:
+
+io.elementary.w[33492]: DisplayWidget.vala:152: Unknown network state, cannot show the good icon: NETWORK_STATE_FAILED
+---
+ src/Widgets/DisplayWidget.vala | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/Widgets/DisplayWidget.vala b/src/Widgets/DisplayWidget.vala
+index ba2749ff..473a3b16 100644
+--- a/src/Widgets/DisplayWidget.vala
++++ b/src/Widgets/DisplayWidget.vala
+@@ -144,6 +144,7 @@ public class Network.Widgets.DisplayWidget : Gtk.Grid {
+         case Network.State.DISCONNECTED:
+             image.icon_name = "panel-network-wireless-offline-symbolic";
+             break;
++        case Network.State.FAILED:
+         case Network.State.WIRED_UNPLUGGED:
+             image.icon_name = "panel-network-wired-offline-symbolic";
+             break;
+
+From ce7c1a62a71e4969795cd2b217257883258a86f0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=C3=89tienne=20Deparis?= <etienne@depar.is>
+Date: Mon, 24 Jul 2023 20:14:43 +0200
+Subject: [PATCH 3/3] List Wireguard connection as possible VPN
+
+---
+ src/Widgets/PopoverWidget.vala | 28 ++++++----
+ src/Widgets/VpnInterface.vala  | 14 ++---
+ src/Widgets/VpnMenuItem.vala   | 96 ++++++++++++++++++++++++----------
+ 3 files changed, 94 insertions(+), 44 deletions(-)
+
+diff --git a/src/Widgets/PopoverWidget.vala b/src/Widgets/PopoverWidget.vala
+index d1e40c80..c1892d86 100644
+--- a/src/Widgets/PopoverWidget.vala
++++ b/src/Widgets/PopoverWidget.vala
+@@ -18,7 +18,6 @@
+ 
+ public class Network.Widgets.PopoverWidget : Gtk.Grid {
+     public NM.Client nm_client { get; construct; }
+-    private NM.VpnConnection? active_vpn_connection = null;
+ 
+     public GLib.List<WidgetNMInterface>? network_interface { get; private owned set; }
+ 
+@@ -340,16 +339,25 @@ public class Network.Widgets.PopoverWidget : Gtk.Grid {
+     }
+ 
+     private void update_vpn_connection () {
+-        active_vpn_connection = null;
+-
++        /* Stupid heuristic for now: at least one connection must be secure to
++         * display the secure badge. */
++        // Reset the current status
++        secure = false;
+         nm_client.get_active_connections ().foreach ((ac) => {
+-            if (active_vpn_connection == null && ac.vpn) {
+-                active_vpn_connection = (NM.VpnConnection) ac;
+-
+-                secure = active_vpn_connection.get_vpn_state () == NM.VpnConnectionState.ACTIVATED;
+-                active_vpn_connection.vpn_state_changed.connect (() => {
+-                    secure = active_vpn_connection.get_vpn_state () == NM.VpnConnectionState.ACTIVATED;
+-                });
++            unowned string connection_type = ac.get_connection_type ();
++            if (connection_type == NM.SettingVpn.SETTING_NAME) {
++                /* We cannot rely on the sole state_changed signal, as it will
++                 * silently ignore sub-vpn specific states, like tun/tap
++                 * interface connection etc. That's why we keep a separate
++                 * implementation for the signal handlers. */
++                var _connection = (NM.VpnConnection) ac;
++                secure = secure || (_connection.get_vpn_state () == NM.VpnConnectionState.ACTIVATED);
++                _connection.vpn_state_changed.disconnect (update_vpn_connection);
++                _connection.vpn_state_changed.connect (update_vpn_connection);
++            } else if (connection_type == NM.SettingWireGuard.SETTING_NAME) {
++                secure = secure || (ac.get_state () == NM.ActiveConnectionState.ACTIVATED);
++                ac.state_changed.disconnect (update_vpn_connection);
++                ac.state_changed.connect (update_vpn_connection);
+             }
+         });
+     }
+diff --git a/src/Widgets/VpnInterface.vala b/src/Widgets/VpnInterface.vala
+index 2a24e722..8f022b2a 100644
+--- a/src/Widgets/VpnInterface.vala
++++ b/src/Widgets/VpnInterface.vala
+@@ -56,13 +56,14 @@ public class Network.VpnInterface : Network.WidgetNMInterface {
+     }
+ 
+     private void active_connected_added_cb (NM.ActiveConnection active_connection) {
+-        if (!active_connection.vpn) {
++        unowned string connection_type = active_connection.get_connection_type ();
++        if (connection_type != NM.SettingVpn.SETTING_NAME && connection_type != NM.SettingWireGuard.SETTING_NAME) {
+             return;
+         }
+ 
+         var menu_item = get_item_for_active_connection (active_connection);
+         if (menu_item != null) {
+-            menu_item.vpn_connection = (NM.VpnConnection) active_connection;
++            menu_item.vpn_connection = active_connection;
+         }
+     }
+ 
+@@ -80,13 +81,13 @@ public class Network.VpnInterface : Network.WidgetNMInterface {
+ 
+         item.cancellable = new Cancellable ();
+ 
+-        if (item.vpn_connection != null && item.vpn_connection.get_vpn_state () == NM.VpnConnectionState.ACTIVATED) {
++        if (item.vpn_connection != null && item.vpn_connection.get_state () == NM.ActiveConnectionState.ACTIVATED) {
+             nm_client.deactivate_connection_async.begin (item.vpn_connection, item.cancellable, (obj, res) => {
+                 try {
+                     ((NM.Client) obj).deactivate_connection_async.end (res);
+                     item.cancellable = null;
+                 } catch (Error e) {
+-                    critical ("Unable to deactivate VPN: %s", e.message);
++                    critical ("Unable to deactivate VPN or Wireguard: %s", e.message);
+                 }
+             });
+         } else {
+@@ -95,7 +96,7 @@ public class Network.VpnInterface : Network.WidgetNMInterface {
+                     ((NM.Client) obj).activate_connection_async.end (res);
+                     item.cancellable = null;
+                 } catch (Error e) {
+-                    critical ("Unable to activate VPN: %s", e.message);
++                    critical ("Unable to activate VPN or Wireguard: %s", e.message);
+                 }
+             });
+         }
+@@ -103,7 +104,8 @@ public class Network.VpnInterface : Network.WidgetNMInterface {
+ 
+     private void vpn_added_cb (Object obj) {
+         var remote_connection = (NM.RemoteConnection) obj;
+-        if (remote_connection.get_connection_type () == NM.SettingVpn.SETTING_NAME) {
++        unowned string connection_type = remote_connection.get_connection_type ();
++        if (connection_type == NM.SettingVpn.SETTING_NAME || connection_type == NM.SettingWireGuard.SETTING_NAME) {
+             var item = new VpnMenuItem (remote_connection);
+             vpn_list.add (item);
+             check_vpn_availability ();
+diff --git a/src/Widgets/VpnMenuItem.vala b/src/Widgets/VpnMenuItem.vala
+index 669578c6..22175e3e 100644
+--- a/src/Widgets/VpnMenuItem.vala
++++ b/src/Widgets/VpnMenuItem.vala
+@@ -7,24 +7,37 @@ public class Network.VpnMenuItem : Gtk.FlowBoxChild {
+     public NM.RemoteConnection remote_connection { get; construct; }
+     public Cancellable? cancellable = null;
+ 
+-    private NM.VpnConnection? _vpn_connection = null;
+-    public NM.VpnConnection? vpn_connection {
++    private NM.ActiveConnection? _vpn_connection = null;
++    public NM.ActiveConnection? vpn_connection {
+         get {
+             return _vpn_connection;
+         }
+         set {
+             if (value != null) {
+                 _vpn_connection = value;
+-                _vpn_connection.vpn_state_changed.connect (update_state);
++                /* We cannot rely on the sole state_changed signal, as it will
++                 * silently ignore sub-vpn specific states, like tun/tap
++                 * interface connection etc. That's why we keep a separate
++                 * implementation for the signal handlers. */
++                if (value.get_vpn ()) {
++                    ((NM.VpnConnection)_vpn_connection).vpn_state_changed.connect (update_state);
++                } else {
++                    _vpn_connection.state_changed.connect (update_state);
++                }
+                 update_state ();
+-            } else {
+-                _vpn_connection.vpn_state_changed.disconnect (update_state);
++                return;
++            }
++            if (_vpn_connection != null) {
++                if (_vpn_connection.get_vpn ()) {
++                    ((NM.VpnConnection)_vpn_connection).vpn_state_changed.disconnect (update_state);
++                } else {
++                    _vpn_connection.state_changed.disconnect (update_state);
++                }
+                 _vpn_connection = null;
+-
+-                ((Gtk.Image) toggle_button.image).icon_name = "panel-network-vpn-disconnected-symbolic";
+-                toggle_button.active = false;
+             }
+ 
++            ((Gtk.Image) toggle_button.image).icon_name = "panel-network-vpn-disconnected-symbolic";
++            toggle_button.active = false;
+         }
+     }
+ 
+@@ -76,26 +89,53 @@ public class Network.VpnMenuItem : Gtk.FlowBoxChild {
+     }
+ 
+     private void update_state () {
+-        switch (vpn_connection.vpn_state) {
+-            case NM.VpnConnectionState.CONNECT:
+-            case NM.VpnConnectionState.IP_CONFIG_GET:
+-            case NM.VpnConnectionState.NEED_AUTH:
+-            case NM.VpnConnectionState.PREPARE:
+-                ((Gtk.Image) toggle_button.image).icon_name = "panel-network-vpn-acquiring-symbolic";
+-                break;
+-            case NM.VpnConnectionState.ACTIVATED:
+-                ((Gtk.Image) toggle_button.image).icon_name = "panel-network-vpn-connected-symbolic";
+-                toggle_button.active = true;
+-                break;
+-            case NM.VpnConnectionState.DISCONNECTED:
+-                ((Gtk.Image) toggle_button.image).icon_name = "panel-network-vpn-disconnected-symbolic";
+-                toggle_button.active = false;
+-                break;
+-            case NM.VpnConnectionState.FAILED:
+-            case NM.VpnConnectionState.UNKNOWN:
+-                ((Gtk.Image) toggle_button.image).icon_name = "panel-network-vpn-error-symbolic";
+-                toggle_button.active = false;
+-                break;
++        if (_vpn_connection == null) {
++            ((Gtk.Image) toggle_button.image).icon_name = "panel-network-vpn-disconnected-symbolic";
++            toggle_button.active = false;
++            return;
++        }
++        unowned string connection_type = _vpn_connection.get_connection_type ();
++        if (connection_type == NM.SettingVpn.SETTING_NAME) {
++            switch (((NM.VpnConnection)_vpn_connection).vpn_state) {
++                case NM.VpnConnectionState.CONNECT:
++                case NM.VpnConnectionState.IP_CONFIG_GET:
++                case NM.VpnConnectionState.NEED_AUTH:
++                case NM.VpnConnectionState.PREPARE:
++                    ((Gtk.Image) toggle_button.image).icon_name = "panel-network-vpn-acquiring-symbolic";
++                    break;
++                case NM.VpnConnectionState.ACTIVATED:
++                    ((Gtk.Image) toggle_button.image).icon_name = "panel-network-vpn-connected-symbolic";
++                    toggle_button.active = true;
++                    break;
++                case NM.VpnConnectionState.DISCONNECTED:
++                    ((Gtk.Image) toggle_button.image).icon_name = "panel-network-vpn-disconnected-symbolic";
++                    toggle_button.active = false;
++                    break;
++                case NM.VpnConnectionState.FAILED:
++                case NM.VpnConnectionState.UNKNOWN:
++                    ((Gtk.Image) toggle_button.image).icon_name = "panel-network-vpn-error-symbolic";
++                    toggle_button.active = false;
++                    break;
++            }
++        } else if (connection_type == NM.SettingWireGuard.SETTING_NAME) {
++            switch (_vpn_connection.get_state ()) {
++                case NM.ActiveConnectionState.UNKNOWN:
++                    ((Gtk.Image) toggle_button.image).icon_name = "panel-network-vpn-error-symbolic";
++                    toggle_button.active = false;
++                    break;
++                case NM.ActiveConnectionState.DEACTIVATED:
++                case NM.ActiveConnectionState.DEACTIVATING:
++                    ((Gtk.Image) toggle_button.image).icon_name = "panel-network-vpn-disconnected-symbolic";
++                    toggle_button.active = false;
++                    break;
++                case NM.ActiveConnectionState.ACTIVATING:
++                    ((Gtk.Image) toggle_button.image).icon_name = "panel-network-vpn-acquiring-symbolic";
++                    break;
++                case NM.ActiveConnectionState.ACTIVATED:
++                    ((Gtk.Image) toggle_button.image).icon_name = "panel-network-vpn-connected-symbolic";
++                    toggle_button.active = true;
++                    break;
++            }
+         }
+     }
+ }

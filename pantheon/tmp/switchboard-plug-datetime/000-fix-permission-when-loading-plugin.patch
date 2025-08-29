@@ -1,0 +1,42 @@
+diff --git a/src/MainView.vala b/src/MainView.vala
+index eda64fa..81aacf2 100644
+--- a/src/MainView.vala
++++ b/src/MainView.vala
+@@ -42,6 +42,8 @@ public class DateTime.MainView : Gtk.ScrolledWindow {
+         time_zone_settings = new GLib.Settings ("org.gnome.desktop.datetime");
+     }
+ 
++    unowned bool first_switch_run;
++
+     construct {
+         var network_time_label = new Gtk.Label (_("Network time:")) {
+             halign = Gtk.Align.END
+@@ -242,6 +244,11 @@ public class DateTime.MainView : Gtk.ScrolledWindow {
+         setup_time_format.begin ();
+ 
+         network_time_switch.notify["active"].connect (() => {
++            if (!first_switch_run) {
++                first_switch_run = true;
++                return;
++            }
++
+             bool active = network_time_switch.active;
+             time_picker.sensitive = !active;
+             date_picker.sensitive = !active;
+@@ -263,7 +270,15 @@ public class DateTime.MainView : Gtk.ScrolledWindow {
+             network_time_switch.sensitive = false;
+         }
+ 
+-        network_time_switch.active = datetime1.NTP;
++        if (datetime1.NTP == false) {
++            network_time_switch.active = false;
++            first_switch_run = true;
++        }
++
++        if (first_switch_run == false) {
++            network_time_switch.active = true;
++        }
++
+         change_tz (datetime1.Timezone);
+ 
+         time_zone_settings.bind ("automatic-timezone", auto_time_zone_switch, "active", SettingsBindFlags.DEFAULT);

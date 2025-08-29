@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.
+# Line up the first '|' above the ':' following the base package name, and
+# the '|' on the right side marks the last column you can put a character in.
+# You must make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                  |-----handy-ruler------------------------------------------------------|
+switcheroo-control: switcheroo-control ( Service to check the availability of dual-GPU )
+switcheroo-control:
+switcheroo-control: For systems that have both an integrated GPU and a dedicated GPU,
+switcheroo-control: this package by default will force the integrated GPU to be used to
+switcheroo-control: save power. You can launch individual apps using the dedicated GPU
+switcheroo-control: by running them with the environment variable DRI_PRIME=1. Or you can
+switcheroo-control: right-click on the app (while it's not running) in GNOME Shell's
+switcheroo-control: Activities Overview and choose the "Launch using Dedicated Graphics
+switcheroo-control: Card" option.
+switcheroo-control:
+switcheroo-control: Homepage: https://gitlab.freedesktop.org/hadess/switcheroo-control

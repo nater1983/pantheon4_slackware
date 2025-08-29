@@ -1,0 +1,94 @@
+From 185c1f7541ee44095ec5d9348298510e28e37f2c Mon Sep 17 00:00:00 2001
+From: Ray Strode <rstrode@redhat.com>
+Date: Thu, 24 Aug 2023 17:43:00 -0400
+Subject: [PATCH 3/4] meson: Add codegen for localed
+
+We're going to need to be querying localed for input source information.
+
+This commit paves the way for that by generating proxy glue code for
+talking to localed.
+---
+ libgnome-desktop/meson.build                 |  8 +++++
+ libgnome-desktop/org.freedesktop.locale1.xml | 38 ++++++++++++++++++++
+ 2 files changed, 46 insertions(+)
+ create mode 100644 libgnome-desktop/org.freedesktop.locale1.xml
+
+diff --git a/libgnome-desktop/meson.build b/libgnome-desktop/meson.build
+index d6b53c26..d2c7bd8e 100644
+--- a/libgnome-desktop/meson.build
++++ b/libgnome-desktop/meson.build
+@@ -55,6 +55,12 @@ dbus_idle_built_sources = gnome.gdbus_codegen('meta-dbus-idle-monitor',
+   object_manager: true
+ )
+ 
++dbus_localed_built_sources = gnome.gdbus_codegen('sd-locale1',
++  'org.freedesktop.locale1.xml',
++  namespace: 'SdDBus',
++  interface_prefix: 'org.freedesktop',
++)
++
+ non_latin_input_sources = custom_target('generate_non_latin_input_sources_header',
+     output : 'non-latin-input-sources.h',
+     command : [python3, files ('generate-non-latin-input-sources.py')]
+@@ -122,6 +128,7 @@ if get_option('build_gtk4')
+       libgnome_desktop_base_sources,
+       libgnome_desktop_base_private_sources,
+       dbus_idle_built_sources,
++      dbus_localed_built_sources,
+     ],
+     dependencies: base_deps,
+     soversion: soversion,
+@@ -201,6 +208,7 @@ if get_option('legacy_library')
+     introspection_sources,
+     dbus_xrandr_built_sources,
+     dbus_idle_built_sources,
++    dbus_localed_built_sources,
+     'gnome-datetime-source.c',
+     'gnome-desktop-thumbnail-script.c',
+     'gnome-gettext-portable.c',
+diff --git a/libgnome-desktop/org.freedesktop.locale1.xml b/libgnome-desktop/org.freedesktop.locale1.xml
+new file mode 100644
+index 00000000..bc23d3a1
+--- /dev/null
++++ b/libgnome-desktop/org.freedesktop.locale1.xml
+@@ -0,0 +1,38 @@
++<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
++"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
++<node>
++ <interface name="org.freedesktop.locale1">
++  <property name="Locale" type="as" access="read">
++  </property>
++  <property name="X11Layout" type="s" access="read">
++  </property>
++  <property name="X11Model" type="s" access="read">
++  </property>
++  <property name="X11Variant" type="s" access="read">
++  </property>
++  <property name="X11Options" type="s" access="read">
++  </property>
++  <property name="VConsoleKeymap" type="s" access="read">
++  </property>
++  <property name="VConsoleKeymapToggle" type="s" access="read">
++  </property>
++  <method name="SetLocale">
++   <arg type="as" direction="in"/>
++   <arg type="b" direction="in"/>
++  </method>
++  <method name="SetVConsoleKeyboard">
++   <arg type="s" direction="in"/>
++   <arg type="s" direction="in"/>
++   <arg type="b" direction="in"/>
++   <arg type="b" direction="in"/>
++  </method>
++  <method name="SetX11Keyboard">
++   <arg type="s" direction="in"/>
++   <arg type="s" direction="in"/>
++   <arg type="s" direction="in"/>
++   <arg type="s" direction="in"/>
++   <arg type="b" direction="in"/>
++   <arg type="b" direction="in"/>
++  </method>
++ </interface>
++</node>
+-- 
+2.41.0

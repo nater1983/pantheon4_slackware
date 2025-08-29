@@ -1,0 +1,7 @@
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+./configure \
+    "${PANTHEON_MAKE_ARGS[@]}" \
+    --enable-nss
+make
+make install DESTDIR=$PKG

@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.
+# Line up the first '|' above the ':' following the base package name, and
+# the '|' on the right side marks the last column you can put a character in.
+# You must make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                             |-----handy-ruler-----------------------------------------------------------------------------|
+ayatana-indicator-application: ayatana-indicator-application ( Ayatana Application Indicators )
+ayatana-indicator-application:
+ayatana-indicator-application: The Ayatana Indicators project is the continuation of Application Indicators
+ayatana-indicator-application: and System Indicators, two technologies developed by Canonical Ltd. for the Unity7 desktop.
+ayatana-indicator-application: Application Indicators are a GTK implementation of the StatusNotifierItem Specification
+ayatana-indicator-application: (SNI) that was originally submitted to freedesktop.org by KDE.
+ayatana-indicator-application:
+ayatana-indicator-application:
+ayatana-indicator-application: Homepage: https://github.com/AyatanaIndicators/ayatana-indicator-application
+ayatana-indicator-application:
+ayatana-indicator-application:

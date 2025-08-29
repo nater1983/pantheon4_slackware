@@ -1,0 +1,20 @@
+rm -fr subprojects/libgd
+
+cat > subprojects/libgd.wrap << 'EOF'
+[wrap-git]
+directory=libgd
+url=https://gitlab.gnome.org/GNOME/libgd.git
+revision=head
+EOF
+
+mkdir meson-build
+cd meson-build
+  CFLAGS="$SLKCFLAGS" \
+  CXXFLAGS="$SLKCFLAGS" \
+  meson setup ..\
+    "${GNOME_BUILD_ARGS[@]}" \
+    $GNOME_OPT_ARGS \
+    -Duser_documentation=false
+  "${NINJA:=ninja}"
+  DESTDIR=$PKG $NINJA install
+cd ..

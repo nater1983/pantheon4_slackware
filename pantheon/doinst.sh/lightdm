@@ -1,0 +1,31 @@
+config() {
+  NEW="$1"
+  OLD="$(dirname $NEW)/$(basename $NEW .new)"
+  if [ ! -r $OLD ]; then
+    mv $NEW $OLD
+  elif [ "$(cat $OLD | md5sum)" = "$(cat $NEW | md5sum)" ]; then
+    rm $NEW
+  fi
+}
+
+preserve_perms() {
+  NEW="$1"
+  OLD="$(dirname $NEW)/$(basename $NEW .new)"
+  if [ -e $OLD ]; then
+    cp -a $OLD ${NEW}.incoming
+    cat $NEW > ${NEW}.incoming
+    mv ${NEW}.incoming $NEW
+  fi
+  config $NEW
+}
+
+preserve_perms etc/rc.d/rc.4.local.new
+config etc/lightdm/keys.conf.new
+config etc/lightdm/lightdm.conf.new
+config etc/lightdm/users.conf.new
+
+# creating lightdm group if he isn't already there
+if ! grep -q "^lightdm:" /etc/passwd ; then
+  /usr/sbin/groupadd -fg 620 lightdm
+  /usr/sbin/useradd -c "Light Display Manager" -d /var/lib/lightdm -u 620 -g lightdm -s /sbin/nologin lightdm
+fi

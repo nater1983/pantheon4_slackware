@@ -1,0 +1,14 @@
+mkdir build
+cd build
+  CFLAGS="$SLKCFLAGS" \
+  CXXFLAGS="$SLKCFLAGS" \
+  meson setup ..\
+    "${PANTHEON_BUILD_ARGS[@]}" \
+    $PANTHEON_OPT_ARGS
+    -Dsd-bus-provider=libelogind \
+    -Ddocumentation=api \
+    -Dliboeffis=auto \
+    -Dtests=disabled
+  "${NINJA:=ninja}"
+  DESTDIR=$PKG $NINJA install
+cd ..

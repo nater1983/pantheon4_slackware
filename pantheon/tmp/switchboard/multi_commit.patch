@@ -1,0 +1,437 @@
+From baedd88b49ae24a4f7243f9195c86f47429e155e Mon Sep 17 00:00:00 2001
+From: Ryo Nakano <26003928+ryonakano@users.noreply.github.com>
+Date: Tue, 1 Nov 2022 04:17:59 +0900
+Subject: [PATCH] Plug: Remove unused category other (#252)
+
+---
+ lib/Plug.vala | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/lib/Plug.vala b/lib/Plug.vala
+index dcb73049..f1a51e7a 100644
+--- a/lib/Plug.vala
++++ b/lib/Plug.vala
+@@ -23,8 +23,7 @@ public abstract class Switchboard.Plug : GLib.Object {
+         PERSONAL = 0,
+         HARDWARE = 1,
+         NETWORK = 2,
+-        SYSTEM = 3,
+-        OTHER = 4
++        SYSTEM = 3
+     }
+ 
+     /**
+From d1f1a1b648741086d9efe0808773915560a209bd Mon Sep 17 00:00:00 2001
+From: lenemter <lenemter@gmail.com>
+Date: Mon, 26 Sep 2022 00:08:54 +0900
+Subject: [PATCH] Omit plug_selected signal (#248)
+
+---
+ src/Application.vala  | 1 -
+ src/CategoryView.vala | 2 --
+ 2 files changed, 3 deletions(-)
+
+diff --git a/src/Application.vala b/src/Application.vala
+index cbf66a36..7999528d 100644
+--- a/src/Application.vala
++++ b/src/Application.vala
+@@ -157,7 +157,6 @@ namespace Switchboard {
+             headerbar.pack_end (search_box);
+ 
+             category_view = new Switchboard.CategoryView (plug_to_open);
+-            category_view.plug_selected.connect ((plug) => load_plug (plug));
+             category_view.load_default_plugs.begin ();
+ 
+             deck = new Hdy.Deck () {
+diff --git a/src/CategoryView.vala b/src/CategoryView.vala
+index 5d170854..6b2a4776 100644
+--- a/src/CategoryView.vala
++++ b/src/CategoryView.vala
+@@ -22,8 +22,6 @@
+ namespace Switchboard {
+ 
+     public class CategoryView : Gtk.Stack {
+-        public signal void plug_selected (Switchboard.Plug plug);
+-
+         public PlugsSearch plug_search { get; construct; }
+         public Gee.ArrayList<SearchEntry?> plug_search_result { get; construct; }
+         public Switchboard.Category personal_category { get; construct; }
+From cfec3cda763c5603f800b15d76de601fbe2ee446 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Danielle=20For=C3=A9?= <daniel@elementary.io>
+Date: Tue, 14 Jun 2022 11:18:40 -0700
+Subject: [PATCH] Application: center searchbox in categoryview (#239)
+
+---
+ src/Application.vala | 30 +++++++++++++++++++++++++-----
+ 1 file changed, 25 insertions(+), 5 deletions(-)
+
+diff --git a/src/Application.vala b/src/Application.vala
+index 7999528d..ac2ba8bc 100644
+--- a/src/Application.vala
++++ b/src/Application.vala
+@@ -37,6 +37,8 @@ namespace Switchboard {
+         private Hdy.HeaderBar headerbar;
+         private Hdy.Window main_window;
+         private Switchboard.CategoryView category_view;
++        private Gtk.Label title_label;
++        private Gtk.Stack title_stack;
+ 
+         private static bool opened_directly = false;
+         private static string? link = null;
+@@ -148,13 +150,27 @@ namespace Switchboard {
+                 sensitive = false
+             };
+ 
++            title_label = new Gtk.Label ("");
++            title_label.get_style_context ().add_class ("title");
++
++            title_stack = new Gtk.Stack () {
++                hexpand = true
++            };
++            title_stack.add (search_box);
++            title_stack.add (title_label);
++
++            var title_clamp = new Hdy.Clamp () {
++                child = title_stack,
++                maximum_size = 800
++            };
++
+             headerbar = new Hdy.HeaderBar () {
+-                has_subtitle = false,
++                centering_policy = STRICT,
++                height_request = 38,
+                 show_close_button = true,
+-                title = _("System Settings")
++                custom_title = title_clamp
+             };
+             headerbar.pack_start (navigation_button);
+-            headerbar.pack_end (search_box);
+ 
+             category_view = new Switchboard.CategoryView (plug_to_open);
+             category_view.load_default_plugs.begin ();
+@@ -206,6 +222,8 @@ namespace Switchboard {
+ 
+             add_window (main_window);
+ 
++            main_window.bind_property ("title", title_label, "label");
++
+             search_box.search_changed.connect (() => {
+                 if (search_box.text_length > 0) {
+                     search_stack.visible_child = searchview;
+@@ -328,7 +346,8 @@ namespace Switchboard {
+                 }
+ 
+                 if (deck.visible_child == category_view) {
+-                    headerbar.title = _("System Settings");
++                    main_window.title = _("System Settings");
++                    title_stack.visible_child = search_box;
+ 
+                     navigation_button.hide ();
+ 
+@@ -336,7 +355,8 @@ namespace Switchboard {
+                     search_box.has_focus = search_box.sensitive;
+                 } else {
+                     plug_widgets[deck.visible_child].shown ();
+-                    headerbar.title = plug_widgets[deck.visible_child].display_name;
++                    main_window.title = plug_widgets[deck.visible_child].display_name;
++                    title_stack.visible_child = title_label;
+ 
+                     if (previous_child != null && previous_child is Switchboard.Plug) {
+                         navigation_button.label = previous_child.display_name;
+From 4addc644b8ff739ece875e6e92a309c58a959ddb Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Danielle=20For=C3=A9?= <daniel@elementary.io>
+Date: Tue, 5 Jul 2022 11:16:36 -0700
+Subject: [PATCH] Responsive (#233)
+
+---
+ src/Application.vala             | 12 +++++-----
+ src/CategoryView.vala            | 39 +++++++++++++++++++++-----------
+ src/Widgets/CategoryFlowBox.vala | 30 ++++++++----------------
+ src/Widgets/CategoryIcon.vala    | 39 ++++++++++++++++++++------------
+ 4 files changed, 66 insertions(+), 54 deletions(-)
+
+diff --git a/src/Application.vala b/src/Application.vala
+index ac2ba8bc..fbc8bb42 100644
+--- a/src/Application.vala
++++ b/src/Application.vala
+@@ -192,12 +192,12 @@ namespace Switchboard {
+             grid.attach (headerbar, 0, 0);
+             grid.attach (search_stack, 0, 1);
+ 
+-            main_window = new Hdy.Window ();
+-            main_window.application = this;
+-            main_window.icon_name = application_id;
+-            main_window.title = _("System Settings");
+-            main_window.add (grid);
+-            main_window.set_size_request (640, 480);
++            main_window = new Hdy.Window () {
++                application = this,
++                child = grid,
++                icon_name = application_id,
++                title = _("System Settings")
++            };
+ 
+             int window_x, window_y;
+             var rect = Gtk.Allocation ();
+diff --git a/src/CategoryView.vala b/src/CategoryView.vala
+index 6b2a4776..3c5c3d2f 100644
+--- a/src/CategoryView.vala
++++ b/src/CategoryView.vala
+@@ -21,7 +21,7 @@
+ 
+ namespace Switchboard {
+ 
+-    public class CategoryView : Gtk.Stack {
++    public class CategoryView : Gtk.Box {
+         public PlugsSearch plug_search { get; construct; }
+         public Gee.ArrayList<SearchEntry?> plug_search_result { get; construct; }
+         public Switchboard.Category personal_category { get; construct; }
+@@ -31,6 +31,7 @@ namespace Switchboard {
+ 
+         public string? plug_to_open { get; construct set; default = null; }
+ 
++        private Gtk.Stack stack;
+         private Granite.Widgets.AlertView alert_view;
+ 
+         construct {
+@@ -45,21 +46,33 @@ namespace Switchboard {
+             plug_search = new PlugsSearch ();
+             plug_search_result = new Gee.ArrayList<SearchEntry?> ();
+ 
+-            var category_grid = new Gtk.Grid ();
+-            category_grid.margin_top = 12;
+-            category_grid.orientation = Gtk.Orientation.VERTICAL;
+-            category_grid.add (personal_category);
+-            category_grid.add (hardware_category);
+-            category_grid.add (network_category);
+-            category_grid.add (system_category);
++            var category_box = new Gtk.Box (Gtk.Orientation.VERTICAL, 24) {
++                margin_top = 12,
++                margin_end = 12,
++                margin_bottom = 12,
++                margin_start = 12
++            };
++            category_box.add (personal_category);
++            category_box.add (hardware_category);
++            category_box.add (network_category);
++            category_box.add (system_category);
+ 
+             var category_scrolled = new Gtk.ScrolledWindow (null, null) {
++                child = category_box,
+                 hscrollbar_policy = Gtk.PolicyType.NEVER
+             };
+-            category_scrolled.add (category_grid);
+ 
+-            add (alert_view);
+-            add_named (category_scrolled, "category-grid");
++            stack = new Gtk.Stack ();
++            stack.add (alert_view);
++            stack.add_named (category_scrolled, "category-grid");
++
++            var clamp = new Hdy.Clamp () {
++                child = stack,
++                maximum_size = 800,
++                tightening_threshold = 800
++            };
++
++            add (clamp);
+         }
+ 
+         public CategoryView (string? plug = null) {
+@@ -72,7 +85,7 @@ namespace Switchboard {
+             alert_view.description = secondary_text;
+             alert_view.icon_name = icon_name;
+ 
+-            visible_child = alert_view;
++            stack.visible_child = alert_view;
+         }
+ 
+         public async void load_default_plugs () {
+@@ -129,7 +142,7 @@ namespace Switchboard {
+             }
+ 
+             if (any_found) {
+-                visible_child_name = "category-grid";
++                stack.visible_child_name = "category-grid";
+             }
+ 
+             if (plug_to_open != null && plug_to_open.has_suffix (plug.code_name)) {
+diff --git a/src/Widgets/CategoryFlowBox.vala b/src/Widgets/CategoryFlowBox.vala
+index 12bdcabe..b255ab7e 100644
+--- a/src/Widgets/CategoryFlowBox.vala
++++ b/src/Widgets/CategoryFlowBox.vala
+@@ -30,33 +30,21 @@ namespace Switchboard {
+ 
+         construct {
+             var category_label = new Granite.HeaderLabel (Switchboard.CategoryView.get_category_name (category));
+-            category_label.vexpand = true;
+ 
+-            var h_separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
+-            h_separator.hexpand = true;
+-            h_separator.valign = Gtk.Align.CENTER;
+-
+-            flowbox = new Gtk.FlowBox ();
+-            flowbox.activate_on_single_click = true;
+-            flowbox.column_spacing = 12;
+-            flowbox.row_spacing = 12;
+-            flowbox.homogeneous = true;
+-            flowbox.min_children_per_line = 5;
+-            flowbox.max_children_per_line = 5;
+-            flowbox.selection_mode = Gtk.SelectionMode.NONE;
+-            flowbox.vexpand = true;
+-
+-            margin_bottom = 12;
+-            margin_start = 12;
+-            margin_end = 12;
++            flowbox = new Gtk.FlowBox () {
++                activate_on_single_click = true,
++                column_spacing = 12,
++                row_spacing = 12,
++                homogeneous = true,
++                max_children_per_line = 5,
++                selection_mode = Gtk.SelectionMode.NONE
++            };
+ 
++            valign = Gtk.Align.START;
+             column_spacing = 3;
+             row_spacing = 6;
+ 
+-            vexpand = true;
+-
+             attach (category_label, 0, 0, 1, 1);
+-            attach (h_separator, 1, 0, 1, 1);
+             attach (flowbox, 0, 1, 2, 1);
+ 
+             flowbox.child_activated.connect ((child) => {
+diff --git a/src/Widgets/CategoryIcon.vala b/src/Widgets/CategoryIcon.vala
+index a74f7ae1..64756f3d 100644
+--- a/src/Widgets/CategoryIcon.vala
++++ b/src/Widgets/CategoryIcon.vala
+@@ -19,30 +19,41 @@
+ */
+ public class Switchboard.CategoryIcon : Gtk.FlowBoxChild {
+     public unowned Switchboard.Plug plug { get; construct; }
++    private static Gtk.SizeGroup size_group;
+ 
+     public CategoryIcon (Switchboard.Plug plug) {
+         Object (plug: plug);
+     }
+-    construct {
+-        width_request = 144;
+ 
+-        var icon = new Gtk.Image.from_icon_name (plug.icon, Gtk.IconSize.DND);
+-        icon.tooltip_text = plug.description;
++    static construct {
++        size_group = new Gtk.SizeGroup (Gtk.SizeGroupMode.HORIZONTAL);
++    }
+ 
+-        var plug_name = new Gtk.Label (plug.display_name);
+-        plug_name.justify = Gtk.Justification.CENTER;
+-        plug_name.max_width_chars = 18;
+-        plug_name.wrap = true;
+-        plug_name.wrap_mode = Pango.WrapMode.WORD_CHAR;
++    construct {
++        var icon = new Gtk.Image.from_icon_name (plug.icon, Gtk.IconSize.DND) {
++            pixel_size = 32,
++            tooltip_text = plug.description
++        };
+ 
+-        var layout = new Gtk.Grid ();
+-        layout.halign = Gtk.Align.CENTER;
+-        layout.margin = 6;
+-        layout.orientation = Gtk.Orientation.VERTICAL;
++        var plug_name = new Gtk.Label (plug.display_name) {
++            hexpand = true,
++            wrap = true,
++            wrap_mode = Pango.WrapMode.WORD_CHAR,
++            xalign = 0
++        };
++
++        var layout = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 6) {
++            margin_top = 6,
++            margin_end = 6,
++            margin_bottom = 6,
++            margin_start = 6
++        };
+         layout.add (icon);
+         layout.add (plug_name);
+ 
+-        add (layout);
++        size_group.add_widget (layout);
++
++        child = layout;
+ 
+         plug.visibility_changed.connect (() => {
+             changed ();
+From eb8fd718d63ad3745ee3a98333fc7c49bd86acd9 Mon Sep 17 00:00:00 2001
+From: Leo <lenemter@gmail.com>
+Date: Thu, 15 Jun 2023 16:23:43 +0900
+Subject: [PATCH] Clamp category box, not scrolled window (#264)
+
+---
+ src/CategoryView.vala | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/src/CategoryView.vala b/src/CategoryView.vala
+index 3c5c3d2f..b574265d 100644
+--- a/src/CategoryView.vala
++++ b/src/CategoryView.vala
+@@ -57,8 +57,14 @@ namespace Switchboard {
+             category_box.add (network_category);
+             category_box.add (system_category);
+ 
+-            var category_scrolled = new Gtk.ScrolledWindow (null, null) {
++            var clamp = new Hdy.Clamp () {
+                 child = category_box,
++                maximum_size = 800,
++                tightening_threshold = 800
++            };
++
++            var category_scrolled = new Gtk.ScrolledWindow (null, null) {
++                child = clamp,
+                 hscrollbar_policy = Gtk.PolicyType.NEVER
+             };
+ 
+@@ -66,13 +72,7 @@ namespace Switchboard {
+             stack.add (alert_view);
+             stack.add_named (category_scrolled, "category-grid");
+ 
+-            var clamp = new Hdy.Clamp () {
+-                child = stack,
+-                maximum_size = 800,
+-                tightening_threshold = 800
+-            };
+-
+-            add (clamp);
++            add (stack);
+         }
+ 
+         public CategoryView (string? plug = null) {
+From b41034ddb48a4e957f00e4430e7e2426c61ef2a6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Danielle=20For=C3=A9?= <danielle@elementary.io>
+Date: Tue, 14 Jun 2022 10:09:40 -0700
+Subject: [PATCH] =?UTF-8?q?master=20=E2=86=92=20main?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ data/io.elementary.switchboard.appdata.xml.in | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/data/io.elementary.switchboard.appdata.xml.in b/data/io.elementary.switchboard.appdata.xml.in
+index b73b5ab6..d9d4cae3 100644
+--- a/data/io.elementary.switchboard.appdata.xml.in
++++ b/data/io.elementary.switchboard.appdata.xml.in
+@@ -15,7 +15,7 @@
+ 
+   <screenshots>
+     <screenshot type="default">
+-      <image>https://raw.githubusercontent.com/elementary/switchboard/master/data/screenshot.png</image>
++      <image>https://raw.githubusercontent.com/elementary/switchboard/main/data/screenshot.png</image>
+     </screenshot>
+   </screenshots>
+
+ 
+                     if (previous_child != null && previous_child is Switchboard.Plug) {
+                         navigation_button.label = previous_child.display_name;

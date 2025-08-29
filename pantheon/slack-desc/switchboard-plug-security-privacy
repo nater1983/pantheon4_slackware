@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.
+# Line up the first '|' above the ':' following the base package name, and
+# the '|' on the right side marks the last column you can put a character in.
+# You must make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                                 |-----handy-ruler--------------------------------------------------------------------------------|
+switchboard-plug-security-privacy: switchboard-plug-security-privacy ( Switchboard Security & Privacy Plug )
+switchboard-plug-security-privacy:
+switchboard-plug-security-privacy: Configure various aspects of the security of the system. The security & privacy plug is a
+switchboard-plug-security-privacy: section in Switchboard, the elementary System Settings app, where users can configure the
+switchboard-plug-security-privacy: security and the level of privacy according to his needs.
+switchboard-plug-security-privacy:
+switchboard-plug-security-privacy:
+switchboard-plug-security-privacy:
+switchboard-plug-security-privacy: Homepage: https://github.com/elementary/switchboard-plug-security-privacy
+switchboard-plug-security-privacy:
+switchboard-plug-security-privacy:

@@ -1,0 +1,23 @@
+# GNOME
+bamf
+cogl
+clutter
+clutter-gst
+evolution-data-server
+geoclue2
+geocode-glib
+gnome-common
+gnome-desktop
+gnome-menus
+gnome-online-accounts
+gnome-settings-daemon
+gsettings-desktop-schemas
+gtksourceview5
+libgdata
+libgweather4
+libpeas
+libpeas2
+librest
+mutter
+orca
+sysprof

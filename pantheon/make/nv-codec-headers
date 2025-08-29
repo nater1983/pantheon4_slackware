@@ -1,0 +1,5 @@
+make \
+  PREFIX=/usr \
+  LIBDIR=/lib$LIBDIRSUFFIX \
+  DESTDIR=$PKG \
+  install
