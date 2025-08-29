@@ -1,7 +1,7 @@
 CFLAGS="$SLKCFLAGS -std=gnu17" \
 CXXFLAGS="$SLKCFLAGS -std=gnu17" \
 ./configure \
-    "${GNOME_MAKE_ARGS[@]}" \
+    "${PANTHEON_MAKE_ARGS[@]}" \
     --docdir=/usr/doc/$PKGNAME-$MODULAR_PACKAGE_VERSION \
     --enable-installed-tests=no \
     --enable-emscripten=no \
