@@ -12,7 +12,6 @@ cd build
     -Dintrospection=true \
     -Downcloud=true \
     -Dimap_smtp=true \
-    -Dms_graph=true \
     -Dgoogle=true \
     -Dgoogle_client_id='44438659992-7kgjeitenc16ssihbtdjbgguch7ju55s.apps.googleusercontent.com' \
     -Ddocumentation=false \
