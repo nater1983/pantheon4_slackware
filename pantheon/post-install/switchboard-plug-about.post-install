@@ -1,4 +1,4 @@
-install -vDm 0644 $CWD/post-install/switchboard-plug-about/slackware.png $PKG/usr/share/icons/hicolor/128x128/places/ || exit 1
+install -vDm 0644 $CWD/post-install/switchboard-plug-about/slackware.png -t $PKG/usr/share/icons/hicolor/128x128/places/ || exit 1
 install -vDm 0644 $CWD/post-install/switchboard-plug-about/slackware.png -t $PKG/usr/share/icons/hicolor/128x128/apps/ || exit 1
 mkdir -p $PKG/etc || exit 1
 mkdir -p $PKG/usr/doc/$PKGNAME-$MODULAR_PACKAGE_VERSION/ || exit 1
