@@ -1,0 +1,22 @@
+From 31b786a141514d153cd4f66ce14bb5590d5e4675 Mon Sep 17 00:00:00 2001
+From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
+Date: Sun, 24 Dec 2023 21:33:25 -0600
+Subject: [PATCH] Update OperatingSystemView.vala
+
+---
+ src/Views/OperatingSystemView.vala | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/Views/OperatingSystemView.vala b/src/Views/OperatingSystemView.vala
+index a5767f0c..4e4a7a9f 100644
+--- a/src/Views/OperatingSystemView.vala
++++ b/src/Views/OperatingSystemView.vala
+@@ -193,7 +193,7 @@ public class About.OperatingSystemView : Gtk.Box {
+         // Upstream distro version (for "Built on" text)
+         // FIXME: Add distro specific field to /etc/os-release and use that instead
+         // Like "ELEMENTARY_UPSTREAM_DISTRO_NAME" or something
+-        var file = File.new_for_path ("/usr/lib/upstream-os-release");
++        var file = File.new_for_path ("/etc/os-release");
+         string? upstream_release = null;
+         try {
+             var dis = new DataInputStream (yield file.read_async ());
