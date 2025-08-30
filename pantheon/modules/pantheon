@@ -8,6 +8,7 @@ libcloudproviders
 libostree
 evolution-data-server
 webkit2gtk4.1
+flite
 webkit2gtk6.0
 # Pantheon / elementary
 cerbere
