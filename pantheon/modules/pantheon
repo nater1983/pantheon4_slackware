@@ -1,4 +1,5 @@
 # Common (GNOME + Pantheon shared deps)
+libstemmer
 AppStream
 bubblewrap
 xdg-dbus-proxy
