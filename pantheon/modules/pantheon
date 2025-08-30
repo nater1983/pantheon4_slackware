@@ -1,6 +1,7 @@
 # Common (GNOME + Pantheon shared deps)
 AppStream
 bubblewrap
+xdg-dbus-proxy
 flatpak
 gsettings-desktop-schemas
 libadwaita
