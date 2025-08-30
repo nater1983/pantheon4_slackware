@@ -1,0 +1,8 @@
+mkdir -p $PKG/usr/share/icons/hicolor/128x128/places/ || exit 1
+cp $CWD/slackware.png $PKG/usr/share/icons/hicolor/128x128/places/ || exit 1
+mkdir -p $PKG/usr/share/icons/hicolor/128x128/apps/ || exit 1
+cp $CWD/slackware.png $PKG/usr/share/icons/hicolor/128x128/apps/ || exit 1
+mkdir -p $PKG/etc/oem || exit 1
+cp $CWD/oem.png $PKG/etc/oem/ || exit 1
+cat $CWD/oem.conf > $PKG/etc/oem.conf || exit 1
+cat $CWD/oem.conf.example > $PKG/usr/doc/$PRGNAM-$VERSION/oem.conf.example || exit 1
