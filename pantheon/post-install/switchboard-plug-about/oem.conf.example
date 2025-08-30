@@ -1,0 +1,7 @@
+# Add your information here and place in /etc/oem.conf
+[OEM]
+Manufacturer=Lenovo Group Limited
+Product=T470
+Version=20HDCT01WW
+Logo=/etc/oem/oem.png
+URL=https://support.lenovo.com/
