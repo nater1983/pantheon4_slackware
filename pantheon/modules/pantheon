@@ -3,7 +3,6 @@ AppStream
 bubblewrap
 xdg-dbus-proxy
 flatpak
-gsettings-desktop-schemas
 libadwaita
 libcloudproviders
 libostree
