@@ -10,9 +10,10 @@ cd build
     -Dwayland_eglstream=true \
     -Dcogl_tests=false \
     -Dclutter_tests=false \
+    -Dcore_tests=false \
+    -Dnative_tests=false \
     -Dtests=false \
-    -Dbash_completion=false \
-    -Dxwayland_initfd=auto \
+    -Dsystemd=false \
     -Dinstalled_tests=false
   "${NINJA:=ninja}"
   DESTDIR=$PKG $NINJA install
