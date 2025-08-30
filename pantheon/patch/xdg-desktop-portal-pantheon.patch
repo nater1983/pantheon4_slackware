@@ -1,0 +1,1 @@
+patch -pN1 -i $CWD/patch/xdg-desktop-portal-pantheon/xdg-desktop-portal-pantheon-7.0.0.patch
