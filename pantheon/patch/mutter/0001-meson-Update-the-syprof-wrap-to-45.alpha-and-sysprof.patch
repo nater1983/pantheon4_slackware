@@ -1,7 +1,7 @@
 From 63ccf65f08862a28e8fad216d5ec7d05614535d1 Mon Sep 17 00:00:00 2001
 From: Jordan Petridis <jordan@centricular.com>
 Date: Fri, 28 Jul 2023 16:23:00 +0300
-Subject: [PATCH] meson: Update the syprof wrap to 47.alpha and sysprof-6
+Subject: [PATCH] meson: Update the syprof wrap to 45.alpha and sysprof-6
 
 ---
  meson.build | 31 +++++++++++++++++++++++--------
@@ -20,7 +20,7 @@ index abef74c6a9..dcb5afa208 100644
  
  # profiler requirements
 -sysprof_req = '>= 3.37.2'
-+sysprof_req = '>= 47.alpha'
++sysprof_req = '>= 45.alpha'
  
  gnome = import('gnome')
  pkg = import('pkgconfig')
@@ -83,7 +83,7 @@ index 000000000..528c3cddb
 +[wrap-git]
 +directory=sysprof
 +url=https://gitlab.gnome.org/GNOME/libdex.git
-+revision=cbff2218f29a432f74006d24291b2753aea98ad7
++revision=1ee7a3719d70180709d6c2f85c7ff47865a09cb3
 +
 +[provide]
 +dependency_names = libdex-1
@@ -96,7 +96,7 @@ index c8ac04ac1..7d6328c2b 100644
  directory=sysprof
  url=https://gitlab.gnome.org/GNOME/sysprof.git
 -revision=02e50efa49885a5a20a84a8cd7feda10ae7e7e98
-+revision=e8a113a611c2a31e08026c04b08582b3b7a8afed
++revision=95c942d629b27739773590960e24b8d7ee65c19a
 +
 +[provide]
 +dependency_names = sysprof-6, sysprof-capture-4
