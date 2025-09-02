@@ -12,6 +12,15 @@ webkit2gtk4.1
 flite
 webkit2gtk6.0
 # Pantheon / elementary
+python3-attrs
+python3-dbusmock
+python3-distutils-extra
+python3-isodate
+python3-liblouis
+python3-onboard
+python3-poetry-core
+python3-rdflib
+python3-toml
 cerbere
 elementary-calculator
 elementary-calendar
