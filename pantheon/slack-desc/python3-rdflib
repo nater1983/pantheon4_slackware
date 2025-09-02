@@ -5,15 +5,15 @@
 # You must make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-               |-----handy-ruler------------------------------------------------------|
-python3-rdflib : python3-rdflib  (A Python library for working with RDF)
-python3-rdflib :
-python3-rdflib :
-python3-rdflib :
-python3-rdflib : http://rdflib.net
-python3-rdflib :
-python3-rdflib :
-python3-rdflib :
-python3-rdflib :
-python3-rdflib :
-python3-rdflib :
+              |-----handy-ruler------------------------------------------------------|
+python3-rdflib: python3-rdflib (A Python library for working with RDF)
+python3-rdflib:
+python3-rdflib: RDFLib is a Python library for working with RDF, a simple yet
+python3-rdflib: powerful language for representing information.
+python3-rdflib:
+python3-rdflib: Homepage: http://rdflib.net
+python3-rdflib:
+python3-rdflib:
+python3-rdflib:
+python3-rdflib:
+python3-rdflib:
