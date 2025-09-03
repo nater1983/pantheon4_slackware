@@ -1,4 +1,4 @@
 patch -Np1 -i $CWD/patch/python3-onboard/1001_desktop-file-fixes.patch
 patch -Np1 -i $CWD/patch/python3-onboard/1002_build-against-Ayatana-AppIndicator.patch
-patch -Np1 -i $CWD/patch/python3-onboard0001-Replace-invalid-UTF-8-characters-in-ACPI-events.patch
+patch -Np1 -i $CWD/patch/python3-onboard/0001-Replace-invalid-UTF-8-characters-in-ACPI-events.patch
 patch -Np1 -i $CWD/patch/python3-onboard/1003_disable_onboard_on_gnome.patch
