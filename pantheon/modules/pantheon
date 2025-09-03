@@ -21,6 +21,7 @@ python3-onboard
 python3-poetry-core
 python3-rdflib
 python3-toml
+bluetooth-daemon
 cerbere
 elementary-calculator
 elementary-calendar
