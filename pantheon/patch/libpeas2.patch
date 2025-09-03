@@ -1,0 +1,1 @@
+patch -Np1 -i $CWD/patch/libpeas2/b1b88ba58eafaf0975ff1d3f9acf85eece1e9517.patch
