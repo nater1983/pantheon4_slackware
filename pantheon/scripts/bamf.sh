@@ -104,7 +104,7 @@ echo ">> Checking out the sources..."
 for LOC in $MODS; do
   # Clone the repository:
   echo ">>   Fetching ${LOC} from ${GNOMEGITURI}..."
-  git clone ${GNOMEGITURI}${LOC}.git ${LOC}-temp
+  git clone -b ${DEFBRANCH} ${GNOMEGITURI}${LOC}.git ${LOC}-temp
   if [ $? -ne 0 ]; then
     echo ">>     Failed to checkout ${LOC}."
     continue
