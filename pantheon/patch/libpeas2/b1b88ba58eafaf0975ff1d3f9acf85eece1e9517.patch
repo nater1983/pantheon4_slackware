@@ -1,139 +1,25 @@
-From b1b88ba58eafaf0975ff1d3f9acf85eece1e9517 Mon Sep 17 00:00:00 2001
-From: Christian Hergert <chergert@redhat.com>
-Date: Sun, 11 May 2025 15:01:52 -0700
-Subject: [PATCH] tests: port to girepository-2.0
-
-With GNOME/glib!4630 we can start using girepository-2.0 and still
-integrate with the bindings in use. However, this still requires that the
-bindings are using girepository-2.0 too.
-
-It is expected that we can do that for GNOME 49 across the various modules
-and this ensures we will have working unit tests as that work is completed.
-
-GJS has patches ready but lua-gi still needs patching.
----
- meson.build                       |  5 +----
- tests/libpeas/testing/testing.c   | 19 +++++++++++++++++--
- tests/testing-util/testing-util.c | 20 ++++++++++++++++++--
- 3 files changed, 36 insertions(+), 8 deletions(-)
-
 diff --git a/meson.build b/meson.build
-index f7a4a87..b61a405 100644
+index 1a552da..84bd3de 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -99,7 +99,6 @@ cc = meson.get_compiler('c')
- glib_req_version = '2.74'
+@@ -427,7 +427,7 @@ subdir('po')
  
- glib_req = '>= @0@'.format(glib_req_version)
--introspection_req = '>= 1.39.0'
- gtk_doc_req = '>= 1.11'
- python3_req = '>= 3.2.0'
- pygobject_req = '>= 3.2.0'
-@@ -112,9 +111,7 @@ glib_dep = dependency('glib-2.0', version: glib_req)
- gobject_dep = dependency('gobject-2.0', version: glib_req)
- gmodule_dep = dependency('gmodule-2.0', version: glib_req)
- gio_dep = dependency('gio-2.0', version: glib_req)
--introspection_dep = dependency('gobject-introspection-1.0',
--                               version: introspection_req,
--                               required: get_option('introspection'))
-+introspection_dep = dependency('girepository-2.0', version: glib_req)
+ subdir('loaders')
  
- gi_docgen_dep = dependency('gi-docgen', version: '>= 2021.7',
-                            fallback: ['gi-docgen', 'dummy_dep'],
-diff --git a/tests/libpeas/testing/testing.c b/tests/libpeas/testing/testing.c
-index 7ceaf62..a869aff 100644
---- a/tests/libpeas/testing/testing.c
-+++ b/tests/libpeas/testing/testing.c
-@@ -26,7 +26,13 @@
- #include <stdlib.h>
- 
- #include <glib.h>
--#include <girepository.h>
+-if generate_gir == true
++if get_option('tests')
+   subdir('tests')
+ endif
+
+diff --git a/meson_options.txt b/meson_options.txt
+index 4ca6ab5..a8691b4 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -24,3 +24,7 @@ option('vapi',
+ option('gtk_doc',
+        type: 'boolean', value: false,
+        description: 'Build reference manual (requires gi-docgen)')
 +
-+#if GLIB_CHECK_VERSION(2, 85, 0)
-+# include <girepository/girepository.h>
-+#else
-+# include <girepository.h>
-+#endif
-+
- #include <testing-util.h>
- 
- #include "testing.h"
-@@ -37,6 +43,7 @@ testing_init (int    *argc,
- {
-   GError *error = NULL;
-   static gboolean initialized = FALSE;
-+  GIRepository *repository;
- 
-   if (initialized)
-     return;
-@@ -48,10 +55,18 @@ testing_init (int    *argc,
-   /* Must be after g_test_init() changes the log settings*/
-   testing_util_init ();
- 
--  g_irepository_require_private (g_irepository_get_default (),
-+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-+#if GLIB_CHECK_VERSION(2, 85, 0)
-+  repository = gi_repository_dup_default ();
-+  gi_repository_require_private (repository,
-+#else
-+  repository = g_object_ref (g_irepository_get_default ());
-+  g_irepository_require_private (repository,
-+#endif
-                                  BUILDDIR "/tests/libpeas/introspection",
-                                  "Introspection", API_VERSION_S, 0, &error);
-   g_assert_no_error (error);
-+  g_clear_object (&repository);
- 
-   initialized = TRUE;
- }
-diff --git a/tests/testing-util/testing-util.c b/tests/testing-util/testing-util.c
-index 086e450..f81de77 100644
---- a/tests/testing-util/testing-util.c
-+++ b/tests/testing-util/testing-util.c
-@@ -26,7 +26,12 @@
- #include <stdlib.h>
- 
- #include <glib.h>
--#include <girepository.h>
-+
-+#if GLIB_CHECK_VERSION(2, 85, 0)
-+# include <girepository/girepository.h>
-+#else
-+# include <girepository.h>
-+#endif
- 
- #include "libpeas/peas-engine-priv.h"
- 
-@@ -189,6 +194,7 @@ void
- testing_util_init (void)
- {
-   GError *error = NULL;
-+  GIRepository *repository;
-   const GDebugKey glib_debug_keys[] = {
-     { "fatal-criticals", G_LOG_LEVEL_CRITICAL },
-     { "fatal-warnings",  G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_WARNING }
-@@ -209,10 +215,20 @@ testing_util_init (void)
-   fatal_flags = g_parse_debug_string (g_getenv ("G_DEBUG"), glib_debug_keys,
-                                       G_N_ELEMENTS (glib_debug_keys));
- 
--  g_irepository_require_private (g_irepository_get_default (),
-+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-+#if GLIB_CHECK_VERSION(2, 85, 0)
-+  repository = gi_repository_dup_default ();
-+  gi_repository_require_private (repository,
-+#else
-+  repository = g_object_ref (g_irepository_get_default ());
-+  g_irepository_require_private (repository,
-+#endif
-                                  BUILDDIR "/libpeas",
-                                  "Peas", API_VERSION_S, 0, &error);
-+  G_GNUC_END_IGNORE_DEPRECATIONS
-+
-   g_assert_no_error (error);
-+  g_clear_object (&repository);
- 
-   initialized = TRUE;
- }
--- 
-GitLab
++option('tests', 
++       type: 'boolean', value: true, 
++       description : 'Build unit tests')
