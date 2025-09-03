@@ -21,6 +21,8 @@ python3-onboard
 python3-poetry-core
 python3-rdflib
 python3-toml
+granite
+granite7
 bluetooth-daemon
 cerbere
 elementary-calculator
@@ -44,8 +46,6 @@ elementary-tweaks
 elementary-videos
 elementary-wallpapers
 gala
-granite
-granite7
 pantheon-agent-polkit
 pantheon-applications-menu
 pantheon-default-settings
