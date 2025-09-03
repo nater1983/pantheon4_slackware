@@ -7,7 +7,7 @@ cd build
     $PANTHEON_OPT_ARGS \
     -Dvapi=true \
     -Dlua51=false \
-    -tests=false \
+    -Dtests=false \
     -Dgtk_doc=false
   "${NINJA:=ninja}"
   DESTDIR=$PKG $NINJA install
