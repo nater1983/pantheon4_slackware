@@ -1,0 +1,1 @@
+patch -Np1 -i $CWD/patch/pantheon-settings-daemon/pantheon-settings-daemon-8.2.0_drop_packagekit.patch
