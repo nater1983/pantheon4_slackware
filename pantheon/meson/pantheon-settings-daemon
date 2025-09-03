@@ -5,6 +5,7 @@ cd build
   meson setup ..\
     "${PANTHEON_BUILD_ARGS[@]}" \
     $PANTHEON_OPT_ARGS \
+    -Dubuntu_drivers=false \
     -Dsystemduserunitdir=no \
     -Dsystemdsystemunitdir=no
   "${NINJA:=ninja}"
