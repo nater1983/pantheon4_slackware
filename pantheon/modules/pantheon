@@ -11,6 +11,7 @@ evolution-data-server
 webkit2gtk4.1
 flite
 webkit2gtk6.0
+imlib2
 # Pantheon / elementary
 python3-attrs
 python3-dbusmock
