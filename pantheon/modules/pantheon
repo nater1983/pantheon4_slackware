@@ -26,6 +26,7 @@ python3-rdflib
 python3-toml
 granite
 granite7
+pantheon-wayland
 bluetooth-daemon
 cerbere
 elementary-appcenter
