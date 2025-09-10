@@ -1,0 +1,22 @@
+diff --git a/src/Misc/Utils.vala b/src/Misc/Utils.vala
+index f2d95f2c..ed38fb53 100644
+--- a/src/Misc/Utils.vala
++++ b/src/Misc/Utils.vala
+@@ -53,7 +53,7 @@ namespace SwitchboardPlugUserAccounts {
+         if (default_regions != null)
+             return default_regions;
+ 
+-        string file = "/usr/share/language-tools/main-countries";
++        string file = "/etc/profile.d/lang.sh";
+         string? output = "";
+         try {
+             FileUtils.get_contents (file, out output);
+@@ -334,7 +334,7 @@ namespace SwitchboardPlugUserAccounts {
+ 
+         try {
+             //TODO: add file location for different, non-debian-based distros
+-            FileUtils.get_contents ("/etc/X11/default-display-manager", out output);
++            FileUtils.get_contents ("/etc/X11/xinit/xinitrc", out output);
+         } catch (Error e) {
+             critical (e.message);
+             return "";
