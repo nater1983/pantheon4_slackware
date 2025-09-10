@@ -5,10 +5,15 @@
 # You must make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-     |-----handy-ruler------------------------------------------------------------|
-switchboard-plug-network: ( Switchboard settings network module)
+                        |-----handy-ruler------------------------------------------------------------|
+switchboard-plug-network: switchboard-plug-network (Switchboard Network Plug)
+switchboard-plug-network:
+switchboard-plug-network: Configure all available networks.
+switchboard-plug-network:
+switchboard-plug-network: Homepage: https://github.com/elementary/switchboard-plug-network
 switchboard-plug-network:
 switchboard-plug-network:
 switchboard-plug-network:
-switchboard-plug-network: https://github.com/elementary/switchboard-plug-network
+switchboard-plug-network:
+switchboard-plug-network:
 switchboard-plug-network:
