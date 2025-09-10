@@ -12,6 +12,7 @@ libjxl
 webkit2gtk4.1
 flite
 webkit2gtk6.0
+protobuf-c
 imlib2
 # Pantheon / elementary
 python3-attrs
