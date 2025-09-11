@@ -1,0 +1,1 @@
+patch -Np1 -i $CWD/patch/wingpanel-quick-settings/quick-settings-1.2.0_drop_packagekit.patch
