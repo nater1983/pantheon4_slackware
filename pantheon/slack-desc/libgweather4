@@ -5,15 +5,15 @@
 # exactly 11 lines for the formatting to be correct.  It's also customary to
 # leave one space after the ':'.
 
-           |-----handy-ruler------------------------------------------------------|
-libgweather: libgweather (weather library for GNOME)
-libgweather:
-libgweather: libgweather is a library to access weather information from online
-libgweather: services for numerous locations.
-libgweather:
-libgweather: https://gitlab.gnome.org/GNOME/libgweather
-libgweather:
-libgweather:
-libgweather:
-libgweather:
-libgweather:
+            |-----handy-ruler------------------------------------------------------|
+libgweather4: libgweather4 (weather library for GNOME)
+libgweather4:
+libgweather4: libgweather is a library to access weather information from online
+libgweather4: services for numerous locations.
+libgweather4:
+libgweather4: https://gitlab.gnome.org/GNOME/libgweather
+libgweather4:
+libgweather4:
+libgweather4:
+libgweather4:
+libgweather4:
