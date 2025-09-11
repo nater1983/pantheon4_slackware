@@ -14,6 +14,7 @@ flite
 webkit2gtk6.0
 protobuf-c
 imlib2
+libei
 # Pantheon / elementary
 python3-attrs
 python3-dbusmock
