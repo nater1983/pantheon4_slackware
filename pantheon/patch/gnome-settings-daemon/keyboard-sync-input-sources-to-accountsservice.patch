@@ -21,7 +21,7 @@ index ee12198..799acb6 100644
  geocode_glib_dep = dependency('geocode-glib-2.0', version: '>= 3.26.3', required: false)
  if not geocode_glib_dep.found()
 diff --git a/plugins/xsettings/gsd-xsettings-manager.c b/plugins/xsettings/gsd-xsettings-manager.c
-index 99a8f210..5b1e352f 100644
+index a357100..4963791 100644
 --- a/plugins/xsettings/gsd-xsettings-manager.c
 +++ b/plugins/xsettings/gsd-xsettings-manager.c
 @@ -38,6 +38,8 @@
@@ -31,7 +31,7 @@ index 99a8f210..5b1e352f 100644
 +#include <act/act.h>
 +
  #include "gnome-settings-profile.h"
- #include "gnome-settings-daemon/gsd-enums.h"
+ #include "gsd-enums.h"
  #include "gsd-xsettings-manager.h"
 @@ -57,6 +59,7 @@
  #define WM_SETTINGS_SCHEMA        "org.gnome.desktop.wm.preferences"
@@ -57,14 +57,14 @@ index 99a8f210..5b1e352f 100644
          GdkSeat           *user_seat;
  
          GsdXSettingsGtk   *gtk;
-@@ -1283,12 +1288,80 @@ migrate_settings (void)
+@@ -1332,12 +1337,80 @@ migrate_settings (void)
                                      mouse_entries, G_N_ELEMENTS (mouse_entries));
  }
- 
+
 +void act_user_set_input_sources(ActUser *user, GVariant *sources) {
 +    g_return_if_fail (ACT_IS_USER(user));
 +}
-+ 
++
 +static void
 +user_notify_is_loaded_cb (GObject    *object,
 +                          GParamSpec *pspec,
@@ -138,50 +138,46 @@ index 99a8f210..5b1e352f 100644
          setting = g_settings_get_string (manager->interface_settings,
                                           GTK_IM_MODULE_KEY);
          if (setting && *setting)
-@@ -1296,6 +1369,22 @@ update_gtk_im_module (GsdXSettingsManager *manager)
-         else
-                 module = GTK_IM_MODULE_IBUS;
+@@ -1347,6 +1416,18 @@ update_gtk_im_module (GsdXSettingsManager *manager)
  
-+        g_free (setting);
-+
-+        user_manager = act_user_manager_get_default ();
-+        if (user_manager) {
-+                g_object_get (user_manager, "is-loaded", &user_manager_loaded, NULL);
-+                if (user_manager_loaded)
-+                        manager_notify_is_loaded_cb (G_OBJECT (user_manager),
-+                                                     NULL,
-+                                                     manager->input_sources_settings);
-+                else
-+                        g_signal_connect (user_manager,
-+                                          "notify::is-loaded",
-+                                         G_CALLBACK (manager_notify_is_loaded_cb),
-+                                          manager->input_sources_settings);
-+        }
-+
          xsettings_manager_set_string (manager->manager, "Gtk/IMModule", module);
          g_free (setting);
++
++        user_manager = act_user_manager_get_default ();
++        g_object_get (user_manager, "is-loaded", &user_manager_loaded, NULL);
++        if (user_manager_loaded)
++                manager_notify_is_loaded_cb (G_OBJECT (user_manager),
++                                             NULL,
++                                             manager->input_sources_settings);
++        else
++                g_signal_connect (user_manager,
++                                  "notify::is-loaded",
++                                  G_CALLBACK (manager_notify_is_loaded_cb),
++                                  manager->input_sources_settings);
  }
-@@ -1368,6 +1457,10 @@ gsd_xsettings_manager_startup (GApplication *app)
+ 
+ static void
+@@ -1417,6 +1498,10 @@ gsd_xsettings_manager_start (GsdXSettingsManager *manager,
          g_signal_connect_swapped (manager->interface_settings,
                                    "changed::" GTK_IM_MODULE_KEY,
                                    G_CALLBACK (update_gtk_im_module), manager);
 +        manager->input_sources_settings = g_settings_new (INPUT_SOURCES_SCHEMA);
 +        g_signal_connect_swapped (manager->input_sources_settings,
 +                                  "changed::" INPUT_SOURCES_KEY,
-+                                  G_CALLBACK (update_gtk_im_module), manager);                                  
++                                  G_CALLBACK (update_gtk_im_module), manager);
          update_gtk_im_module (manager);
  
          manager->monitors_changed_id =
-@@ -1574,6 +1667,7 @@ gsd_xsettings_manager_shutdown (GApplication *app)
+@@ -1623,6 +1708,7 @@ gsd_xsettings_manager_stop (GsdXSettingsManager *manager)
                  manager->user_seat = NULL;
          }
  
 +        g_clear_object (&manager->input_sources_settings);
          g_clear_object (&manager->interface_settings);
+ }
  
-         g_clear_handle_id (&manager->start_idle_id, g_source_remove);
 diff --git a/plugins/xsettings/meson.build b/plugins/xsettings/meson.build
-index 9cde0a13..5202ffc3 100644
+index 49ed70f..2975c40 100644
 --- a/plugins/xsettings/meson.build
 +++ b/plugins/xsettings/meson.build
 @@ -12,6 +12,7 @@ sources = gsd_xsettings_gtk + fc_monitor + wm_button_layout_translation + files(
@@ -189,6 +185,6 @@ index 9cde0a13..5202ffc3 100644
  
  deps = plugins_deps + [
 +  accountsservice_dep,
-   gsd_enums_dep,
    gtk_dep,
    x11_dep,
+   xfixes_dep,
