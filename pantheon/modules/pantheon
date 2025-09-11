@@ -53,7 +53,6 @@ elementary-videos
 elementary-wallpapers
 gala
 pantheon-agent-polkit
-pantheon-applications-menu
 pantheon-default-settings
 zeitgeist
 pantheon-files
@@ -65,7 +64,6 @@ pantheon-shell
 pantheon-terminal
 pantheon-tweaks
 pantheon-videos
-quick-settings
 elementary-desktopfolder
 switchboard
 switchboard-plug-a11y
@@ -90,11 +88,13 @@ switchboard-plug-useraccounts
 switchboard-plug-wacom
 wingpanel
 wingpanel-community-indicators
+wingpanel-applications-menu
 wingpanel-indicator-datetime
 wingpanel-indicator-keyboard
 wingpanel-indicator-network
 wingpanel-indicator-nightlight
 wingpanel-indicator-notifications
 wingpanel-indicator-power
+wingpanel-quick-settings
 wingpanel-indicator-sound
 xdg-desktop-portal-pantheon
