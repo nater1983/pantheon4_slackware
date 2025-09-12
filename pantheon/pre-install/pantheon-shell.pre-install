@@ -1,0 +1,4 @@
+sed -i -e "/gnome-keyring/d" session/meson.build
+sed -i -e "/gnome-keyring-ssh/d" session/meson.build
+sed -i -e "/onboard/d" session/meson.build
+sed -i -e "/orca/d" session/meson.build
