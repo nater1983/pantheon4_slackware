@@ -11,3 +11,15 @@ index 97758364..f8f48ecf 100644
                      Environ.get (),
                      SpawnFlags.SEARCH_PATH,
                      null,
+diff --git a/src/LocaleManager.vala b/src/LocaleManager.vala
+index a6390ed6..1ef76900 100644
+--- a/src/LocaleManager.vala
++++ b/src/LocaleManager.vala
+@@ -185,6 +185,7 @@ namespace SwitchboardPlugLocale {
+                 locale += "LC_NUMERIC=%s".printf (format);
+                 locale += "LC_MONETARY=%s".printf (format);
+                 locale += "LC_MEASUREMENT=%s".printf (format);
++                locale += "LC_ALL=%s".printf (format);
+             }
+ 
+             try {
