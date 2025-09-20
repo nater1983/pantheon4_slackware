@@ -1,0 +1,13 @@
+diff --git a/src/Utils.vala b/src/Utils.vala
+index 97758364..f8f48ecf 100644
+--- a/src/Utils.vala
++++ b/src/Utils.vala
+@@ -53,7 +53,7 @@ namespace SwitchboardPlugLocale {
+                 string res = "";
+ 
+                 Process.spawn_async_with_pipes (null,
+-                    {"check-language-support", null},
++                    {"locale", "-a", null},
+                     Environ.get (),
+                     SpawnFlags.SEARCH_PATH,
+                     null,
