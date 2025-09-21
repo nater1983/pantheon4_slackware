@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+# rc.4.local		This file is executed by init(8) when the system is being
+#		initialized for run level 4 (XDM)
+#
+# Version:	@(#)/etc/rc.d/rc.4.local	2.00	02/17/93
+#
+#
+
+# Tell the viewers what's going to happen...
+echo "Starting up Lightdm session manager..."
+
+# to use lightdm  by default:
+if [ -x /usr/bin/lightdm ]; then
+  exec /usr/bin/lightdm
+fi
