@@ -1,0 +1,1 @@
+install -vDm 0644 $CWD/post-install/lightdm-pantheon-greeter/lightdm-pantheon-greeter.conf -t $PKG/etc/lightdm
