@@ -1,8 +1,8 @@
 
-diff --git a/switcheroo-control.service.in b/switcheroo-control.service.in
+diff --git a/data/switcheroo-control.service.in b/data/switcheroo-control.service.in
 index 9bb6939..159a907 100644
---- a/switcheroo-control.service.in
-+++ b/switcheroo-control.service.in
+--- a/data/switcheroo-control.service.in
++++ b/data/switcheroo-control.service.in
 @@ -1,21 +1,10 @@
 -[Unit]
 -Description=Switcheroo Control Proxy service
@@ -35,3 +35,20 @@ index 9bb6939..159a907 100644
 +Name=net.hadess.SwitcherooControl
 +Exec=@libexecdir@/switcheroo-control &
 +User=root
+
+diff --git a/data/meson.build b/data/meson.build
+index 38cf96c..2119653 100644
+--- a/data/meson.build
++++ b/data/meson.build
+@@ -3,9 +3,9 @@ data_conf.set('libexecdir', libexecdir)
+ 
+ configure_file(
+   input: 'switcheroo-control.service.in',
+-  output: 'switcheroo-control.service',
++  output: 'net.hadess.SwitcherooControl.service',
+   configuration: data_conf,
+-  install_dir: systemd_systemunitdir,
++  install_dir: datadir / 'dbus-1/system-services',
+ )
+ 
+ install_data(
