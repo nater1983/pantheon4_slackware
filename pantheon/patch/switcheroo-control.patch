@@ -1,0 +1,1 @@
+patch -Np1 -i $CWD/patch/switcheroo-control/no_systemd.patch
