@@ -26,6 +26,7 @@ python3-onboard
 python3-poetry-core
 python3-rdflib
 python3-toml
+switcheroo-control
 granite
 granite7
 pantheon-wayland
