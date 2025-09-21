@@ -1,0 +1,22 @@
+From 34080bcb81a564bcc30c4f3dd20ff52c8d2261e2 Mon Sep 17 00:00:00 2001
+From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
+Date: Mon, 13 Nov 2023 00:05:32 +0000
+Subject: [PATCH] Update users.conf
+
+---
+ data/users.conf | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/data/users.conf b/data/users.conf
+index 5c0199313..452b9d112 100644
+--- a/data/users.conf
++++ b/data/users.conf
+@@ -9,6 +9,6 @@
+ # hidden-shells = Shells that indicate a user cannot login
+ #
+ [UserList]
+-minimum-uid=500
++minimum-uid=1000
+ hidden-users=nobody nobody4 noaccess
+-hidden-shells=/bin/false /usr/sbin/nologin /sbin/nologin
++hidden-shells=/bin/false /sbin/nologin
