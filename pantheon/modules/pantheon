@@ -101,3 +101,7 @@ wingpanel-indicator-power
 wingpanel-quick-settings
 wingpanel-indicator-sound
 xdg-desktop-portal-pantheon
+# Lightdm greeter works with lightdm-pantheon-greeter
+lightdm-gtk-greeter
+lightdm-pantheon-greeter
+lightdm
