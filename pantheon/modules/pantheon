@@ -91,6 +91,7 @@ switchboard-plug-wacom
 wingpanel
 wingpanel-community-indicators
 wingpanel-applications-menu
+wingpanel-indicator-bluetooth
 wingpanel-indicator-datetime
 wingpanel-indicator-keyboard
 wingpanel-indicator-network
