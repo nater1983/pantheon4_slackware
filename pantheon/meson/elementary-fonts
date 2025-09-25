@@ -1,0 +1,22 @@
+install -dm755 $PKG/usr/share/fonts/TTF || exit 1
+install -dm755 $PKG/usr/share/fonts/OTF || exit 1
+install -dm755 $PKG/etc/fonts/conf.d || exit 1
+
+for t in \
+capture-it \
+daniel \
+hvd-bodedo \
+jenna-sue \
+limelight \
+lobster \
+operating-instructions \
+plainblack \
+raleway \
+redacted \
+roboto-mono \
+; do
+install -Dm644 ${t}/*.ttf -t $PKG/usr/share/fonts/TTF/ || exit 1
+done
+
+install -Dm644 wc-roughtrad/*.otf -t $PKG/usr/share/fonts/OTF/ || exit 1
+install -Dm644 31-croscore-elementary.conf -t $PKG/etc/fonts/conf.d/ || exit 1
