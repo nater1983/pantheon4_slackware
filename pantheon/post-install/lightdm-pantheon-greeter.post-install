@@ -1,2 +1,4 @@
+install -vDm 0644 data/40-io.elementary.greeter.conf -t $PKG/etc/lightdm
+mv $PKG/etc/lightdm/40-io.elementary.greeter.conf $PKG/etc/lightdm/io.elementary.greeter.conf
 install -vDm 0644 $CWD/post-install/lightdm-pantheon-greeter/lightdm-pantheon-greeter.conf -t $PKG/etc/lightdm
 mv $PKG/etc/lightdm/lightdm-pantheon-greeter.conf $PKG/etc/lightdm/lightdm-pantheon-greeter.conf.new
