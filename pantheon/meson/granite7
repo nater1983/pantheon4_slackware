@@ -6,7 +6,7 @@ cd build
     "${PANTHEON_BUILD_ARGS[@]}" \
     $PANTHEON_OPT_ARGS \
     -Dintrospection=true \
-    -Ddemos=false \
+    -Ddemo=false \
     -Dgtk-stylesheets=true
   "${NINJA:=ninja}"
   DESTDIR=$PKG $NINJA install
