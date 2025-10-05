@@ -8,6 +8,7 @@ flatpak
 libadwaita
 libcloudproviders
 libostree
+libshumate
 evolution-data-server
 libjxl
 webkit2gtk4.1
