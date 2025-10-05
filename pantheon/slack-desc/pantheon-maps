@@ -1,0 +1,23 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.
+# Line up the first '|' above the ':' following the base package name, and
+# the '|' on the right side marks the last column you can put a character in.
+# You must make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+             |-----handy-ruler------------------------------------------------------|
+pantheon-maps: pantheon-maps (Map viewer designed for the pantheon desktop)
+pantheon-maps:
+pantheon-maps: A map app that helps you to see where you want to go.
+pantheon-maps: Features include:
+pantheon-maps: * Search any place
+pantheon-maps: * Jump to your current location instantly
+pantheon-maps:
+pantheon-maps: This is a fork of "Atlas Maps" and wouldn't exist without work of
+pantheon-maps: Steffen Schuhmann. 
+pantheon-maps:
+pantheon-maps: Homepage: https://github.com/elementary/maps
+pantheon-maps:
+pantheon-maps:
+
+
