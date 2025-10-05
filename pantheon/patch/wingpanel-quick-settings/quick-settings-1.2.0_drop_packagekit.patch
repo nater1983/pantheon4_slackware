@@ -1,6 +1,6 @@
-diff '--color=auto' -Naur quick-settings-1.2.0_orig/meson.build quick-settings-1.2.0/meson.build
---- quick-settings-1.2.0_orig/meson.build	2025-04-20 20:04:19.809550271 +0200
-+++ quick-settings-1.2.0/meson.build	2025-04-20 20:05:01.810023234 +0200
+diff '--color=auto' -Naur quick-settings-1.3.0_orig/meson.build quick-settings-1.3.0/meson.build
+--- quick-settings-1.3.0_orig/meson.build	2025-09-15 21:19:31.698260212 +0200
++++ quick-settings-1.3.0/meson.build	2025-09-15 21:20:04.159796648 +0200
 @@ -20,7 +20,6 @@
  granite_dep = dependency('granite', version: '>=6.0.0')
  gtk_dep = dependency('gtk+-3.0')
@@ -9,9 +9,9 @@ diff '--color=auto' -Naur quick-settings-1.2.0_orig/meson.build quick-settings-1
  wingpanel_dep = dependency('wingpanel')
  wingpanel_indicatorsdir = wingpanel_dep.get_pkgconfig_variable('indicatorsdir', define_variable: ['libdir', libdir])
  wl_client_dep = dependency('wayland-client')
-diff '--color=auto' -Naur quick-settings-1.2.0_orig/src/meson.build quick-settings-1.2.0/src/meson.build
---- quick-settings-1.2.0_orig/src/meson.build	2025-04-20 20:04:19.822883755 +0200
-+++ quick-settings-1.2.0/src/meson.build	2025-04-20 20:05:01.810023234 +0200
+diff '--color=auto' -Naur quick-settings-1.3.0_orig/src/meson.build quick-settings-1.3.0/src/meson.build
+--- quick-settings-1.3.0_orig/src/meson.build	2025-09-15 21:19:31.704927413 +0200
++++ quick-settings-1.3.0/src/meson.build	2025-09-15 21:20:04.159796648 +0200
 @@ -43,7 +43,6 @@
          gtk_dep,
          handy_dep,
@@ -20,80 +20,21 @@ diff '--color=auto' -Naur quick-settings-1.2.0_orig/src/meson.build quick-settin
          pantheon_desktop_shell_dep,
          portal_dep,
          wl_client_dep,
-diff '--color=auto' -Naur quick-settings-1.2.0_orig/src/meson.build.orig quick-settings-1.2.0/src/meson.build.orig
---- quick-settings-1.2.0_orig/src/meson.build.orig	1970-01-01 01:00:00.000000000 +0100
-+++ quick-settings-1.2.0/src/meson.build.orig	2025-04-19 16:49:11.000000000 +0200
-@@ -0,0 +1,54 @@
-+config_data = configuration_data()
-+config_data.set_quoted('LOCALEDIR', join_paths(get_option('prefix'), get_option('localedir')))
-+config_data.set_quoted('GETTEXT_PACKAGE', meson.project_name())
-+config_file = configure_file(
-+    input: 'Config.vala.in',
-+    output: '@BASENAME@',
-+    configuration: config_data
-+)
-+
-+sources = [
-+    'Indicator.vala',
-+    'PopoverWidget.vala',
-+    'DBus' / 'EndSessionDialogServer.vala',
-+    'DBus' / 'LockInterface.vala',
-+    'DBus' / 'SeatInterface.vala',
-+    'DBus' / 'SensorProxy.vala',
-+    'DBus' / 'SessionInterface.vala',
-+    'DBus' / 'SystemInterface.vala',
-+    'DBus' / 'UserInterface.vala',
-+    'Services' / 'UserManager.vala',
-+    'Widgets' / 'CurrentUser.vala',
-+    'Widgets' / 'DarkModeToggle.vala',
-+    'Widgets' / 'EndSessionDialog.vala',
-+    'Widgets' / 'PreventSleepToggle.vala',
-+    'Widgets' / 'RotationToggle.vala',
-+    'Widgets' / 'SettingsToggle.vala',
-+    'Widgets' / 'SessionBox.vala',
-+    'Widgets' / 'TextScale.vala',
-+    'Widgets' / 'UserList.vala',
-+    'Widgets' / 'UserRow.vala',
-+]
-+
-+shared_module(
-+    'quick-settings',
-+    config_file,
-+    gresource,
-+    sources,
-+    dependencies: [
-+        gdk_wl_dep,
-+        glib_dep,
-+        gobject_dep,
-+        granite_dep,
-+        gtk_dep,
-+        handy_dep,
-+        wingpanel_dep,
-+        packagekit_dep,
-+        pantheon_desktop_shell_dep,
-+        portal_dep,
-+        wl_client_dep,
-+        accountsservice_dep
-+    ],
-+    install: true,
-+    install_dir : wingpanel_indicatorsdir
-+)
-diff '--color=auto' -Naur quick-settings-1.2.0_orig/src/Widgets/EndSessionDialog.vala quick-settings-1.2.0/src/Widgets/EndSessionDialog.vala
---- quick-settings-1.2.0_orig/src/Widgets/EndSessionDialog.vala	2025-04-20 20:04:19.822883755 +0200
-+++ quick-settings-1.2.0/src/Widgets/EndSessionDialog.vala	2025-04-20 20:26:20.874509941 +0200
-@@ -87,7 +87,6 @@
+diff '--color=auto' -Naur quick-settings-1.3.0_orig/src/Widgets/EndSessionDialog.vala quick-settings-1.3.0/src/Widgets/EndSessionDialog.vala
+--- quick-settings-1.3.0_orig/src/Widgets/EndSessionDialog.vala	2025-09-15 21:19:31.704927413 +0200
++++ quick-settings-1.3.0/src/Widgets/EndSessionDialog.vala	2025-09-15 21:20:49.120385552 +0200
+@@ -62,7 +62,6 @@
          if (dialog_type == EndSessionDialogType.RESTART) {
-             var confirm_restart = new Gtk.Button.with_label (_("Restart"));
+             var confirm_restart = (Gtk.Button) add_button (_("Restart"), 1);
              confirm_restart.clicked.connect (() => {
 -                set_offline_trigger (REBOOT); // This will just do nothing if no updates are available
                  reboot ();
                  destroy ();
              });
-@@ -108,25 +107,6 @@
-         grid.attach (image, 0, 0, 1, 2);
-         grid.attach (primary_label, 1, 0);
-         grid.attach (secondary_label, 1, 1);
--
+@@ -73,25 +72,6 @@
+         var confirm = (Gtk.Button) add_button (button_text, Gtk.ResponseType.ACCEPT);
+         confirm.get_style_context ().add_class (Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
+ 
 -        if (dialog_type != LOGOUT) {
 -            bool has_prepared_updates = false;
 -            try {
@@ -106,16 +47,17 @@ diff '--color=auto' -Naur quick-settings-1.2.0_orig/src/Widgets/EndSessionDialog
 -                updates_check_button = new Gtk.CheckButton () {
 -                    active = true,
 -                    label = _("Install pending system updates"),
--                    margin_top = 16
 -                };
--                grid.attach (updates_check_button, 1, 2);
+-                updates_check_button.show ();
+-
+-                custom_bin.add (updates_check_button);
 -            }
 -        }
 -
-         grid.attach (action_area, 0, 3, 2);
+         cancel.grab_focus ();
  
-         grid.show_all ();
-@@ -163,11 +143,7 @@
+         var cancel_action = new SimpleAction ("cancel", null);
+@@ -113,11 +93,7 @@
  
          confirm.clicked.connect (() => {
              if (dialog_type == EndSessionDialogType.RESTART || dialog_type == EndSessionDialogType.SHUTDOWN) {
@@ -128,7 +70,7 @@ diff '--color=auto' -Naur quick-settings-1.2.0_orig/src/Widgets/EndSessionDialog
              } else {
                  logout ();
              }
-@@ -178,31 +154,6 @@
+@@ -128,31 +104,6 @@
          realize.connect (() => Idle.add_once (() => init_wl ()));
      }
  
