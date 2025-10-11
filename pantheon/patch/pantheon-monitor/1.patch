@@ -279,3 +279,116 @@ index 3e3b8d2a..00000000
 -public const uint NV_CTRL_STRING_PRODUCT_NAME;
 -public const uint NV_CTRL_PCI_ID;
 -public const  int NV_CTRL_TARGET_TYPE_GPU;
+
+From 333de2bdc27eb945b58190d9b6bf1067a1ee77b8 Mon Sep 17 00:00:00 2001
+From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
+Date: Sat, 11 Oct 2025 14:23:09 -0500
+Subject: [PATCH 2/2] Remove [Compact]
+
+---
+ src/Resources/CPUCache.vala               | 1 -
+ src/Resources/Hwmon/HwmonFan.vala         | 1 -
+ src/Resources/Hwmon/HwmonFrequency.vala   | 1 -
+ src/Resources/Hwmon/HwmonPWM.vala         | 1 -
+ src/Resources/Hwmon/HwmonPower.vala       | 1 -
+ src/Resources/Hwmon/HwmonTemperature.vala | 1 -
+ src/Resources/Hwmon/HwmonVoltage.vala     | 1 -
+ src/Resources/Storage/Volume.vala         | 1 -
+ 8 files changed, 8 deletions(-)
+
+diff --git a/src/Resources/CPUCache.vala b/src/Resources/CPUCache.vala
+index ca3937ed..fada7e30 100644
+--- a/src/Resources/CPUCache.vala
++++ b/src/Resources/CPUCache.vala
+@@ -5,7 +5,6 @@
+ 
+ // This struct holds paths to cpu cache data
+ // Learn more: https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-devices-system-cpu
+-[Compact]
+ public class Monitor.CPUCache : Object {
+     // 
+     // allocation_policy:
+diff --git a/src/Resources/Hwmon/HwmonFan.vala b/src/Resources/Hwmon/HwmonFan.vala
+index 8d539154..69f160ec 100644
+--- a/src/Resources/Hwmon/HwmonFan.vala
++++ b/src/Resources/Hwmon/HwmonFan.vala
+@@ -6,7 +6,6 @@
+ // This struct holds paths to temperature data
+ // Learn more: https://www.kernel.org/doc/html/v5.11/gpu/amdgpu.html#hwmon-interfaces
+ 
+-[Compact]
+ public class Monitor.HwmonFan : Object {
+     // fan speed in RPM
+     public string input;
+diff --git a/src/Resources/Hwmon/HwmonFrequency.vala b/src/Resources/Hwmon/HwmonFrequency.vala
+index 13fa842b..a76f8fb1 100644
+--- a/src/Resources/Hwmon/HwmonFrequency.vala
++++ b/src/Resources/Hwmon/HwmonFrequency.vala
+@@ -6,7 +6,6 @@
+ // This struct holds paths to temperature data
+ // Learn more: https://www.kernel.org/doc/html/v5.11/gpu/amdgpu.html#hwmon-interfaces
+ 
+-[Compact]
+ public class Monitor.HwmonFrequency : Object {
+     // freq channel label
+     public string label;
+diff --git a/src/Resources/Hwmon/HwmonPWM.vala b/src/Resources/Hwmon/HwmonPWM.vala
+index fa0d0203..7c89fc2e 100644
+--- a/src/Resources/Hwmon/HwmonPWM.vala
++++ b/src/Resources/Hwmon/HwmonPWM.vala
+@@ -6,7 +6,6 @@
+ // This struct holds paths to temperature data
+ // Learn more: https://www.kernel.org/doc/html/v5.11/gpu/amdgpu.html#hwmon-interfaces
+ 
+-[Compact]
+ public class Monitor.HwmonPWM : Object {
+     // pulse width modulation fan level (0-255)
+     public string pwm;
+diff --git a/src/Resources/Hwmon/HwmonPower.vala b/src/Resources/Hwmon/HwmonPower.vala
+index fbc5eb83..2c48fbf3 100644
+--- a/src/Resources/Hwmon/HwmonPower.vala
++++ b/src/Resources/Hwmon/HwmonPower.vala
+@@ -6,7 +6,6 @@
+ // This struct holds paths to temperature data
+ // Learn more: https://www.kernel.org/doc/html/v5.11/gpu/amdgpu.html#hwmon-interfaces
+ 
+-[Compact]
+ public class Monitor.HwmonPower : Object {
+     // average power used by the GPU in microWatts
+     public string average;
+diff --git a/src/Resources/Hwmon/HwmonTemperature.vala b/src/Resources/Hwmon/HwmonTemperature.vala
+index 2eea05a5..e472f185 100644
+--- a/src/Resources/Hwmon/HwmonTemperature.vala
++++ b/src/Resources/Hwmon/HwmonTemperature.vala
+@@ -7,7 +7,6 @@
+ // returns contents of the file as a string
+ // Learn more: https://www.kernel.org/doc/html/v5.11/gpu/amdgpu.html#hwmon-interfaces
+ 
+-[Compact]
+ public class Monitor.HwmonTemperature : Object {
+     // temperature channel label
+     // temp2_label and temp3_label are supported on SOC15 dGPUs only
+diff --git a/src/Resources/Hwmon/HwmonVoltage.vala b/src/Resources/Hwmon/HwmonVoltage.vala
+index 3372dffa..6e3bb39c 100644
+--- a/src/Resources/Hwmon/HwmonVoltage.vala
++++ b/src/Resources/Hwmon/HwmonVoltage.vala
+@@ -6,7 +6,6 @@
+ // This struct holds paths to temperature data
+ // Learn more: https://www.kernel.org/doc/html/v5.11/gpu/amdgpu.html#hwmon-interfaces
+ 
+-[Compact]
+ public class Monitor.HwmonVoltage : Object {
+     // voltage channel label
+     public string label;
+diff --git a/src/Resources/Storage/Volume.vala b/src/Resources/Storage/Volume.vala
+index a96ec70e..02e6874f 100644
+--- a/src/Resources/Storage/Volume.vala
++++ b/src/Resources/Storage/Volume.vala
+@@ -3,7 +3,6 @@
+  * SPDX-FileCopyrightText: 2025 elementary, Inc. (https://elementary.io)
+  */
+ 
+-[Compact]
+ public class Monitor.Volume : Object {
+     public string device;
+     public string label;
