@@ -5,7 +5,7 @@ mkdir -p $PKG/usr/share/icons
 (
   cd $PKG/usr/share/icons
   for theme in $THEMES; do
-    tar xvf $CWD/$PRGNAM-$VERSION.tar.gz --xform "s/$PRGNAM-$VERSION//" \
-      $PRGNAM-$VERSION/$theme
+    tar xvf $CWD/${PKGNAME}-${MODULAR_PACKAGE_VERSION}.tar.gz --xform "s/${PKGNAME}-${MODULAR_PACKAGE_VERSION}//" \
+      ${PKGNAME}-${MODULAR_PACKAGE_VERSION}/$theme
   done
 )
