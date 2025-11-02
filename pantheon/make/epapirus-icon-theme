@@ -1,0 +1,11 @@
+sed -i -e 's,Papirus-Dark Papirus-Light, ,g' install.sh
+THEMES=$(grep \{EXTRA_THEMES install.sh | cut -d= -f2 | cut -d} -f1)
+
+mkdir -p $PKG/usr/share/icons
+(
+  cd $PKG/usr/share/icons
+  for theme in $THEMES; do
+    tar xvf $CWD/$SRCNAM-$VERSION.tar.gz --xform "s/$SRCNAM-$VERSION//" \
+      $SRCNAM-$VERSION/$theme
+  done
+)
