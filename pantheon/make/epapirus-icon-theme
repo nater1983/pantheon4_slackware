@@ -5,7 +5,7 @@ mkdir -p $PKG/usr/share/icons
 (
   cd $PKG/usr/share/icons
   for theme in $THEMES; do
-    tar xvf $CWD/src/papirus-icon-theme-${MODULAR_PACKAGE_VERSION}.tar.gz --xform "s/papirus-icon-theme-${MODULAR_PACKAGE_VERSION}//" \
-      papirus-icon-theme-${MODULAR_PACKAGE_VERSION}/$theme
+    tar xvf $CWD/src/${PKGNAME}-${MODULAR_PACKAGE_VERSION}.tar.gz --xform "s/${PKGNAME}-${MODULAR_PACKAGE_VERSION}//" \
+      ${PKGNAME}-${MODULAR_PACKAGE_VERSION}/$theme
   done
 )
