@@ -16,7 +16,7 @@ rm $PKG/usr/lib${LIBDIRSUFFIX}/liblightdm-gobject-1.la
 rm -rf $PKG/etc/apparmor.d
 
 install -vDm 0644 $CWD/post-install/lightdm/Xsession -t $PKG/etc/lightdm
-install -vDm 0755 $CWD/post-install/lightdm/rc.4.local -t $PKG/etc/rc.d/rc.4.local.new
+install -vDm 0755 $CWD/post-install/lightdm/rc.4.local.new -t $PKG/etc/rc.d
 
 # PAM
 mkdir -p $PKG/etc/pam.d
