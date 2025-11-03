@@ -16,9 +16,12 @@ rm $PKG/usr/lib${LIBDIRSUFFIX}/liblightdm-gobject-1.la
 rm -rf $PKG/etc/apparmor.d
 
 # PAM
-cp $CWD/pam.d/* $PKG/etc/pam.d/
+mkdir -p $PKG/etc/pam.d
+install -m 644 $CWD//post-install/lightdm/lightdm-autologin.pam $PKG/etc/pam.d/lightdm-autologin
+install -m 644 $CWD//post-install/lightdm/lightdm-greeter.pam $PKG/etc/pam.d/lightdm-greeter
+install -m 644 $CWD//post-install/lightdm/lightdm.pam $PKG/etc/pam.d/lightdm
 
 # PolicyKit
 mkdir -p -m700 $PKG/usr/share/polkit-1/rules.d
 chown polkitd $PKG/usr/share/polkit-1/rules.d
-install -m 644 $CWD/42-lightdm.rules $PKG/usr/share/polkit-1/rules.d/42-lightdm.rules
+install -m 644 $CWD/post-install/lightdm/lightdm.rules $PKG/usr/share/polkit-1/rules.d/42-lightdm.rules
