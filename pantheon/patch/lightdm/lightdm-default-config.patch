@@ -24,7 +24,12 @@ index 5c0199313..452b9d112 100644
 @@ -36,6 +36,8 @@
  #backup-logs=true
  #dbus-service=true
-
+ 
++sessions-directory=/usr/share/xsessions
++
+ #
+ # Seat configuration
+ #
 diff --git a/data/users.conf b/data/users.conf
 index 5c0199313..452b9d112 100644
 --- a/data/users.conf
