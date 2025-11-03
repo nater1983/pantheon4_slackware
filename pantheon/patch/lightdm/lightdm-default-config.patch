@@ -35,7 +35,7 @@ index 5c0199313..452b9d112 100644
  # xdmcp-port = XDMCP UDP/IP port to communicate on
  # xdmcp-key = Authentication key to use for XDM-AUTHENTICATION-1 (stored in keys.conf)
 -# greeter-session = Session to load for greeter
-+greeter-session =lightdm-gtk-greeter
++greeter-session=lightdm-gtk-greeter
  # greeter-hide-users = True to hide the user list
  # greeter-allow-guest = True if the greeter should show a guest login option
  # greeter-show-manual-login = True if the greeter should offer a manual login option
