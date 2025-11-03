@@ -15,8 +15,8 @@ rm $PKG/usr/lib${LIBDIRSUFFIX}/liblightdm-gobject-1.la
 # https://bugs.gentoo.org/494426
 rm -rf $PKG/etc/apparmor.d
 
-install -vDm 0644 $CWD/post-install/lightdm/Xsession -t $PKG/etc/lightdm
-install -vDm 0755 $CWD/post-install/lightdm/rc.4.local.new -t $PKG/etc/rc.d
+install -vDm0644 $CWD/post-install/lightdm/Xsession -t $PKG/etc/lightdm
+install -vDm0755 $CWD/post-install/lightdm/rc.4.local.new -t $PKG/etc/rc.d
 
 # PAM
 mkdir -p $PKG/etc/pam.d
