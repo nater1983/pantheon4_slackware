@@ -11,6 +11,6 @@
 echo "Starting up Lightdm session manager..."
 
 # to use lightdm  by default:
-if [ -x /usr/bin/lightdm ]; then
-  exec /usr/bin/lightdm
+if [ -x /usr/sbin/lightdm ]; then
+  exec /usr/sbin/lightdm
 fi
