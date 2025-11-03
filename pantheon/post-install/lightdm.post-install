@@ -17,6 +17,7 @@ rm -rf $PKG/etc/apparmor.d
 
 install -vDm0644 $CWD/post-install/lightdm/Xsession -t $PKG/etc/lightdm
 install -vDm0755 $CWD/post-install/lightdm/rc.4.local.new -t $PKG/etc/rc.d
+for f in /etc/lightdm/*; do mv -v "$f" "${f}.new"; done
 
 # PAM
 mkdir -p $PKG/etc/pam.d
