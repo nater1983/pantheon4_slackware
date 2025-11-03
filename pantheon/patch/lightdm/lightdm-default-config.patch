@@ -4,8 +4,26 @@ Date: Mon, 13 Nov 2023 00:05:32 +0000
 Subject: [PATCH] Update users.conf
 
 ---
+ data/lightdm.conf | 4 ++--
  data/users.conf | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ 2 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/data/lightdm.conf b/data/lightdm.conf
+index 5c0199313..452b9d112 100644
+--- a/data/lightdm.conf
++++ b/data/lightdm.conf
+@@ -22,7 +22,7 @@
+ #start-default-seat=true
+ #greeter-user=lightdm
+ #minimum-display-number=0
+-#minimum-vt=7
++minimum-vt=7
+ #lock-memory=true
+ #user-authority-in-system-dir=false
+ #guest-account-script=guest-account
+@@ -36,6 +36,8 @@
+ #backup-logs=true
+ #dbus-service=true
 
 diff --git a/data/users.conf b/data/users.conf
 index 5c0199313..452b9d112 100644
