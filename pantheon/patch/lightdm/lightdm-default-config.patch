@@ -30,16 +30,15 @@ index 5c0199313..452b9d112 100644
  #remote-sessions-directory=/usr/share/lightdm/remote-sessions
  #greeters-directory=$XDG_DATA_DIRS/lightdm/greeters:$XDG_DATA_DIRS/xgreeters
  #backup-logs=true
-@@ -59,7 +59,7 @@
- # xdmcp-manager = XDMCP manager to connect to (implies xserver-allow-tcp=true)
- # xdmcp-port = XDMCP UDP/IP port to communicate on
- # xdmcp-key = Authentication key to use for XDM-AUTHENTICATION-1 (stored in keys.conf)
--# greeter-session = Session to load for greeter
+@@ -99,7 +99,7 @@
+ #xdmcp-manager=
+ #xdmcp-port=177
+ #xdmcp-key=
+-#greeter-session=example-gtk-gnome
 +greeter-session=lightdm-gtk-greeter
- # greeter-hide-users = True to hide the user list
- # greeter-allow-guest = True if the greeter should show a guest login option
- # greeter-show-manual-login = True if the greeter should offer a manual login option
-diff --git a/data/users.conf b/data/users.conf
+ #greeter-hide-users=false
+ #greeter-allow-guest=true
+ #greeter-show-manual-login=false
 index 5c0199313..452b9d112 100644
 --- a/data/users.conf
 +++ b/data/users.conf
