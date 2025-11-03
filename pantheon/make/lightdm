@@ -1,0 +1,20 @@
+if [ ! -r configure ]; then
+  if [ -x ./autogen.sh ]; then
+    NOCONFIGURE=1 ./autogen.sh
+  else
+    autoreconf -vif
+  fi
+fi
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+./configure \
+    "${PANTHEON_MAKE_ARGS[@]}" \
+    --libexecdir=/usr/lib${LIBDIRSUFFIX}/lightdm \
+    --disable-tests \
+    --with-greeter-user=lightdm  \
+    --with-greeter-session=lightdm-gtk-greeter \
+    --disable-liblightdm-qt5 \
+    --docdir=/usr/doc/$PKGNAME-$MODULAR_PACKAGE_VERSION\
+make
+make install DESTDIR=$PKG
