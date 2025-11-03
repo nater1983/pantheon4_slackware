@@ -21,15 +21,24 @@ index 5c0199313..452b9d112 100644
  #lock-memory=true
  #user-authority-in-system-dir=false
  #guest-account-script=guest-account
-@@ -36,6 +36,8 @@
- #backup-logs=true
- #dbus-service=true
- 
+@@ -30,7 +30,7 @@
+ #log-directory=/var/log/lightdm
+ #run-directory=/var/run/lightdm
+ #cache-directory=/var/cache/lightdm
+-#sessions-directory=/usr/share/lightdm/sessions:/usr/share/xsessions:/usr/share/wayland-sessions
 +sessions-directory=/usr/share/xsessions
-+
- #
- # Seat configuration
- #
+ #remote-sessions-directory=/usr/share/lightdm/remote-sessions
+ #greeters-directory=$XDG_DATA_DIRS/lightdm/greeters:$XDG_DATA_DIRS/xgreeters
+ #backup-logs=true
+@@ -59,7 +59,7 @@
+ # xdmcp-manager = XDMCP manager to connect to (implies xserver-allow-tcp=true)
+ # xdmcp-port = XDMCP UDP/IP port to communicate on
+ # xdmcp-key = Authentication key to use for XDM-AUTHENTICATION-1 (stored in keys.conf)
+-# greeter-session = Session to load for greeter
++greeter-session =lightdm-gtk-greeter
+ # greeter-hide-users = True to hide the user list
+ # greeter-allow-guest = True if the greeter should show a guest login option
+ # greeter-show-manual-login = True if the greeter should offer a manual login option
 diff --git a/data/users.conf b/data/users.conf
 index 5c0199313..452b9d112 100644
 --- a/data/users.conf
