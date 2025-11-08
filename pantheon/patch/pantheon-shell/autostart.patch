@@ -116,7 +116,7 @@ index 0000000..3034e71
 +Type=Application
 +Name=@description@
 +Exec=@libexecdir@/gsd-@pluginname@
-+OnlyShowIn=GNOME;
++OnlyShowIn=Pantheon;
 +NoDisplay=true
 +X-GNOME-Autostart-Phase=Initialization
 +X-GNOME-Autostart-Notify=true
