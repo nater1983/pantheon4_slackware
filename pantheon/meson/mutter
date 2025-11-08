@@ -10,7 +10,7 @@ cd build
     -Dwayland_eglstream=true \
     -Dcogl_tests=false \
     -Dclutter_tests=false \
-    -Dtests=false \
+    -Dtests=disabled \
     -Dsystemd=false \
     -Dx11=true \
     -Dinstalled_tests=false
