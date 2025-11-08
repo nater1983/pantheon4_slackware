@@ -57,14 +57,14 @@ index a357100..4963791 100644
          GdkSeat           *user_seat;
  
          GsdXSettingsGtk   *gtk;
-@@ -1332,12 +1337,80 @@ migrate_settings (void)
+@@ -1338,12 +1338,80 @@ migrate_settings (void)
                                      mouse_entries, G_N_ELEMENTS (mouse_entries));
  }
 
 +void act_user_set_input_sources(ActUser *user, GVariant *sources) {
 +    g_return_if_fail (ACT_IS_USER(user));
 +}
-+
++ 
 +static void
 +user_notify_is_loaded_cb (GObject    *object,
 +                          GParamSpec *pspec,
@@ -138,26 +138,30 @@ index a357100..4963791 100644
          setting = g_settings_get_string (manager->interface_settings,
                                           GTK_IM_MODULE_KEY);
          if (setting && *setting)
-@@ -1347,6 +1416,18 @@ update_gtk_im_module (GsdXSettingsManager *manager)
+@@ -1351,6 +1415,22 @@ update_gtk_im_module (GsdXSettingsManager *manager)
+         else
+                 module = GTK_IM_MODULE_IBUS;
  
-         xsettings_manager_set_string (manager->manager, "Gtk/IMModule", module);
-         g_free (setting);
++        g_free (setting);
 +
 +        user_manager = act_user_manager_get_default ();
-+        g_object_get (user_manager, "is-loaded", &user_manager_loaded, NULL);
-+        if (user_manager_loaded)
-+                manager_notify_is_loaded_cb (G_OBJECT (user_manager),
-+                                             NULL,
-+                                             manager->input_sources_settings);
-+        else
-+                g_signal_connect (user_manager,
-+                                  "notify::is-loaded",
-+                                  G_CALLBACK (manager_notify_is_loaded_cb),
-+                                  manager->input_sources_settings);
++        if (user_manager) {
++                g_object_get (user_manager, "is-loaded", &user_manager_loaded, NULL);
++                if (user_manager_loaded)
++                        manager_notify_is_loaded_cb (G_OBJECT (user_manager),
++                                                     NULL,
++                                                     manager->input_sources_settings);
++                else
++                        g_signal_connect (user_manager,
++                                          "notify::is-loaded",
++                                         G_CALLBACK (manager_notify_is_loaded_cb),
++                                          manager->input_sources_settings);
++        }
++
+         xsettings_manager_set_string (manager->manager, "Gtk/IMModule", module);
+         g_free (setting);
  }
- 
- static void
-@@ -1417,6 +1498,10 @@ gsd_xsettings_manager_start (GsdXSettingsManager *manager,
+@@ -1423,6 +1503,10 @@ gsd_xsettings_manager_start (GsdXSettingsManager *manager,
          g_signal_connect_swapped (manager->interface_settings,
                                    "changed::" GTK_IM_MODULE_KEY,
                                    G_CALLBACK (update_gtk_im_module), manager);
@@ -168,7 +172,7 @@ index a357100..4963791 100644
          update_gtk_im_module (manager);
  
          manager->monitors_changed_id =
-@@ -1623,6 +1708,7 @@ gsd_xsettings_manager_stop (GsdXSettingsManager *manager)
+@@ -1629,6 +1713,7 @@ gsd_xsettings_manager_stop (GsdXSettingsManager *manager)
                  manager->user_seat = NULL;
          }
  
