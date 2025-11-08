@@ -41,7 +41,7 @@ index 0000000..12c6c22
 +autostart_dir = join_paths(get_option('sysconfdir'), 'xdg', 'autostart')
 +
 +# For each plugin, generate a .desktop file using configure_file()
-+foreach plugin : gsd_plugins
++foreach plugin, execname : gsd_plugins
 +  desktop_in = 'org.gnome.SettingsDaemon.Real.desktop.in'
 +  desktop_out = 'org.gnome.SettingsDaemon.@0@.desktop'.format(plugin)
 +
