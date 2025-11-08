@@ -1,1 +1,0 @@
-patch -Np1 -i $CWD/patch/elmentary-mail/adapt-to-new-ecal.patch
