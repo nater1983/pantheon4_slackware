@@ -50,7 +50,7 @@ index 0000000..12c6c22
 +    input: desktop_in,
 +    output: desktop_out,
 +    configuration: {
-+      'pluginname': plugin,
++      'pluginname': execname,
 +      'description': 'GNOME Settings Daemon {} plugin'.format(plugin),
 +      'libexecdir': join_paths(get_option('prefix'), get_option('libexecdir')),
 +      # Slackware does not use systemd, so we set this to false
