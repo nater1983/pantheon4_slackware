@@ -18,24 +18,24 @@ index 0000000..12c6c22
 +# Generate GNOME Settings Daemon plugin autostart desktop files for Slackware
 +
 +# List all GNOME Settings Daemon plugin components
-+gsd_plugins = [
-+  'A11ySettings',
-+  'Color',
-+  'Datetime',
-+  'Housekeeping',
-+  'Keyboard',
-+  'MediaKeys',
-+  'Power',
-+  'PrintNotifications',
-+  'Rfkill',
-+  'ScreensaverProxy',
-+  'Sharing',
-+  'Smartcard',
-+  'Sound',
-+  'UsbProtection',
-+  'Wwan',
-+  'XSettings',
-+]
++gsd_plugins = {
++  'A11ySettings':       'a11y-settings',
++  'Color':              'color',
++  'Datetime':           'datetime',
++  'Housekeeping':       'housekeeping',
++  'Keyboard':           'keyboard',
++  'MediaKeys':          'media-keys',
++  'Power':              'power',
++  'PrintNotifications': 'print-notifications',
++  'Rfkill':             'rfkill',
++  'ScreensaverProxy':   'screensaver-proxy',
++  'Sharing':            'sharing',
++  'Smartcard':          'smartcard',
++  'Sound':              'sound',
++  'UsbProtection':      'usb-protection',
++  'Wwan':               'wwan',
++  'XSettings':          'xsettings',
++}
 +
 +# Install directory for autostart files
 +autostart_dir = join_paths(get_option('sysconfdir'), 'xdg', 'autostart')
