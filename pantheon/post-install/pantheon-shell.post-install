@@ -1,0 +1,1 @@
+rm -f $PKG/etc/xdg/autostart/pantheon-*.desktop
