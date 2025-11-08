@@ -68,7 +68,7 @@ index 0000000..12c6c22
 +  configuration: {
 +    'pluginname': 'dummy',
 +  },
-+  install: true,
++  install: false,
 +  install_dir: autostart_dir,
 +)
 
