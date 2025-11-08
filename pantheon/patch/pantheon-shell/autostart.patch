@@ -1,0 +1,226 @@
+From e8fe8c9e7c7510f6a6f1b3d6e7d7f35595262f73 Mon Sep 17 00:00:00 2001
+From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
+Date: Sat, 8 Nov 2025 16:43:31 -0600
+Subject: [PATCH 1/5] Create meson.build
+
+---
+ plugins/meson.build | 57 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 57 insertions(+)
+ create mode 100644 plugins/meson.build
+
+diff --git a/plugins/meson.build b/plugins/meson.build
+new file mode 100644
+index 0000000..12c6c22
+--- /dev/null
++++ b/plugins/meson.build
+@@ -0,0 +1,57 @@
++# plugins/meson.build
++# Generate GNOME Settings Daemon plugin autostart desktop files for Slackware
++
++# List all GNOME Settings Daemon plugin components
++gsd_plugins = [
++  'A11ySettings',
++  'Color',
++  'Datetime',
++  'Housekeeping',
++  'Keyboard',
++  'MediaKeys',
++  'Power',
++  'PrintNotifications',
++  'Rfkill',
++  'ScreensaverProxy',
++  'Sharing',
++  'Smartcard',
++  'Sound',
++  'UsbProtection',
++  'Wwan',
++  'XSettings',
++]
++
++# Install directory for autostart files
++autostart_dir = join_paths(get_option('sysconfdir'), 'xdg', 'autostart')
++
++# For each plugin, generate a .desktop file using configure_file()
++foreach plugin : gsd_plugins
++  desktop_in = 'org.gnome.SettingsDaemon.Real.desktop.in'
++  desktop_out = 'org.gnome.SettingsDaemon.@0@.desktop'.format(plugin)
++
++  # Configure substitutions
++  configure_file(
++    input: desktop_in,
++    output: desktop_out,
++    configuration: {
++      'pluginname': plugin,
++      'description': 'GNOME Settings Daemon {} plugin'.format(plugin),
++      'libexecdir': join_paths(get_option('prefix'), get_option('libexecdir')),
++      # Slackware does not use systemd, so we set this to false
++      'systemd_hidden': 'false',
++    },
++    install: true,
++    install_dir: autostart_dir,
++  )
++endforeach
++
++# Also install a dummy desktop file for completeness
++configure_file(
++  input: 'org.gnome.SettingsDaemon.Dummy.desktop.in',
++  output: 'org.gnome.SettingsDaemon.Dummy.desktop',
++  configuration: {
++    'pluginname': 'dummy',
++  },
++  install: true,
++  install_dir: autostart_dir,
++)
+
+From 6b246bdc77e82012436b886d7be175886ce98307 Mon Sep 17 00:00:00 2001
+From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
+Date: Sat, 8 Nov 2025 16:44:58 -0600
+Subject: [PATCH 2/5] Create org.gnome.SettingsDaemon.Dummy.desktop.in
+
+---
+ plugins/org.gnome.SettingsDaemon.Dummy.desktop.in | 7 +++++++
+ 1 file changed, 7 insertions(+)
+ create mode 100644 plugins/org.gnome.SettingsDaemon.Dummy.desktop.in
+
+diff --git a/plugins/org.gnome.SettingsDaemon.Dummy.desktop.in b/plugins/org.gnome.SettingsDaemon.Dummy.desktop.in
+new file mode 100644
+index 0000000..4fc41a9
+--- /dev/null
++++ b/plugins/org.gnome.SettingsDaemon.Dummy.desktop.in
+@@ -0,0 +1,7 @@
++[Desktop Entry]
++Type=Application
++Name=GNOME Settings Daemon's @pluginname@ dummy autostart file
++Exec=false
++OnlyShowIn=Pantheon;
++NoDisplay=true
++Hidden=true
+
+From 75dd1c2bdde0a45d8b11a8a624a0422734c3fe7a Mon Sep 17 00:00:00 2001
+From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
+Date: Sat, 8 Nov 2025 16:45:25 -0600
+Subject: [PATCH 3/5] Create org.gnome.SettingsDaemon.Real.desktop.in
+
+---
+ plugins/org.gnome.SettingsDaemon.Real.desktop.in | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+ create mode 100644 plugins/org.gnome.SettingsDaemon.Real.desktop.in
+
+diff --git a/plugins/org.gnome.SettingsDaemon.Real.desktop.in b/plugins/org.gnome.SettingsDaemon.Real.desktop.in
+new file mode 100644
+index 0000000..3034e71
+--- /dev/null
++++ b/plugins/org.gnome.SettingsDaemon.Real.desktop.in
+@@ -0,0 +1,10 @@
++[Desktop Entry]
++Type=Application
++Name=@description@
++Exec=@libexecdir@/gsd-@pluginname@
++OnlyShowIn=GNOME;
++NoDisplay=true
++X-GNOME-Autostart-Phase=Initialization
++X-GNOME-Autostart-Notify=true
++X-GNOME-AutoRestart=true
++X-GNOME-HiddenUnderSystemd=@systemd_hidden@
+
+From b5b5791c4fd8b98b491fd1dc41ce7351456fb792 Mon Sep 17 00:00:00 2001
+From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
+Date: Sat, 8 Nov 2025 16:46:14 -0600
+Subject: [PATCH 4/5] Update meson.build
+
+---
+ plugins/meson.build | 44 ++++++++++++++------------------------------
+ 1 file changed, 14 insertions(+), 30 deletions(-)
+
+diff --git a/plugins/meson.build b/plugins/meson.build
+index 12c6c22..2dd7749 100644
+--- a/plugins/meson.build
++++ b/plugins/meson.build
+@@ -1,51 +1,35 @@
+ # plugins/meson.build
+-# Generate GNOME Settings Daemon plugin autostart desktop files for Slackware
++# Generate GNOME Settings Daemon plugin autostart desktop files dynamically
+ 
+-# List all GNOME Settings Daemon plugin components
+-gsd_plugins = [
+-  'A11ySettings',
+-  'Color',
+-  'Datetime',
+-  'Housekeeping',
+-  'Keyboard',
+-  'MediaKeys',
+-  'Power',
+-  'PrintNotifications',
+-  'Rfkill',
+-  'ScreensaverProxy',
+-  'Sharing',
+-  'Smartcard',
+-  'Sound',
+-  'UsbProtection',
+-  'Wwan',
+-  'XSettings',
+-]
++# Ensure gsd_components is available from the parent scope
++# (declared in the top-level meson.build)
++assert(defined('gsd_components'), 'gsd_components must be defined in the parent Meson file.')
+ 
+-# Install directory for autostart files
++# Install directory for autostart entries
+ autostart_dir = join_paths(get_option('sysconfdir'), 'xdg', 'autostart')
+ 
+-# For each plugin, generate a .desktop file using configure_file()
+-foreach plugin : gsd_plugins
++# Generate a .desktop file for each GNOME Settings Daemon component
++foreach component : gsd_components
++  # Extract only the plugin name (the part after the last dot)
++  plugin_name = component.split('.')[-1]
+   desktop_in = 'org.gnome.SettingsDaemon.Real.desktop.in'
+-  desktop_out = 'org.gnome.SettingsDaemon.@0@.desktop'.format(plugin)
++  desktop_out = 'org.gnome.SettingsDaemon.@0@.desktop'.format(plugin_name)
+ 
+-  # Configure substitutions
+   configure_file(
+     input: desktop_in,
+     output: desktop_out,
+     configuration: {
+-      'pluginname': plugin,
+-      'description': 'GNOME Settings Daemon {} plugin'.format(plugin),
++      'pluginname': plugin_name,
++      'description': 'GNOME Settings Daemon {} plugin'.format(plugin_name),
+       'libexecdir': join_paths(get_option('prefix'), get_option('libexecdir')),
+-      # Slackware does not use systemd, so we set this to false
+-      'systemd_hidden': 'false',
++      'systemd_hidden': 'false',  # Slackware-friendly, no systemd
+     },
+     install: true,
+     install_dir: autostart_dir,
+   )
+ endforeach
+ 
+-# Also install a dummy desktop file for completeness
++# Also install a dummy placeholder autostart entry
+ configure_file(
+   input: 'org.gnome.SettingsDaemon.Dummy.desktop.in',
+   output: 'org.gnome.SettingsDaemon.Dummy.desktop',
+
+From 06c5cfbb3d6e63496f28294c7c453e8fbf06ee3c Mon Sep 17 00:00:00 2001
+From: Nathaniel Russell <46272571+nater1983@users.noreply.github.com>
+Date: Sat, 8 Nov 2025 16:46:59 -0600
+Subject: [PATCH 5/5] Update meson.build
+
+---
+ meson.build | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/meson.build b/meson.build
+index 437a8d0..ad71992 100644
+--- a/meson.build
++++ b/meson.build
+@@ -33,6 +33,7 @@ if get_option('mimeapps-list')
+     subdir('applications')
+ endif
+ 
++subdir('plugins')
+ subdir('session')
+ 
+ if get_option('x11')
