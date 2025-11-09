@@ -3,7 +3,7 @@ new file mode 100644
 index 0000000..12c6c22
 --- /dev/null
 +++ b/plugins/meson.build
-@@ -0,0 +1,57 @@
+@@ -0,0 +1,58 @@
 +# plugins/meson.build
 +# Generate GNOME Settings Daemon plugin autostart desktop files for Slackware
 +
@@ -23,6 +23,7 @@ index 0000000..12c6c22
 +  'Smartcard':          'smartcard',
 +  'Sound':              'sound',
 +  'UsbProtection':      'usb-protection',
++  'Wacom':              'wacom',
 +  'Wwan':               'wwan',
 +  'XSettings':          'xsettings',
 +}
