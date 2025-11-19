@@ -1,15 +1,26 @@
 #!/bin/bash
+# /etc/rc.d/rc.4.local
+# This file is executed by init(8) when the system enters runlevel 4 (XDM).
 #
-# rc.4.local		This file is executed by init(8) when the system is being
-#		initialized for run level 4 (XDM)
-#
-# Version:	@(#)/etc/rc.d/rc.4.local	2.00	02/17/93
-#
-#
+# Version: 2.01  11/18/25
+# Purpose: Start LightDM display manager if available.
+# Ensure LightDM user and group exist.
 
-# Tell the viewers what's going to happen...
+# -------------------------------------------------------------
+# Ensure LightDM user and group exist
+# -------------------------------------------------------------
+if ! grep -q "^lightdm:" /etc/passwd ; then
+  echo "Resetting group and user login information for lightdm..."
+  /usr/sbin/groupadd -fg 380 lightdm
+  /usr/sbin/useradd -c "Light Display Manager" \
+    -d /var/lib/lightdm \
+    -s /bin/false \
+    -u 380 -g 380 -G video lightdm
+
+  chown -R lightdm:lightdm /var/lib/lightdm*
+fi
+
 echo "Starting up Lightdm session manager..."
-
 # to use lightdm  by default:
 if [ -x /usr/sbin/lightdm ]; then
   exec /usr/sbin/lightdm
