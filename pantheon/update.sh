@@ -9,7 +9,7 @@ set -e
 
 ROOT_DIR="$(pwd)"
 GITHUB_BASE_URL="https://github.com/elementary"
-DEST_DIR="/opt/htdocs/linux/pantheon/source-8/src"
+DEST_DIR="$ROOT_DIR/src"
 
 mkdir -p "$DEST_DIR"
 
