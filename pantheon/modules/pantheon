@@ -9,7 +9,6 @@ libadwaita
 libcloudproviders
 libostree
 libshumate
-evolution-data-server
 libjxl
 webkit2gtk4.1
 flite
@@ -17,6 +16,7 @@ webkit2gtk6.0
 protobuf-c
 imlib2
 libei
+openrc-settingsd
 # Pantheon / elementary
 python3-attrs
 python3-dbusmock
@@ -38,6 +38,7 @@ elementary-appcenter
 elementary-calculator
 elementary-calendar
 elementary-camera
+gtkspell3
 elementary-code
 elementary-contractor
 elementary-dock
@@ -56,6 +57,7 @@ elementary-tweaks
 elementary-videos
 elementary-wallpapers
 gala
+pantheon-agent-geoclue2
 pantheon-agent-polkit
 pantheon-default-settings
 zeitgeist
@@ -112,3 +114,4 @@ xdg-desktop-portal-pantheon
 lightdm-gtk-greeter
 lightdm-pantheon-greeter
 lightdm
+papirus-icon-theme

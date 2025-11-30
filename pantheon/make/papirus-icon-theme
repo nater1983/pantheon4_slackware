@@ -1,0 +1,11 @@
+sed -i -e 's,ePapirus ePapirus-Dark,Papirus,g' install.sh
+THEMES=$(grep \{EXTRA_THEMES install.sh | cut -d= -f2 | cut -d} -f1)
+
+mkdir -p $PKG/usr/share/icons
+(
+  cd $PKG/usr/share/icons
+  for theme in $THEMES; do
+    tar xvf $CWD/src/${PKGNAME}-${MODULAR_PACKAGE_VERSION}.tar.gz --xform "s/${PKGNAME}-${MODULAR_PACKAGE_VERSION}//" \
+      ${PKGNAME}-${MODULAR_PACKAGE_VERSION}/$theme
+  done
+)

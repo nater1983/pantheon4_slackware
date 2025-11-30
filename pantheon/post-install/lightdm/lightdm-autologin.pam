@@ -1,30 +1,33 @@
 #%PAM-1.0
 
+# Block login if shell in nologin or false
+auth      required pam_succeed_if.so shell notin /sbin/nologin:/usr/sbin/nologin:/bin/false:/usr/bin/false
 
-# adapted from the slackware sddm package. I don't pretend to understand
-# most of it ~ gapan
+# Block login if they are globally disabled
+auth      required pam_nologin.so
 
-auth       requisite    pam_nologin.so
-auth       required     pam_env.so
-auth       required     pam_shells.so
+# Load environment from /etc/environment and ~/.pam_environment
+auth      required pam_env.so
 
-# Uncomment this line to restrict autologin to users with a UID greater
-# than 999 (in other words, don't allow autologin for root):
-# well, this looks like a good idea ~ gapan
-auth       required     pam_succeed_if.so        uid >= 1000 quiet
+# Allow access without authentication
+auth      required pam_permit.so
 
-auth       required     pam_permit.so
--auth      optional     pam_gnome_keyring.so
--auth      optional     pam_kwallet5.so
+# Authentication support for gnome-keyring and kwallet5
+-auth     optional pam_gnome_keyring.so
+-auth     optional pam_kwallet5.so
 
-account    include      system-auth
+# Stop autologin if account requires action
+account   required pam_unix.so
 
-password   include      system-auth
+# Can't change password
+password  required pam_deny.so
 
-session    substack     system-auth
-session    required     pam_loginuid.so
--session   optional     pam_ck_connector.so      nox11
--session   optional     pam_elogind.so
--session   optional     pam_gnome_keyring.so     auto_start
--session   optional     pam_kwallet5.so          auto_start
-session    include      postlogin
+# Setup session
+# Support elogind (for Slackware) rather than systemd (as per lightdm's upstream default)
+session   required pam_unix.so
+-session  optional pam_elogind.so
+-session  optional pam_ck_connector.so nox11
+
+# Auto-unlocking support for gnome-keyring and kwallet5
+-session  optional pam_gnome_keyring.so auto_start
+-session  optional pam_kwallet5.so auto_start

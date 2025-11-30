@@ -5,9 +5,15 @@
 # You must make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-     |-----handy-ruler---------------------------------------------------------------------------|
-switchboard-plug-notifications: ( switchboard notifications module)
+                              |-----handy-ruler---------------------------------------------------------------------------|
+switchboard-plug-notifications: switchboard-plug-notifications (Switchboard Notifications Plug)
+switchboard-plug-notifications:
+switchboard-plug-notifications: Configure which apps should be allowed to show notifications. A GModule plugin for
+switchboard-plug-notifications: Switchboard that configures gsettings keys related to the Notifications plugin for Gala.
+switchboard-plug-notifications:
+switchboard-plug-notifications: Homepage: https://github.com/elementary/settings-notifications
 switchboard-plug-notifications:
 switchboard-plug-notifications:
-switchboard-plug-notifications: https://github.com/elementary/switchboard-plug-notifications
+switchboard-plug-notifications:
+switchboard-plug-notifications:
 switchboard-plug-notifications:

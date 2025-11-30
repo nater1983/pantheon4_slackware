@@ -1,1 +1,2 @@
 install -vDm 0644 $CWD/post-install/elementary-wallpapers/Pantheon.jpg -t $PKG/usr/share/backgrounds/
+install -vDm 0644 $CWD/post-install/elementary-wallpapers/Wallpaper1.jpg -t $PKG/usr/share/backgrounds/

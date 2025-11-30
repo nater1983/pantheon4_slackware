@@ -5,3 +5,5 @@ mkdir -p $PKG/usr/doc/$PKGNAME-$MODULAR_PACKAGE_VERSION/ || exit 1
 install -vDm 0644 $CWD/post-install/switchboard-plug-about/oem.png -t $PKG/etc/oem/ || exit 1
 cat $CWD/post-install/switchboard-plug-about/oem.conf > $PKG/etc/oem.conf || exit 1
 cat $CWD/post-install/switchboard-plug-about/oem.conf.example > $PKG/usr/doc/$PKGNAME-$MODULAR_PACKAGE_VERSION/oem.conf.example || exit 1
+install -vDm 0644 $CWD/post-install/switchboard-plug-about/settings-system.rules -t $PKG/usr/share/polkit-1/rules.d/ || exit 1
+sed -i 's/@PRIVILEGED_GROUP@/wheel/g' $PKG/usr/share/polkit-1/rules.d/settings-system.rules

@@ -26,6 +26,6 @@ config etc/lightdm/users.conf.new
 
 # creating lightdm group if he isn't already there
 if ! grep -q "^lightdm:" /etc/passwd ; then
-  /usr/sbin/groupadd -fg 620 lightdm
-  /usr/sbin/useradd -c "Light Display Manager" -d /var/lib/lightdm -u 620 -g lightdm -s /sbin/nologin lightdm
+  /usr/sbin/groupadd -fg 380 lightdm
+  /usr/sbin/useradd -c "Light Display Manager" -d /var/lib/lightdm -s /bin/false -u 380 -g 380 lightdm -G video
 fi

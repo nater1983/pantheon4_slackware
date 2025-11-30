@@ -1,0 +1,31 @@
+cp tests/src/lightdm-session $PKG/usr/bin
+sed -i '1 s/sh/bash --login/' $PKG/usr/bin/lightdm-session
+rm -rf $PKG/etc/init
+
+install -v -dm755 -o lightdm -g lightdm $PKG/var/lib/lightdm
+install -v -dm755 -o lightdm -g lightdm $PKG/var/lib/lightdm-data
+install -v -dm755 -o lightdm -g lightdm $PKG/var/cache/lightdm
+install -v -dm770 -o lightdm -g lightdm $PKG/var/log/lightdm
+
+# Remove .la file
+rm $PKG/usr/lib${LIBDIRSUFFIX}/liblightdm-gobject-1.la
+
+# Remove apparmor profiles - they only work with Ubuntu's apparmor package
+# Refer to bug #494426 for more details:
+# https://bugs.gentoo.org/494426
+rm -rf $PKG/etc/apparmor.d
+
+install -vDm0644 $CWD/post-install/lightdm/Xsession -t $PKG/etc/lightdm
+install -vDm0755 $CWD/post-install/lightdm/rc.4.local.new -t $PKG/etc/rc.d
+for f in $PKG/etc/lightdm/*; do mv -v "$f" "${f}.new"; done
+
+# PAM
+mkdir -p $PKG/etc/pam.d
+install -m 644 $CWD/post-install/lightdm/lightdm-autologin.pam $PKG/etc/pam.d/lightdm-autologin
+install -m 644 $CWD/post-install/lightdm/lightdm-greeter.pam $PKG/etc/pam.d/lightdm-greeter
+install -m 644 $CWD/post-install/lightdm/lightdm.pam $PKG/etc/pam.d/lightdm
+
+# PolicyKit
+mkdir -p -m700 $PKG/usr/share/polkit-1/rules.d
+chown polkitd $PKG/usr/share/polkit-1/rules.d
+install -m 644 $CWD/post-install/lightdm/lightdm.rules $PKG/usr/share/polkit-1/rules.d/42-lightdm.rules

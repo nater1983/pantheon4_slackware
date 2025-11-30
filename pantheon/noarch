@@ -6,3 +6,5 @@ gnome-common
 elementary-stylesheet
 pantheon-default-settings
 elementary-fonts
+pantheon-shell
+papirus-icon-theme
