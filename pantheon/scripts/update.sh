@@ -73,6 +73,7 @@ declare -A APPS_REPOS=(
   ["monitor"]="monitor"
   ["music"]="music"
   ["onboarding"]="onboarding"
+  ["pantheon-agent-polkit"]="pantheon-agent-polkit"
   ["photos"]="photos"
   ["screenshot"]="screenshot"
   ["tasks"]="tasks"
