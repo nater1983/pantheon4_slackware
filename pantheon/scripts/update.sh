@@ -27,6 +27,7 @@ declare -A CORE_REPOS=(
   ["settings-applications"]="settings-applications"
   ["settings-bluetooth"]="settings-bluetooth"
   ["settings-datetime"]="settings-datetime"
+  ["settings-daemon"]="settings-daemon"
   ["settings-display"]="settings-display"
   ["settings-keyboard"]="settings-keyboard"
   ["settings-locale"]="settings-locale"
