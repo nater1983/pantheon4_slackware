@@ -22,6 +22,7 @@ declare -A CORE_REPOS=(
   ["pantheon-shell"]="session-settings"
   ["dock"]="dock"
   ["sideload"]="sideload"
+  ["pantheon-wayland"]="pantheon-wayland"
   ["switchboard"]="switchboard"
   ["session-settings"]="session-settings"
   ["settings-applications"]="settings-applications"
