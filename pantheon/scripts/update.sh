@@ -69,6 +69,7 @@ declare -A APPS_REPOS=(
   ["files"]="files"
   ["icons"]="icons"
   ["mail"]="mail"
+  ["monitor"]="monitor"
   ["music"]="music"
   ["onboarding"]="onboarding"
   ["photos"]="photos"
