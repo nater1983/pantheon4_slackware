@@ -9,7 +9,7 @@ set -e
 
 ROOT_DIR="$(pwd)"
 GITHUB_BASE_URL="https://github.com/elementary"
-DEST_DIR="src/"
+DEST_DIR="src"
 
 mkdir -p "$DEST_DIR"
 
