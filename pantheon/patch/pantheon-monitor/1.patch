@@ -16,7 +16,7 @@ deleted file mode 100644
 index 0f104241..00000000
 --- a/src/Resources/GPU/GPUNvidia.vala
 +++ /dev/null
-@@ -1,160 +0,0 @@
+@@ -1,163 +0,0 @@
 -/*
 - * SPDX-License-Identifier: GPL-3.0-or-later
 - * SPDX-FileCopyrightText: 2025 elementary, Inc. (https://elementary.io)
@@ -27,6 +27,8 @@ index 0f104241..00000000
 -    public Gee.HashMap<string, HwmonTemperature> hwmon_temperatures { get; set; }
 -
 -    public string hwmon_module_name { get; set; }
+-
+-    public string driver_name { get; set; }
 -
 -    public string name { get; set; }
 -
@@ -73,6 +75,7 @@ index 0f104241..00000000
 -        name = "nVidia® " + name;
 -
 -        sysfs_path = pci_parse_sysfs_path (pci_access, pci_device);
+-        driver_name = pci_device.get_string_property (Pci.FILL_DRIVER);
 -    }
 -
 -    construct {
