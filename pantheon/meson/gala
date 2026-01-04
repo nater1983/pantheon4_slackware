@@ -1,6 +1,6 @@
 mkdir -p build
 cd build
-  CFLAGS="$SLKCFLAGS" \
+  CFLAGS="$SLKCFLAGS -Wno-error=return-type" \
   CXXFLAGS="$SLKCFLAGS" \
   meson setup ..\
     "${PANTHEON_BUILD_ARGS[@]}" \
