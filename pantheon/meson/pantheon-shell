@@ -5,7 +5,9 @@ cd build
   meson setup ..\
     "${PANTHEON_BUILD_ARGS[@]}" \
     $PANTHEON_OPT_ARGS \
-    -Dsystemd=false
+    -Dsystemd=false \
+		-Dwayland=true \
+		-Dx11=true
   "${NINJA:=ninja}"
   DESTDIR=$PKG $NINJA install
 cd ..
