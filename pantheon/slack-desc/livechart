@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.
+# Line up the first '|' above the ':' following the base package name, and
+# the '|' on the right side marks the last column you can put a character in.
+# You must make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+livechart: livechart (A real-time charting library for Vala based on Cairo.)
+livechart:
+livechart: Live Chart is a real-time charting library for GTK4 and Vala, based
+livechart: on Cairo.
+livechart: Features:
+livechart: * Live animated series within a single chart
+livechart: * Smart y-axis computation
+livechart: * Highly configurable
+livechart: * Extendable
+livechart:
+livechart: Homepage: https://github.com/elementary/live-chart
