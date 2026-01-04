@@ -1,1 +1,1 @@
-patch -Np1 -R -i $CWD/patch/wingpanel/eb53b2a54f763a4964bd734e452db9d75ae4c4f8.patch
+patch -Np1 -R -i $CWD/patch/wingpanel/eb53b2a54f763a4964bd734e452db9d75ae4c4f8.patch || { touch ${SLACK_PANTHEON_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
