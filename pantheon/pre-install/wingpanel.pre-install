@@ -1,0 +1,1 @@
+sed -i "s/gala_dep = dependency('gala', version: '>= 8\.3\.0')/gala_dep = dependency('gala')/" wingpanel-interface/meson.build
