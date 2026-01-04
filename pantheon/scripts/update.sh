@@ -45,6 +45,7 @@ declare -A CORE_REPOS=(
   ["settings-system"]="settings-system"
   ["settings-useraccounts"]="settings-useraccounts"
   ["settings-wacom"]="settings-wacom"
+  ["stylesheet"]="stylesheet"
   ["wingpanel"]="wingpanel"
   ["panel-applications"]="applications-menu"
   ["panel-bluetooth"]="panel-bluetooth"
