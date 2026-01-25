@@ -39,6 +39,7 @@ declare -A CORE_REPOS=(
   ["settings-onlineaccounts"]="settings-onlineaccounts"
   ["settings-power"]="settings-power"
   ["settings-printers"]="settings-printers"
+  ["settings-screentime-limits"]="settings-screentime-limits"
   ["settings-security-privacy"]="settings-security-privacy"
   ["settings-sharing"]="settings-sharing"
   ["settings-sound"]="settings-sound"
