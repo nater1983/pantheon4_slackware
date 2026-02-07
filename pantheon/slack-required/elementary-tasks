@@ -4,5 +4,4 @@ clutter
 clutter-gtk
 granite
 geoclue2
-libportal
 geocode-glib
