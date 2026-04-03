@@ -1,3 +1,0 @@
-# Remove duplicate display manager entries:
-rm -rf "$PKG/usr/share/wayland-sessions"
-rm -rf "$PKG/usr/share/xsessions"
