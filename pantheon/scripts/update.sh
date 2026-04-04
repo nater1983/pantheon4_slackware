@@ -5,13 +5,21 @@
 # (Slackware-friendly, no .SlackBuild updates)
 # ------------------------------------------
 
-set -e
+set -euo pipefail
 
 ROOT_DIR="$(pwd)"
 GITHUB_BASE_URL="https://github.com/elementary"
 DEST_DIR="src"
 
 mkdir -p "$DEST_DIR"
+
+# Check for required tools
+for cmd in git lzip tar; do
+  if ! command -v "$cmd" &>/dev/null; then
+    echo "❌ Required tool not found: $cmd"
+    exit 1
+  fi
+done
 
 # -------------------------------
 # 1. Pantheon Core Components
@@ -24,7 +32,7 @@ declare -A CORE_REPOS=(
   ["dock"]="dock"
   ["sideload"]="sideload"
   ["pantheon-wayland"]="pantheon-wayland"
-  ["portals"]="portals" 
+  ["portals"]="portals"
   ["switchboard"]="switchboard"
   ["session-settings"]="session-settings"
   ["settings-applications"]="settings-applications"
@@ -90,22 +98,23 @@ declare -A APPS_REPOS=(
 # 3. Pantheon Dependencies
 # -------------------------------
 declare -A EXTRA_REPOS=(
-  ["contractor"]="contractor"                       # extension service for menu/context integration :contentReference[oaicite:4]{index=4}
-  ["notifications"]="notifications"                 # GTK notifications server :contentReference[oaicite:5]{index=5}
-  ["print"]="print"                                 # simple shim for printing support via Contractor :contentReference[oaicite:7]{index=7}
+  ["contractor"]="contractor"
+  ["notifications"]="notifications"
+  ["print"]="print"
 )
 
 # -------------------------------
 # Internal function to process repositories
 # -------------------------------
 process_repo() {
-  local PRGNAM=$1
-  local REPO_NAME=$2
+  local PRGNAM="$1"
+  local REPO_NAME="$2"
 
   echo "→ Processing $REPO_NAME..."
 
   local GITDIR
-  GITDIR=$(mktemp -dt "$PRGNAM.git.XXXXXX")
+  GITDIR=$(mktemp -d "$ROOT_DIR/${PRGNAM}.XXXXXX")
+
   git clone --depth 1 "$GITHUB_BASE_URL/$REPO_NAME.git" "$GITDIR" || {
     echo "❌ Failed to clone $REPO_NAME"
     rm -rf "$GITDIR"
@@ -131,24 +140,27 @@ process_repo() {
   VERSION=$(echo "$VERSION" | sed -E 's/\.(debian|ubuntu|fedora|arch|opensuse)//g')
 
   local _commit
-  _commit=$(git rev-parse HEAD)
+  _commit=$(git -C "$GITDIR" rev-parse HEAD)
 
   echo "   VERSION: $VERSION"
   echo "   COMMIT : $_commit"
 
-  # Clean up
-  rm -rf .git
-  find . -name .gitignore -print0 | xargs -0 rm -f
+  # Remove VCS and CI metadata
+  rm -rf \
+    "$GITDIR/.git" \
+    "$GITDIR/.github" \
+    "$GITDIR/.gitmodules"
+  find "$GITDIR" -name '.gitignore' -delete
 
-  cd "$ROOT_DIR"
+  local STAGE_DIR="$ROOT_DIR/${PRGNAM}-${VERSION}"
+  local TARBALL="$DEST_DIR/${PRGNAM}-${VERSION}.tar.lz"
 
-  # Create tarball
-  mv "$GITDIR" "$PRGNAM-$VERSION"
-  tar --lzip -cvf "$PRGNAM-$VERSION.tar.lz" "$PRGNAM-$VERSION"
-  rm -rf "$PRGNAM-$VERSION"
-  mv -f "$PRGNAM-$VERSION.tar.lz" "$DEST_DIR"
+  mv "$GITDIR" "$STAGE_DIR"
 
-  echo "✅ Created: $DEST_DIR/$PRGNAM-$VERSION.tar.lz"
+  tar --lzip -cf "$TARBALL" -C "$ROOT_DIR" "${PRGNAM}-${VERSION}"
+  rm -rf "$STAGE_DIR"
+
+  echo "✅ Created: $TARBALL"
 }
 
 # -------------------------------
@@ -169,6 +181,5 @@ for PRGNAM in "${!EXTRA_REPOS[@]}"; do
   process_repo "$PRGNAM" "${EXTRA_REPOS[$PRGNAM]}"
 done
 
-echo "🎉 All repositories processed. Tarballs available at:"
-echo "   $DEST_DIR"
-
+echo ""
+echo "🎉 All repositories processed. Tarballs available at: $DEST_DIR"
