@@ -17,6 +17,7 @@ mkdir -p "$DEST_DIR"
 # 1. Pantheon Core Components
 # -------------------------------
 declare -A CORE_REPOS=(
+  ["default-settings"]="default-settings"
   ["granite"]="granite"
   ["gala"]="gala"
   ["greeter"]="greeter"
