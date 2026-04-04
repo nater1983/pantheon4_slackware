@@ -108,22 +108,27 @@ process_repo() {
   GITDIR=$(mktemp -dt "$PRGNAM.git.XXXXXX")
   git clone --depth 1 "$GITHUB_BASE_URL/$REPO_NAME.git" "$GITDIR" || {
     echo "❌ Failed to clone $REPO_NAME"
+    rm -rf "$GITDIR"
     return 1
   }
 
-  cd "$GITDIR"
-  git fetch --tags || true
+  # Fetch all tags with depth 1 so shallow clone can resolve them
+  git -C "$GITDIR" fetch --tags --depth 1 --quiet || true
 
   local VERSION
-  VERSION=$(git describe --tags "$(git rev-list --tags --max-count=1)" 2>/dev/null || true)
-  if [ -z "$VERSION" ]; then
-    VERSION=$(git log --date=format:%Y%m%d --pretty=format:%cd.%h -n1)
+  local latest_tag
+  # Sort tags semantically descending, take the top one
+  latest_tag=$(git -C "$GITDIR" tag --sort=-version:refname | head -n1)
+
+  if [ -n "$latest_tag" ]; then
+    VERSION=$(echo "$latest_tag" | sed 's/^v//; s/-/./g')
   else
-    VERSION=$(echo "$VERSION" | sed 's/^v//; s/-/./g')
+    # No tags found — fall back to date.hash
+    VERSION=$(git -C "$GITDIR" log --date=format:%Y%m%d --pretty=format:%cd.%h -n1)
   fi
 
-  # Strip distro suffixes from version name (e.g., .debian, .ubuntu, .fedora, etc.)
-  VERSION=$(echo "$VERSION" | sed -E 's/(\.debian|\.ubuntu|\.fedora|\.arch|\.opensuse)//g')
+  # Strip known distro suffixes
+  VERSION=$(echo "$VERSION" | sed -E 's/\.(debian|ubuntu|fedora|arch|opensuse)//g')
 
   local _commit
   _commit=$(git rev-parse HEAD)
