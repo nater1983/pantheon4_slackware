@@ -10,6 +10,18 @@ index 1520965..f6e875d 100644
  wingpanel_dep = dependency('wingpanel')
  wingpanel_indicatorsdir = wingpanel_dep.get_pkgconfig_variable('indicatorsdir', define_variable: ['libdir', libdir])
  wl_client_dep = dependency('wayland-client')
+diff --git a/src/meson.build b/src/meson.build
+index 1520965..f6e875d 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -43,7 +43,6 @@
+         gtk_dep,
+         handy_dep,
+         wingpanel_dep,
+-        packagekit_dep,
+         pantheon_desktop_shell_dep,
+         portal_dep,
+         wl_client_dep,
 diff --git a/src/Widgets/EndSessionDialog.vala b/src/Widgets/EndSessionDialog.vala
 index c4c7173..a1397f2 100644
 --- a/src/Widgets/EndSessionDialog.vala
