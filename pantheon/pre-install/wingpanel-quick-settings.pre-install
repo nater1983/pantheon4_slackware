@@ -1,0 +1,1 @@
+sed -i "s/dependency('wingpanel-9')/dependency('wingpanel')/" meson.build
