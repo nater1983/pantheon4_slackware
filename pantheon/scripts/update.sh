@@ -19,6 +19,7 @@ mkdir -p "$DEST_DIR"
 declare -A CORE_REPOS=(
   ["granite"]="granite"
   ["gala"]="gala"
+  ["greeter"]="greeter"
   ["pantheon-shell"]="session-settings"
   ["dock"]="dock"
   ["sideload"]="sideload"
