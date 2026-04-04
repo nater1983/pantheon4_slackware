@@ -24,6 +24,7 @@ declare -A CORE_REPOS=(
   ["dock"]="dock"
   ["sideload"]="sideload"
   ["pantheon-wayland"]="pantheon-wayland"
+  ["portals"]="portals" 
   ["switchboard"]="switchboard"
   ["session-settings"]="session-settings"
   ["settings-applications"]="settings-applications"
