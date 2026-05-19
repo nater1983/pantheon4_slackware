@@ -1,29 +1,20 @@
-diff '--color=auto' -Naur quick-settings-1.3.0_orig/meson.build quick-settings-1.3.0/meson.build
---- quick-settings-1.3.0_orig/meson.build	2025-09-15 21:19:31.698260212 +0200
-+++ quick-settings-1.3.0/meson.build	2025-09-15 21:20:04.159796648 +0200
-@@ -20,7 +20,6 @@
- granite_dep = dependency('granite', version: '>=6.0.0')
- gtk_dep = dependency('gtk+-3.0')
- handy_dep = dependency('libhandy-1', version: '>=1.0')
+diff --git a/meson.build b/meson.build
+index 1520965..f6e875d 100644
+--- a/meson.build
++++ b/meson.build
+@@ -19,7 +19,6 @@ granite_dep = dependency('granite-7', version: '>=7.7.0')
+ gtk_dep = dependency('gtk4')
+ gtk_wayland_dep = dependency('gtk4-wayland')
+ handy_dep = dependency('libadwaita-1', version: '>=1.0')
 -packagekit_dep = dependency('packagekit-glib2')
- wingpanel_dep = dependency('wingpanel')
+ wingpanel_dep = dependency('wingpanel-9')
  wingpanel_indicatorsdir = wingpanel_dep.get_pkgconfig_variable('indicatorsdir', define_variable: ['libdir', libdir])
  wl_client_dep = dependency('wayland-client')
-diff '--color=auto' -Naur quick-settings-1.3.0_orig/src/meson.build quick-settings-1.3.0/src/meson.build
---- quick-settings-1.3.0_orig/src/meson.build	2025-09-15 21:19:31.704927413 +0200
-+++ quick-settings-1.3.0/src/meson.build	2025-09-15 21:20:04.159796648 +0200
-@@ -43,7 +43,6 @@
-         gtk_dep,
-         handy_dep,
-         wingpanel_dep,
--        packagekit_dep,
-         pantheon_desktop_shell_dep,
-         portal_dep,
-         wl_client_dep,
-diff '--color=auto' -Naur quick-settings-1.3.0_orig/src/Widgets/EndSessionDialog.vala quick-settings-1.3.0/src/Widgets/EndSessionDialog.vala
---- quick-settings-1.3.0_orig/src/Widgets/EndSessionDialog.vala	2025-09-15 21:19:31.704927413 +0200
-+++ quick-settings-1.3.0/src/Widgets/EndSessionDialog.vala	2025-09-15 21:20:49.120385552 +0200
-@@ -62,7 +62,6 @@
+diff --git a/src/Widgets/EndSessionDialog.vala b/src/Widgets/EndSessionDialog.vala
+index c4c7173..45a422a 100644
+--- a/src/Widgets/EndSessionDialog.vala
++++ b/src/Widgets/EndSessionDialog.vala
+@@ -57,7 +57,6 @@ public class QuickSettings.EndSessionDialog : Granite.MessageDialog {
          if (dialog_type == EndSessionDialogType.RESTART) {
              var confirm_restart = (Gtk.Button) add_button (_("Restart"), 1);
              confirm_restart.clicked.connect (() => {
@@ -31,9 +22,9 @@ diff '--color=auto' -Naur quick-settings-1.3.0_orig/src/Widgets/EndSessionDialog
                  reboot ();
                  destroy ();
              });
-@@ -73,25 +72,6 @@
+@@ -68,24 +67,6 @@ public class QuickSettings.EndSessionDialog : Granite.MessageDialog {
          var confirm = (Gtk.Button) add_button (button_text, Gtk.ResponseType.ACCEPT);
-         confirm.get_style_context ().add_class (Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
+         confirm.add_css_class (Granite.CssClass.DESTRUCTIVE);
  
 -        if (dialog_type != LOGOUT) {
 -            bool has_prepared_updates = false;
@@ -48,30 +39,28 @@ diff '--color=auto' -Naur quick-settings-1.3.0_orig/src/Widgets/EndSessionDialog
 -                    active = true,
 -                    label = _("Install pending system updates"),
 -                };
--                updates_check_button.show ();
 -
--                custom_bin.add (updates_check_button);
+-                custom_bin.append (updates_check_button);
 -            }
 -        }
 -
          cancel.grab_focus ();
  
          var cancel_action = new SimpleAction ("cancel", null);
-@@ -113,11 +93,7 @@
+@@ -109,11 +90,7 @@ public class QuickSettings.EndSessionDialog : Granite.MessageDialog {
  
          confirm.clicked.connect (() => {
              if (dialog_type == EndSessionDialogType.RESTART || dialog_type == EndSessionDialogType.SHUTDOWN) {
 -                if (set_offline_trigger (POWER_OFF)) {
 -                    reboot ();
 -                } else {
--                    shutdown ();
+                     shutdown ();
 -                }
-+                shutdown ();
              } else {
                  logout ();
              }
-@@ -128,31 +104,6 @@
-         realize.connect (() => Idle.add_once (() => init_wl ()));
+@@ -124,31 +101,6 @@ public class QuickSettings.EndSessionDialog : Granite.MessageDialog {
+         ((Gtk.Widget) this).realize.connect (() => Idle.add_once (() => init_wl ()));
      }
  
 -    private bool set_offline_trigger (Pk.OfflineAction action) {
@@ -101,4 +90,16 @@ diff '--color=auto' -Naur quick-settings-1.3.0_orig/src/Widgets/EndSessionDialog
 -
      public void registry_handle_global (Wl.Registry wl_registry, uint32 name, string @interface, uint32 version) {
          if (@interface == "io_elementary_pantheon_shell_v1") {
-             var desktop_shell = wl_registry.bind<Pantheon.Desktop.Shell> (name, ref Pantheon.Desktop.Shell.iface, uint32.min (version, 1));
+             var desktop_shell = wl_registry.bind<PantheonDesktop.Shell> (name, ref PantheonDesktop.Shell.iface, uint32.min (version, 1));
+diff --git a/src/meson.build b/src/meson.build
+index 8979761..ece2cbe 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -43,7 +43,6 @@ shared_module(
+         gtk_wayland_dep,
+         handy_dep,
+         wingpanel_dep,
+-        packagekit_dep,
+         pantheon_desktop_shell_dep,
+         portal_dep,
+         wl_client_dep,
