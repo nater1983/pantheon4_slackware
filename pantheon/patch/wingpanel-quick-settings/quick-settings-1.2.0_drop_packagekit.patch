@@ -1,7 +1,6 @@
-diff --git a/meson.build b/meson.build
-index 1520965..f6e875d 100644
---- a/meson.build
-+++ b/meson.build
+diff '--color=auto' -Naur quick-settings-1.3.0_orig/meson.build quick-settings-1.3.0/meson.build
+--- quick-settings-1.3.0_orig/meson.build	2025-09-15 21:19:31.698260212 +0200
++++ quick-settings-1.3.0/meson.build	2025-09-15 21:20:04.159796648 +0200
 @@ -20,7 +20,6 @@
  granite_dep = dependency('granite', version: '>=6.0.0')
  gtk_dep = dependency('gtk+-3.0')
@@ -10,10 +9,9 @@ index 1520965..f6e875d 100644
  wingpanel_dep = dependency('wingpanel')
  wingpanel_indicatorsdir = wingpanel_dep.get_pkgconfig_variable('indicatorsdir', define_variable: ['libdir', libdir])
  wl_client_dep = dependency('wayland-client')
-diff --git a/src/meson.build b/src/meson.build
-index 1520965..f6e875d 100644
---- a/src/meson.build
-+++ b/src/meson.build
+diff '--color=auto' -Naur quick-settings-1.3.0_orig/src/meson.build quick-settings-1.3.0/src/meson.build
+--- quick-settings-1.3.0_orig/src/meson.build	2025-09-15 21:19:31.704927413 +0200
++++ quick-settings-1.3.0/src/meson.build	2025-09-15 21:20:04.159796648 +0200
 @@ -43,7 +43,6 @@
          gtk_dep,
          handy_dep,
@@ -22,10 +20,9 @@ index 1520965..f6e875d 100644
          pantheon_desktop_shell_dep,
          portal_dep,
          wl_client_dep,
-diff --git a/src/Widgets/EndSessionDialog.vala b/src/Widgets/EndSessionDialog.vala
-index c4c7173..a1397f2 100644
---- a/src/Widgets/EndSessionDialog.vala
-+++ b/src/Widgets/EndSessionDialog.vala
+diff '--color=auto' -Naur quick-settings-1.3.0_orig/src/Widgets/EndSessionDialog.vala quick-settings-1.3.0/src/Widgets/EndSessionDialog.vala
+--- quick-settings-1.3.0_orig/src/Widgets/EndSessionDialog.vala	2025-09-15 21:19:31.704927413 +0200
++++ quick-settings-1.3.0/src/Widgets/EndSessionDialog.vala	2025-09-15 21:20:49.120385552 +0200
 @@ -62,7 +62,6 @@
          if (dialog_type == EndSessionDialogType.RESTART) {
              var confirm_restart = (Gtk.Button) add_button (_("Restart"), 1);
