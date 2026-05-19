@@ -1,4 +1,4 @@
-sed -i "s/dependency('gexiv2')/dependency('gexiv2-0.16')/" meson.build
+sed -i "s/dependency('gexiv2')/dependency('gexiv2-0.16')/" src/meson.build
 
 mkdir -p build
 cd build
