@@ -1,1 +1,2 @@
-patch -Np1 -i $CWD/patch/wingpanel-quick-settings/quick-settings-1.4.0_drop_packagekit.patch || { touch ${SLACK_PANTHEON_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+patch -Np1 -i $CWD/patch/wingpanel-quick-settings/quick-settings-1.3.0_drop_packagekit.patch || { touch ${SLACK_PANTHEON_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+#patch -Np1 -i $CWD/patch/wingpanel-quick-settings/quick-settings-1.4.0_drop_packagekit.patch || { touch ${SLACK_PANTHEON_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
