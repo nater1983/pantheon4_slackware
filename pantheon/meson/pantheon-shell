@@ -6,8 +6,8 @@ cd build
     "${PANTHEON_BUILD_ARGS[@]}" \
     $PANTHEON_OPT_ARGS \
     -Dsystemd=false \
-		-Dwayland=true \
-		-Dx11=true
+	-Dwayland=true \
+	-Dx11=true
   "${NINJA:=ninja}"
   DESTDIR=$PKG $NINJA install
 cd ..
