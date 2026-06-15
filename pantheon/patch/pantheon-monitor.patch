@@ -1,1 +1,1 @@
-patch -Np1 -i $CWD/patch/pantheon-monitor/1.patch
+patch -Np1 -i $CWD/patch/pantheon-monitor/monitor-8.0.1-add-nvidia-feature.patch
