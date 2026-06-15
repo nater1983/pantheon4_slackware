@@ -1,1 +1,1 @@
-patch -Np1 -i $CWD/patch/pantheon-monitor/monitor-8.0.1-add-nvidia-feature.patch
+patch -Np1 -i $CWD/patch/pantheon-monitor/monitor-8.0.1-add-nvidia-feature.patch || { touch ${SLACK_PANTHEON_BUILD_DIR}/${PKGNAME}.failed ; continue ; }

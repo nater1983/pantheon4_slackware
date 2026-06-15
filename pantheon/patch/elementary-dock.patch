@@ -1,2 +1,2 @@
-patch -Np1 -i $CWD/patch/elementary-dock/find_custom.patch
-#patch -Np1 -i $CWD/patch/elementary-dock/systemd.patch
+patch -Np1 -i $CWD/patch/elementary-dock/find_custom.patch || { touch ${SLACK_PANTHEON_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
+#patch -Np1 -i $CWD/patch/elementary-dock/systemd.patch || { touch ${SLACK_PANTHEON_BUILD_DIR}/${PKGNAME}.failed ; continue ; }
