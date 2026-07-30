@@ -1,2 +1,1 @@
 sed -i "s/gala_dep = dependency('gala', version: '>= 8\.3\.0')/gala_dep = dependency('gala')/" wingpanel-interface/meson.build
-sed -i 's/wm\.push_modal *(stage, *true)/wm.push_modal(stage)/' wingpanel-interface/FocusManager.vala
